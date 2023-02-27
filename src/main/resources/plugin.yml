@@ -1,4 +1,4 @@
-name: Hectus Block Battles
+name: Hectus-Block-Battles
 version: '${version}'
 main: net.hectus.hectusblockbattles.HectusBlockBattles
 api-version: 1.19
