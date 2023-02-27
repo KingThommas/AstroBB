@@ -1,4 +1,4 @@
-package net.hectus.hectusblockbattles.hub;
+package net.hectus.hectusblockbattles.Hub;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
