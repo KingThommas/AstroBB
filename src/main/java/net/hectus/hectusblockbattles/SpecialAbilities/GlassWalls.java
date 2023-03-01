@@ -3,13 +3,13 @@ package net.hectus.hectusblockbattles.SpecialAbilities;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-public class GlassWalls {
+public class GlassWalls{
     int currentX;
     int currentY;
     int currentZ;
     int step;
     // same as pumpkin wall
-    public Material didPlayerContinuePlacing(int x, int y, int z, Material blockType) {
+    public Material didPlayerContinuePlacingGlass(int x, int y, int z, Material blockType) {
         if(blockType == Material.GLASS || blockType.name().startsWith("STAINED_GLASS")) {
             if(y == currentY + (step % 2 == 0 ? 0 : 1) && ( x == currentX + ( step % 2 == 1 ? 1 : 0 ) ^ z == currentZ + ( step % 2 == 0 ? 1 : 0 ) ^ x == currentX + ( step % 2 == 1 ? -1 : 0 ) ^ z == currentZ + ( step % 2 == 0 ? -1 : 0 ) ) ) {
                 step += 1;
@@ -21,7 +21,7 @@ public class GlassWalls {
         }
         return Material.RED_CONCRETE; //player failed
     }
-    public boolean didPlayerStartPlacing(int x, int y, int z, Material blockType) {
+    public boolean didPlayerStartPlacingGlass(int x, int y, int z, Material blockType) {
         if(blockType == Material.GLASS || blockType.name().startsWith("STAINED_GLASS")) {
             currentX = x;
             currentY = y;

@@ -6,7 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MatchData extends JavaPlugin {
+public class MatchData {
 
     private final Map<World, MatchVariables> worldVariables = new HashMap<>();
 

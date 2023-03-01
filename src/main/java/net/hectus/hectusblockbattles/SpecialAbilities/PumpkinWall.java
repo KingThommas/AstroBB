@@ -2,17 +2,19 @@ package net.hectus.hectusblockbattles.SpecialAbilities;
 
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Player;
 
 //probably will need a lot of imports of classes
 //test this
-public class PumpkinWall {
+public class PumpkinWall{
     int currentX;
     int currentY;
     int currentZ;
     int step;
     // if returns 0 player misplaced a block and should lose, if returns 1 continue to run this function, if returns 2 player ended placing the pumpkin wall
-    public int didPlayerContinuePlacing(int x, int y, int z, Material blockType, boolean facingCenter, Player player) {
+    public int didPlayerContinuePlacingPumpkin(int x, int y, int z, Material blockType, boolean facingCenter, Player player) {
         if(blockType == Material.CARVED_PUMPKIN && player.getLocation().getYaw() > 50 && player.getLocation().getYaw() < 140) {
             if(y == currentY + (step%2 == 0?0:1) && x == currentX && z == currentZ + (step%2 == 0?-1:0) && facingCenter) {
                 step += 1;
@@ -26,8 +28,9 @@ public class PumpkinWall {
         return 0;
     }
     //activate when player places a block on their turn, if returns true then don't go to the opponents turn, instead every time the player places a block run the function above to check if the player successfully placed the wall
-    public boolean didPlayerStartPlacing(int x, int y, int z, Material blockType, boolean facingCenter, Player player) {
-        if(blockType == Material.CARVED_PUMPKIN && facingCenter && player.getLocation().getYaw() > 50 && player.getLocation().getYaw() < 140) {
+    public boolean didPlayerStartPlacingPumpkin(int x, int y, int z, Material blockType, boolean facingCenter, Player player) {
+        Directional blockDirectional = (Directional) player.getWorld().getBlockAt(x,y,z).getBlockData();
+        if(blockType == Material.CARVED_PUMPKIN && facingCenter && blockDirectional.getFacing() == BlockFace.EAST) {
             currentX = x;
             currentY = y;
             currentZ = z;
