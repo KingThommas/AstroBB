@@ -39,7 +39,7 @@ public class PumpkinWall{
         }
         return false;
     }
-    public void onNight(World world) {
+    public void onNight(World world) { //no work!!!! change the starting positions
         for (int i = 0; i < 48; i++) {
             for (int j = 0; j < 48; j++) {
                 for (int k = 0; k < 48; k++) {

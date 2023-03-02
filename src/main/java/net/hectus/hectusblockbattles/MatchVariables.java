@@ -1,8 +1,11 @@
 package net.hectus.hectusblockbattles;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 public class MatchVariables {
+    private Material lastBlock;
+    private double gameScore = 0;
     private Player[] players = {,};
     private boolean turn = false;
     private int blocksPlaced = 0;
@@ -11,6 +14,10 @@ public class MatchVariables {
 
     public Player getPlayerFromTurn() {
         return players[turn?1:0];
+    }
+
+    public boolean getCurrentTurnBoolean() {
+        return turn;
     }
 
     public void setPlayers(Player p1, Player p2) {
@@ -36,5 +43,21 @@ public class MatchVariables {
 
     public int getCurrentTurnLuckBoost() {
         return luckBoosts[turn?1:0];
+    }
+
+    public double getGameScore() {
+        return gameScore;
+    }
+
+    public void setGameScore(double d) {
+        gameScore = d;
+    }
+
+    public void setLastBlock(Material material) {
+        lastBlock = material;
+    }
+
+    public Material getLastBlock() {
+        return lastBlock;
     }
 }
