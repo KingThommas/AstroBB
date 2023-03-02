@@ -9,7 +9,7 @@ public class MatchVariables {
     private Player[] players = {,};
     private boolean turn = false;
     private int blocksPlaced = 0;
-    private int[] luckBoosts = {1,1};
+    private double[] luckBoosts = {1,1};
     private boolean turnJustStarted = true; //true = turn just started and waiting for the player to place something, false = the player is building a structure that needs more than one block like walls or warps
 
     public Player getPlayerFromTurn() {
@@ -37,12 +37,12 @@ public class MatchVariables {
         turnJustStarted = b;
     }
 
-    public void setCurrentTurnLuckBoost(int boost) {
-        luckBoosts[turn?1:0] = boost;
+    public void setLuckBoost(boolean player, double boost) {
+        luckBoosts[player?1:0] = boost;
     }
 
-    public int getCurrentTurnLuckBoost() {
-        return luckBoosts[turn?1:0];
+    public double getLuckBoost(boolean player) {
+        return luckBoosts[player?1:0];
     }
 
     public double getGameScore() {
