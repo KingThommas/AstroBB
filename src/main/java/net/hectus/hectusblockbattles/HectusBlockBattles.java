@@ -2,6 +2,7 @@ package net.hectus.hectusblockbattles;
 
 import net.hectus.hectusblockbattles.SpecialAbilities.GlassWalls;
 import net.hectus.hectusblockbattles.SpecialAbilities.PumpkinWall;
+import net.hectus.hectusblockbattles.SpecialAbilities.Warps;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -23,8 +24,9 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
     public boolean matchCheck(int x, int y, int z, World world, Material material, Player player) { //VERY NOT FINISHED!!!
         MatchVariables MV = MD.getVariables(world);
         boolean tjs = MV.didTurnJustStarted();
-        PumpkinWall PW = new PumpkinWall();
-        GlassWalls GW = new GlassWalls();
+        PumpkinWall PW = MV.getPumpkinWall();
+        GlassWalls GW = MV.getGlassWalls();
+        Warps warps = MV.getWarps();
         if (material == Material.CARVED_PUMPKIN) {
             if (tjs && PW.didPlayerStartPlacingPumpkin(x, y, z, material, true, player)) {
                 return true;

@@ -1,9 +1,15 @@
 package net.hectus.hectusblockbattles;
 
+import net.hectus.hectusblockbattles.SpecialAbilities.GlassWalls;
+import net.hectus.hectusblockbattles.SpecialAbilities.PumpkinWall;
+import net.hectus.hectusblockbattles.SpecialAbilities.Warps;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 public class MatchVariables {
+    private PumpkinWall PW = new PumpkinWall();
+    private Warps warps = new Warps();
+    private GlassWalls GW = new GlassWalls();
     private Material lastBlock;
     private double gameScore = 0;
     private Player[] players = {,};
@@ -11,6 +17,7 @@ public class MatchVariables {
     private int blocksPlaced = 0;
     private double[] luckBoosts = {1,1};
     private boolean turnJustStarted = true; //true = turn just started and waiting for the player to place something, false = the player is building a structure that needs more than one block like walls or warps
+    private String currentWarp = "default";
 
     public Player getPlayerFromTurn() {
         return players[turn?1:0];
@@ -59,5 +66,25 @@ public class MatchVariables {
 
     public Material getLastBlock() {
         return lastBlock;
+    }
+
+    public PumpkinWall getPumpkinWall(){
+        return PW;
+    }
+
+    public GlassWalls getGlassWalls() {
+        return GW;
+    }
+
+    public Warps getWarps() {
+        return warps;
+    }
+
+    public void setCurrentWarp(String s) {
+        currentWarp = s;
+    }
+
+    public String getCurrentWarp() {
+        return currentWarp;
     }
 }

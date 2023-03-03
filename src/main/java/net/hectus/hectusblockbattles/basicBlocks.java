@@ -9,10 +9,35 @@ public class basicBlocks {
                                             Material.WHITE_SHULKER_BOX, Material.SNOW_BLOCK, Material.WHITE_CONCRETE, Material.LIGHT_GRAY_CONCRETE, Material.GRAY_CONCRETE, Material.BLACK_WOOL};
     private final double[] groupPowers = {2.0, 1.0, 1.5, 2.0, 2.5, 3.2,
                                           1.0, 1.5, 2.0, 2.5, 0.0, 0.0,
-                                          2.7, 1.4, 1.9, 2.4, 2.9, 0.0,
-                                          2.2, 1.5, 1.8, 2.2, 2.7, 3,2};
-    private final int[] groupCounters = {1,-1,-1,-1,0,-1,-1,-1}; //first 4 decide the counters of the first group the next 4 decide the counters of the second group etc.
-    public double calculateGameScore(double currentGameScore, Material material, Material lastBlock) {
-        return 0;
+                                          2.5, 1.5, 2.0, 2.5, 3.0, 0.0,
+                                          2.0, 1.0, 1.5, 2.0, 2.5, 3,2};
+    private final int[] groupCounters = {1,-1,-1,-1,
+                                         0,-1,-1,-1,
+                                         -1,-1,-1,-1,
+                                         -1,-1,-1,-1}; //first 4 decide the counters of the first group the next 4 decide the counters of the second group etc.
+    public double calculateGameScore(double currentGameScore, Material material, Material lastBlock, boolean turn) {
+        double power = -1;
+        int group = -1;
+        int counterGroup = -1;
+        boolean canCounter = false;
+        for (int i = 0; i < groupBlocks.length; i++) {
+            if(groupBlocks[i]==material) {
+                power = groupPowers[i];
+                group = (int) Math.floor((i+1)/6);
+            }
+            if(groupBlocks[i]==lastBlock) {
+                counterGroup = (int) Math.floor((i+1)/6);
+            }
+        }
+        for (int i = group*4; i<group*4+4; i++) {
+            if (groupCounters[i]==counterGroup) {
+                canCounter = true;
+            }
+        }
+        boolean isCurrentPlayerLosing = (currentGameScore > 0 ? 1 : -1) != (turn ? 1 : -1);
+        if(canCounter) {
+            return currentGameScore + power - (isCurrentPlayerLosing ? currentGameScore / 4 : 0);
+        }
+        return isCurrentPlayerLosing ? currentGameScore * 1.5 : currentGameScore;
     }
 }
