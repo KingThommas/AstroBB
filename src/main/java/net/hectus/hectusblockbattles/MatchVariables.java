@@ -31,8 +31,15 @@ public class MatchVariables {
         this.players = new Player[]{p1, p2};
     }
 
-    public void nextPlayer() {
-        turn = !turn;
+    public void setTurn(boolean b) {
+        turn = b;
+    }
+
+    public boolean getTurn() {
+        return turn;
+    }
+
+    public void increaseBlocksPlaced() {
         blocksPlaced++;
     }
 
