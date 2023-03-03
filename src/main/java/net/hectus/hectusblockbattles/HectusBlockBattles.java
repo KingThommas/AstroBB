@@ -27,15 +27,17 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
         PumpkinWall PW = MV.getPumpkinWall();
         GlassWalls GW = MV.getGlassWalls();
         Warps warps = MV.getWarps();
+        boolean currentPlayer = MV.getCurrentTurnBoolean();
         if (material == Material.CARVED_PUMPKIN) {
             if (tjs && PW.didPlayerStartPlacingPumpkin(x, y, z, material, true, player)) {
+                MV.setTurnJustStarted(false);
                 return true;
             } else if (!tjs) {
                 int result = PW.didPlayerContinuePlacingPumpkin(x, y, z, material, true, player);
                 if (result == 1) {
                     return true;
                 } else if (result == 2) {
-                    // do things after player placed a pumpkin wall maybe a luck boost setting to night is already done in the class
+                    MV.setLuckBoost(currentPlayer, MV.getLuckBoost(currentPlayer)+(MV.getLuckBoost(currentPlayer)*0.3));
                     return true;
                 }
             }

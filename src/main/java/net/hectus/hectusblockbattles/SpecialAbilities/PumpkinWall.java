@@ -18,7 +18,7 @@ public class PumpkinWall{
         if(blockType == Material.CARVED_PUMPKIN && player.getLocation().getYaw() > 50 && player.getLocation().getYaw() < 140) {
             if(y == currentY + (step%2 == 0?0:1) && x == currentX && z == currentZ + (step%2 == 0?-1:0) && facingCenter) {
                 step += 1;
-                if(step == 12) {
+                if(step == 14) {
                     onNight(player.getWorld());
                     return 2;
                 }
@@ -39,10 +39,10 @@ public class PumpkinWall{
         }
         return false;
     }
-    public void onNight(World world) { //no work!!!! change the starting positions
-        for (int i = 0; i < 48; i++) {
-            for (int j = 0; j < 48; j++) {
-                for (int k = 0; k < 48; k++) {
+    public void onNight(World world) {
+        for (int i = -48; i < 48; i++) {
+            for (int j = -48; j < 48; j++) {
+                for (int k = -48; k < 48; k++) {
                     if(world.getBlockAt(i, j, k).getType() == Material.LIGHT_BLUE_CONCRETE) {
                         world.getBlockAt(i, j, k).setType(Material.BLACK_CONCRETE);
                     }
@@ -55,5 +55,6 @@ public class PumpkinWall{
                 }
             }
         }
+        world.setTime(23000);
     }
 }
