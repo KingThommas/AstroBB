@@ -19,6 +19,10 @@ public class MatchData {
         return variables;
     }
 
+    public void setVariables(MatchVariables MV, World world) {
+        worldVariables.put(world, MV);
+    }
+
     public void initializeWorldVariables(World world) {
         worldVariables.put(world, new MatchVariables());
     }
