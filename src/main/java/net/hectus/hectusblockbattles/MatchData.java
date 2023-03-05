@@ -1,10 +1,10 @@
 package net.hectus.hectusblockbattles;
 
 import org.bukkit.World;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
+import net.hectus.hectusblockbattles.MatchVariables;
 
 public class MatchData {
 

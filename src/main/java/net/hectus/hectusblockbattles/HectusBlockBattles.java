@@ -3,6 +3,7 @@ package net.hectus.hectusblockbattles;
 import net.hectus.hectusblockbattles.SpecialAbilities.GlassWalls;
 import net.hectus.hectusblockbattles.SpecialAbilities.PumpkinWall;
 import net.hectus.hectusblockbattles.SpecialAbilities.Warps;
+import net.hectus.hectusblockbattles.MatchData;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -40,7 +41,7 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
                 if (result == 1) {
                     return true;
                 } else if (result == 2) {
-                    MV.setLuckBoost(currentPlayer, MV.getLuckBoost(currentPlayer)+(MV.getLuckBoost(currentPlayer)*0.3));
+                    MV.setLuckBoost(currentPlayer, MV.getLuckBoost(currentPlayer)+(MV.getLuckBoost(currentPlayer)*0.2));
                     return true;
                 }
             }

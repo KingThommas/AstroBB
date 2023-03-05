@@ -6,6 +6,8 @@ import net.hectus.hectusblockbattles.SpecialAbilities.Warps;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import java.util.Objects;
+
 public class MatchVariables {
     private PumpkinWall PW = new PumpkinWall();
     private Warps warps = new Warps();
@@ -18,7 +20,7 @@ public class MatchVariables {
     private double[] luckBoosts = {1,1};
     private boolean turnJustStarted = true; //true = turn just started and waiting for the player to place something, false = the player is building a structure that needs more than one block like walls or warps
     private String currentWarp = "default";
-
+    private boolean night = false;
     public Player getPlayerFromTurn() {
         return players[turn?1:0];
     }
@@ -89,9 +91,20 @@ public class MatchVariables {
 
     public void setCurrentWarp(String s) {
         currentWarp = s;
+        if (Objects.equals(s, "nether") || Objects.equals(s, "geode") || Objects.equals(s, "cave")) {
+            night = false;
+        }
     }
 
     public String getCurrentWarp() {
         return currentWarp;
+    }
+
+    public boolean getNight() {
+        return night;
+    }
+
+    public void setNight(boolean b) {
+        night = b;
     }
 }
