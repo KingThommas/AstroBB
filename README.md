@@ -1,3 +1,4 @@
 # Hectus-Block-Battles
 Hectus Block Battle Plugin
-I don't know lol
+
+This is the official Plugin for the Block Battles gamemode on the Hectus Network!
