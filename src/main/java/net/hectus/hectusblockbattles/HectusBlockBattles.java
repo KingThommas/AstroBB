@@ -4,6 +4,7 @@ import net.hectus.hectusblockbattles.SpecialAbilities.GlassWalls;
 import net.hectus.hectusblockbattles.SpecialAbilities.PumpkinWall;
 import net.hectus.hectusblockbattles.SpecialAbilities.Warps;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -12,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Arrays;
@@ -39,6 +41,20 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
     }
 
     @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
+        Location playerLoc = player.getLocation();
+        int x = playerLoc.getBlockX();
+        int z = playerLoc.getBlockZ();
+        MatchVariables MV = MD.getVariables(player.getWorld());
+        if (Objects.equals(PM.getPlayerMode(player), "blockbattles")) {
+            if (9 >= x && x >= 0 && 9 >= z && z >= 0) {
+                matchEnd(MV.getPlayer(!MV.getTurnFromPlayer(player)), player);
+            }
+        }
+    }
+
+    @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         World world = player.getWorld();
@@ -47,23 +63,24 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
         int x = block.getX();
         int y = block.getY();
         int z = block.getZ();
-        MatchVariables worldVars = MD.getVariables(world);
-        Material lastBlock = worldVars.getLastBlock();
-        boolean turn = worldVars.getTurn();
+        MatchVariables MV = MD.getVariables(world);
+        Material lastBlock = MV.getLastBlock();
+        boolean turn = MV.getTurn();
         if(Objects.equals(PM.getPlayerMode(player), "blockbattles")) {
-            if(worldVars.getPlayerFromTurn()==player
+            if(MV.getCurrentTurnPlayer()==player
             && matchCheck(x, y, z, world, material, player)
-            && BB.blockCheck(material, worldVars.getCurrentWarp(), worldVars.getNight())) {
-                double gameScore = BB.calculateGameScore(worldVars.getGameScore(), material, lastBlock, turn, worldVars.getBlockBoosts());
-                worldVars.setGameScore(gameScore);
-                MD.setVariables(worldVars, world);
+            && BB.blockCheck(material, MV.getCurrentWarp(), MV.getNight())
+            && 9 >= x && x >= 0 && 9 >= z && z >= 0) {
+                double gameScore = BB.calculateGameScore(MV.getGameScore(), material, lastBlock, turn, MV.getBlockBoosts());
+                MV.setGameScore(gameScore);
+                MD.setVariables(MV, world);
                 if(gameScore > 5) {
-                    matchEnd(worldVars.getPlayer(true), worldVars.getPlayer(false));
+                    matchEnd(MV.getPlayer(true), MV.getPlayer(false));
                 } else if (gameScore < -5) {
-                    matchEnd(worldVars.getPlayer(false), worldVars.getPlayer(true));
+                    matchEnd(MV.getPlayer(false), MV.getPlayer(true));
                 }
             } else {
-                matchEnd(worldVars.getPlayer(!turn), worldVars.getPlayer(turn));
+                matchEnd(MV.getPlayer(!turn), MV.getPlayer(turn));
             }
         }
     }
@@ -79,9 +96,9 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
         PumpkinWall PW = MV.getPumpkinWall();
         GlassWalls GW = MV.getGlassWalls();
         Warps warps = MV.getWarps();
-        boolean currentPlayer = MV.getCurrentTurnBoolean();
+        boolean turn = MV.getCurrentTurnBoolean();
         if (material == Material.CARVED_PUMPKIN) {
-            if (tjs && PW.didPlayerStartPlacingPumpkin(x, y, z, material, true, player)) {
+            if (tjs && PW.didPlayerStartPlacingPumpkin(x, y, z, material, player)) {
                 MV.setTurnJustStarted(false);
                 return true;
             } else if (!tjs) {
@@ -89,7 +106,7 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
                 if (result == 1) {
                     return true;
                 } else if (result == 2) {
-                    MV.setLuckBoost(currentPlayer, MV.getLuckBoost(currentPlayer)+(MV.getLuckBoost(currentPlayer)*0.2));
+                    MV.setLuckBoost(turn, MV.getLuckBoost(turn)+(MV.getLuckBoost(turn)*0.2));
                     MV.setNight(true);
                     MD.setVariables(MV, world);
                     return true;
@@ -103,7 +120,12 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
                 if (result == Material.WHITE_CONCRETE) {
                     return true;
                 } else if (result != Material.RED_CONCRETE) {
-                    // do things after a glass wall is placed
+                    if(result == Material.GREEN_STAINED_GLASS) {
+                        MV.setLuckBoost(turn, MV.getLuckBoost(turn)*0.15);
+                    } else if (result == Material.RED_STAINED_GLASS) {
+                        MV.setLuckBoost(!turn, MV.getLuckBoost(!turn) - (MV.getLuckBoost(!turn) * 0.1));
+                    }
+                    MD.setVariables(MV, world);
                     return true;
                 }
             }

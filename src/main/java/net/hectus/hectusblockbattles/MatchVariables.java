@@ -23,7 +23,7 @@ public class MatchVariables {
     private boolean turnJustStarted = true; //true = turn just started and waiting for the player to place something, false = the player is building a structure that needs more than one block like walls or warps
     private String currentWarp = "default";
     private boolean night = false;
-    public Player getPlayerFromTurn() {
+    public Player getCurrentTurnPlayer() {
         return players[turn?1:0];
     }
 
@@ -37,6 +37,10 @@ public class MatchVariables {
 
     public Player getPlayer(boolean b) {
         return players[b?1:0];
+    }
+
+    public boolean getTurnFromPlayer(Player player) {
+        return players[1]==player;
     }
 
     public void setTurn(boolean b) {

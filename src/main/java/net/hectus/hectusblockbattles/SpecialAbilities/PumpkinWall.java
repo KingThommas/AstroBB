@@ -28,9 +28,9 @@ public class PumpkinWall{
         return 0;
     }
     //activate when player places a block on their turn, if returns true then don't go to the opponents turn, instead every time the player places a block run the function above to check if the player successfully placed the wall
-    public boolean didPlayerStartPlacingPumpkin(int x, int y, int z, Material blockType, boolean facingCenter, Player player) {
+    public boolean didPlayerStartPlacingPumpkin(int x, int y, int z, Material blockType, Player player) {
         Directional blockDirectional = (Directional) player.getWorld().getBlockAt(x,y,z).getBlockData();
-        if(blockType == Material.CARVED_PUMPKIN && facingCenter && blockDirectional.getFacing() == BlockFace.EAST) {
+        if(blockType == Material.CARVED_PUMPKIN && x < 5 && blockDirectional.getFacing() == BlockFace.EAST) {
             currentX = x;
             currentY = y;
             currentZ = z;
