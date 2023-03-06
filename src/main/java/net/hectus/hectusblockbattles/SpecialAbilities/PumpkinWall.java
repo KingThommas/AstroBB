@@ -15,7 +15,7 @@ public class PumpkinWall{
     int step;
     // if returns 0 player misplaced a block and should lose, if returns 1 continue to run this function, if returns 2 player ended placing the pumpkin wall
     public int didPlayerContinuePlacingPumpkin(int x, int y, int z, Material blockType, boolean facingCenter, Player player) {
-        if(blockType == Material.CARVED_PUMPKIN && player.getLocation().getYaw() > 50 && player.getLocation().getYaw() < 140) {
+        if(blockType == Material.CARVED_PUMPKIN) {
             if(y == currentY + (step%2 == 0?0:1) && x == currentX && z == currentZ + (step%2 == 0?-1:0) && facingCenter) {
                 step += 1;
                 if(step == 14) {

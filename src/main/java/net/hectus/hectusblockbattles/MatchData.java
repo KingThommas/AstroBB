@@ -4,7 +4,6 @@ import org.bukkit.World;
 
 import java.util.HashMap;
 import java.util.Map;
-import net.hectus.hectusblockbattles.MatchVariables;
 
 public class MatchData {
 

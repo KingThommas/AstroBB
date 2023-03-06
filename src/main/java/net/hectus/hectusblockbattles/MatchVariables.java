@@ -18,6 +18,8 @@ public class MatchVariables {
     private boolean turn = false;
     private int blocksPlaced = 0;
     private double[] luckBoosts = {1,1};
+
+    private double[] blockBoosts = {-1,-1};
     private boolean turnJustStarted = true; //true = turn just started and waiting for the player to place something, false = the player is building a structure that needs more than one block like walls or warps
     private String currentWarp = "default";
     private boolean night = false;
@@ -31,6 +33,10 @@ public class MatchVariables {
 
     public void setPlayers(Player p1, Player p2) {
         this.players = new Player[]{p1, p2};
+    }
+
+    public Player getPlayer(boolean b) {
+        return players[b?1:0];
     }
 
     public void setTurn(boolean b) {
@@ -106,5 +112,14 @@ public class MatchVariables {
 
     public void setNight(boolean b) {
         night = b;
+    }
+
+    public void setBlockBoosts(double group, double boost) {
+        blockBoosts[0] = group;
+        blockBoosts[1] = boost;
+    }
+
+    public double[] getBlockBoosts() {
+        return blockBoosts;
     }
 }
