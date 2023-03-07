@@ -16,7 +16,6 @@ public class MatchVariables {
     private double gameScore = 0;
     private Player[] players = {,};
     private boolean turn = false;
-    private int blocksPlaced = 0;
     private double[] luckBoosts = {1,1};
 
     private double[] blockBoosts = {-1,-1};
@@ -49,10 +48,6 @@ public class MatchVariables {
 
     public boolean getTurn() {
         return turn;
-    }
-
-    public void increaseBlocksPlaced() {
-        blocksPlaced++;
     }
 
     public boolean didTurnJustStarted() {

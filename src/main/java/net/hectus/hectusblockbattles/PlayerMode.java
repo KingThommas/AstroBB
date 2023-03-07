@@ -1,7 +1,5 @@
 package net.hectus.hectusblockbattles;
 
-import org.bukkit.World;
-
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.entity.Player;

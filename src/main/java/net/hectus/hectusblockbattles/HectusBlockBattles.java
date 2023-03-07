@@ -26,6 +26,7 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         System.out.println("Hectus plugin started.");
+        getServer().getPluginManager().registerEvents(this, this);
     }
 
     @Override
@@ -49,7 +50,7 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
         MatchVariables MV = MD.getVariables(player.getWorld());
         if (Objects.equals(PM.getPlayerMode(player), "blockbattles")) {
             if (9 >= x && x >= 0 && 9 >= z && z >= 0) {
-                matchEnd(MV.getPlayer(!MV.getTurnFromPlayer(player)), player);
+                matchEnd(MV.getPlayer(!MV.getTurnFromPlayer(player)), player, "stepped out of bounds");
             }
         }
     }
@@ -66,26 +67,36 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
         MatchVariables MV = MD.getVariables(world);
         Material lastBlock = MV.getLastBlock();
         boolean turn = MV.getTurn();
+        Player notCurrentTurnPlayer = MV.getPlayer(!turn);
         if(Objects.equals(PM.getPlayerMode(player), "blockbattles")) {
-            if(MV.getCurrentTurnPlayer()==player
-            && matchCheck(x, y, z, world, material, player)
-            && BB.blockCheck(material, MV.getCurrentWarp(), MV.getNight())
-            && 9 >= x && x >= 0 && 9 >= z && z >= 0) {
-                double gameScore = BB.calculateGameScore(MV.getGameScore(), material, lastBlock, turn, MV.getBlockBoosts());
-                MV.setGameScore(gameScore);
-                MD.setVariables(MV, world);
-                if(gameScore > 5) {
-                    matchEnd(MV.getPlayer(true), MV.getPlayer(false));
-                } else if (gameScore < -5) {
-                    matchEnd(MV.getPlayer(false), MV.getPlayer(true));
-                }
-            } else {
-                matchEnd(MV.getPlayer(!turn), MV.getPlayer(turn));
+            if(!(MV.getCurrentTurnPlayer()==player)) {
+                matchEnd(MV.getCurrentTurnPlayer(), player, "placed a block not in their turn");
+                return;
+            }
+            if(!matchCheck(x, y, z, world, material, player)) {
+                matchEnd(notCurrentTurnPlayer, player, "placed a block incorrectly");
+                return;
+            }
+            if (!BB.blockCheck(material, MV.getCurrentWarp(), MV.getNight())) {
+                matchEnd(notCurrentTurnPlayer, player, "placed an illegal block");
+                return;
+            }
+            if (!(9 >= x && x >= 0 && 9 >= z && z >= 0)) {
+                matchEnd(notCurrentTurnPlayer, player, "placed a block out of bounds");
+                return;
+            }
+            double gameScore = BB.calculateGameScore(MV.getGameScore(), material, lastBlock, turn, MV.getBlockBoosts());
+            MV.setGameScore(gameScore);
+            MD.setVariables(MV, world);
+            if(gameScore > 5) {
+                matchEnd(MV.getPlayer(true), MV.getPlayer(false), "got a high score");
+            } else if (gameScore < -5) {
+                matchEnd(MV.getPlayer(false), MV.getPlayer(true), "got a high score");
             }
         }
     }
 
-    public void matchEnd(Player won, Player lost) {
+    public void matchEnd(Player won, Player lost, String cause) {
         PM.setPlayerMode("default", won);
         PM.setPlayerMode("default", lost);
     }
