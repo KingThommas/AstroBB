@@ -111,6 +111,7 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
         GlassWalls GW = MV.getGlassWalls();
         Warps warps = MV.getWarps();
         boolean turn = MV.getCurrentTurnBoolean();
+        MV.setTurn(!MV.getTurn());
         if (material == Material.CARVED_PUMPKIN) {
             if (tjs && PW.didPlayerStartPlacingPumpkin(x, y, z, material, player)) {
                 MV.setTurnJustStarted(false);
@@ -118,6 +119,8 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
             } else if (!tjs) {
                 int result = PW.didPlayerContinuePlacingPumpkin(x, y, z, material, true, player);
                 if (result == 1) {
+                    MV.setTurn(MV.getTurn());
+                    MD.setVariables(MV, world);
                     return true;
                 } else if (result == 2) {
                     MV.setLuckBoost(turn, MV.getLuckBoost(turn)+(MV.getLuckBoost(turn)*0.2));
@@ -132,6 +135,8 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
             } else if (!tjs) {
                 Material result = GW.didPlayerContinuePlacingGlass(x, y, z, material);
                 if (result == Material.WHITE_CONCRETE) {
+                    MV.setTurn(MV.getTurn());
+                    MD.setVariables(MV, world);
                     return true;
                 } else if (result != Material.RED_CONCRETE) {
                     if(result == Material.GREEN_STAINED_GLASS) {
@@ -150,6 +155,8 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
             } else if (!tjs) {
                 Material[] result = warps.didPlayerContinuePlacing(x,y,z,material,player);
                 if (Arrays.equals(result, new Material[]{Material.WHITE_CONCRETE})) {
+                    MV.setTurn(MV.getTurn());
+                    MD.setVariables(MV, world);
                     return true;
                 } else if (!Arrays.equals(result, new Material[]{Material.RED_CONCRETE})) {
                     if (Math.random() < 0.3 * MV.getLuckBoost(MV.getTurn())) {
