@@ -58,18 +58,18 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
-        World world = player.getWorld();
-        Block block = event.getBlock();
-        Material material = block.getType();
-        int x = block.getX();
-        int y = block.getY();
-        int z = block.getZ();
-        MatchVariables MV = MD.getVariables(world);
-        Material lastBlock = MV.getLastBlock();
-        boolean turn = MV.getTurn();
-        Player notCurrentTurnPlayer = MV.getPlayer(!turn);
-        double gameScore = MV.getGameScore();
         if(Objects.equals(PM.getPlayerMode(player), "blockbattles")) {
+            World world = player.getWorld();
+            Block block = event.getBlock();
+            Material material = block.getType();
+            int x = block.getX();
+            int y = block.getY();
+            int z = block.getZ();
+            MatchVariables MV = MD.getVariables(world);
+            Material lastBlock = MV.getLastBlock();
+            boolean turn = MV.getTurn();
+            Player notCurrentTurnPlayer = MV.getPlayer(!turn);
+            double gameScore = MV.getGameScore();
             if (!(MV.getCurrentTurnPlayer() == player)) {
                 matchEnd(MV.getCurrentTurnPlayer(), player, "placed a block not in their turn");
                 return;
