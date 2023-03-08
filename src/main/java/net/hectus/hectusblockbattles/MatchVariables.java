@@ -50,7 +50,7 @@ public class MatchVariables {
         return turn;
     }
 
-    public boolean didTurnJustStarted() {
+    public boolean getTurnJustStarted() {
         return turnJustStarted;
     }
 

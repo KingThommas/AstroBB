@@ -68,12 +68,13 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
         Material lastBlock = MV.getLastBlock();
         boolean turn = MV.getTurn();
         Player notCurrentTurnPlayer = MV.getPlayer(!turn);
+        double gameScore = MV.getGameScore();
         if(Objects.equals(PM.getPlayerMode(player), "blockbattles")) {
-            if(!(MV.getCurrentTurnPlayer()==player)) {
+            if (!(MV.getCurrentTurnPlayer() == player)) {
                 matchEnd(MV.getCurrentTurnPlayer(), player, "placed a block not in their turn");
                 return;
             }
-            if(!matchCheck(x, y, z, world, material, player)) {
+            if (!matchCheck(x, y, z, world, material, player)) {
                 matchEnd(notCurrentTurnPlayer, player, "placed a block incorrectly");
                 return;
             }
@@ -85,10 +86,12 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
                 matchEnd(notCurrentTurnPlayer, player, "placed a block out of bounds");
                 return;
             }
-            double gameScore = BB.calculateGameScore(MV.getGameScore(), material, lastBlock, turn, MV.getBlockBoosts());
+            if (MV.getTurnJustStarted()) {
+                gameScore = BB.calculateGameScore(gameScore, material, lastBlock, turn, MV.getBlockBoosts());
+            }
             MV.setGameScore(gameScore);
             MD.setVariables(MV, world);
-            if(gameScore > 5) {
+            if (gameScore > 5) {
                 matchEnd(MV.getPlayer(true), MV.getPlayer(false), "got a high score");
             } else if (gameScore < -5) {
                 matchEnd(MV.getPlayer(false), MV.getPlayer(true), "got a high score");
@@ -103,7 +106,7 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
 
     public boolean matchCheck(int x, int y, int z, World world, Material material, Player player) { //VERY NOT FINISHED!!!
         MatchVariables MV = MD.getVariables(world);
-        boolean tjs = MV.didTurnJustStarted();
+        boolean tjs = MV.getTurnJustStarted();
         PumpkinWall PW = MV.getPumpkinWall();
         GlassWalls GW = MV.getGlassWalls();
         Warps warps = MV.getWarps();
