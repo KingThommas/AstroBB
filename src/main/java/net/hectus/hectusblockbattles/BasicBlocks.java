@@ -46,7 +46,7 @@ public class BasicBlocks {
         }
         boolean isCurrentPlayerLosing = (currentGameScore > 0 ? 1 : -1) != (turn ? 1 : -1);
         if(canCounter) {
-            return currentGameScore + power - (isCurrentPlayerLosing ? currentGameScore / 4 : 0);
+            return currentGameScore + (power * ( turn?-1:1 )) - (isCurrentPlayerLosing ? -currentGameScore / 4 : 0);
         }
         return isCurrentPlayerLosing ? currentGameScore * 1.5 : currentGameScore;
     }
