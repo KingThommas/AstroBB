@@ -1,0 +1,7 @@
+name: Hectus-Block-Battles
+version: '${version}'
+main: net.hectus.hectusblockbattles.HectusBlockBattles
+api-version: 1.19
+authors: [ MarcPG ]
+description: Plugin for the Block Battles game mode on the Hectus Network
+website: https://hectus.net/blockbattles
