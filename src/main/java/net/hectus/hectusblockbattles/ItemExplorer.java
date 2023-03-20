@@ -15,16 +15,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class ItemExplorer implements Listener {
-    @EventHandler
-    public void onClick(PlayerInteractEvent event) {
-        if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) && event.hasItem()) {
-            if (event.getPlayer().getInventory().getItemInMainHand().getType() == Material.COMPASS) {
-                //displayInventory(event.getPlayer(), );
-            }
-        }
-    }
     public void displayInventory(Player player, Material[] blocks, String[] names, boolean[] glowing) {
-        Inventory inventory = Bukkit.createInventory(null, 27, "My Inventory");
+        Inventory inventory = Bukkit.createInventory(null, 27, "Block Battles Explorer");
         for (int i = 0; i < blocks.length; i++) {
             ItemStack itemStack = new ItemStack(blocks[i]);
             ItemMeta itemMeta = itemStack.getItemMeta();
@@ -40,7 +32,7 @@ public class ItemExplorer implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().equals("Item Explorer")) {
+        if (event.getView().getTitle().equals("Block Battles Explorer")) {
             if (event.getClick() == ClickType.LEFT || event.getClick() == ClickType.RIGHT) {
                 ItemStack clickedItem = event.getCurrentItem();
                 if (clickedItem != null) {
