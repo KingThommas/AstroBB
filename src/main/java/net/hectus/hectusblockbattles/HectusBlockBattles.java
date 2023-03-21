@@ -30,7 +30,7 @@ public final class HectusBlockBattles extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
 
         getServer().getPluginManager().registerEvents(IGS, this);
-        IGS.createItems();
+        IngameShop.createItems();
 
     }
 
