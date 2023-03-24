@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class IngameShop implements Listener {
-    static ItemStack glass_wall = new ItemStack(Material.BRAIN_CORAL_BLOCK, 1);
+    static ItemStack glass_wall = new ItemStack(Material.GLASS, 1);
     static int[] backgroundSlots = {0,1,2,3,5,6,7,8,9,10,16,17,18,19,25,26,27,28,34,35,36,37,43,44,45,46,47,48,49,50,51,52,53};
     static int money = 40;
     static boolean shopState = true;
