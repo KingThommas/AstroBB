@@ -4,8 +4,4 @@ main: net.hectus.hectusblockbattles.HectusBlockBattles
 api-version: 1.19
 authors: [ MarcPG ]
 description: Plugin for the Block Battles game mode on the Hectus Network
-<<<<<<< HEAD
 website: https://hectus.net/blockbattles
-=======
-website: https://hectus.net/blockbattles
->>>>>>> 84423580fc86a39a9ac677edd4d030cdcd1a283b
