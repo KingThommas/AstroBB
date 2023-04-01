@@ -1,4 +1,4 @@
-package net.hectus.hectusblockbattles.SpecialAbilities;
+package net.hectus.hectusblockbattles.Warps;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
