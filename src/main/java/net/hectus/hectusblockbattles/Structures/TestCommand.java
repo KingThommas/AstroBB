@@ -22,6 +22,13 @@ import java.util.logging.Level;
 public class TestCommand implements CommandExecutor {
     private final JavaPlugin plugin;
 
+    /* This is a temporary command used to generate the JSON for the structures.
+     * 1. Create a file named 'data.json'
+     * 2. Build the structure in game, then do "/test x1 y1 z1 x2 y2 z2 name" where the coordinates are the two corners of the structure
+     * 3. The name should be a continuous string i.e. WALL_PUMPKIN
+     * 4. Check the logs for info after you do the command.
+     */
+
     public TestCommand(JavaPlugin plugin) {
         this.plugin = plugin;
     }

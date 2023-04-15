@@ -5,3 +5,7 @@ api-version: 1.19
 authors: [ MarcPG ]
 description: Plugin for the Block Battles game mode on the Hectus Network
 website: https://hectus.net/blockbattles
+commands:
+  test:
+    description: Test command
+    usage: /test
