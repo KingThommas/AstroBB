@@ -1,7 +1,7 @@
-package net.hectus.hectusblockbattles.Match;
+package net.hectus.hectusblockbattles.match;
 
-import net.hectus.hectusblockbattles.PlayerMode.PlayerModeManager;
-import net.hectus.hectusblockbattles.Warps.Warp;
+import net.hectus.hectusblockbattles.playermode.PlayerModeManager;
+import net.hectus.hectusblockbattles.warps.Warp;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 

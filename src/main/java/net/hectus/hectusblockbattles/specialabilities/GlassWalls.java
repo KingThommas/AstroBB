@@ -1,7 +1,6 @@
-package net.hectus.hectusblockbattles.SpecialAbilities;
+package net.hectus.hectusblockbattles.specialabilities;
 
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 
 public class GlassWalls{
     int currentX;

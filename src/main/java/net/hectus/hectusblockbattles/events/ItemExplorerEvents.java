@@ -1,4 +1,4 @@
-package net.hectus.hectusblockbattles.Events;
+package net.hectus.hectusblockbattles.events;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

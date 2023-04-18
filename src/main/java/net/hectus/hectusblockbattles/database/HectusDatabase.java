@@ -1,4 +1,4 @@
-package net.hectus.hectusblockbattles.Database;
+package net.hectus.hectusblockbattles.database;
 import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import net.hectus.hectusblockbattles.HectusBlockBattles;

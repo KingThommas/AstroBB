@@ -1,9 +1,9 @@
-package net.hectus.hectusblockbattles.Match;
+package net.hectus.hectusblockbattles.match;
 
-import net.hectus.hectusblockbattles.SpecialAbilities.GlassWalls;
-import net.hectus.hectusblockbattles.SpecialAbilities.PumpkinWall;
-import net.hectus.hectusblockbattles.Warps.Warp;
-import net.hectus.hectusblockbattles.Warps.Warps;
+import net.hectus.hectusblockbattles.specialabilities.GlassWalls;
+import net.hectus.hectusblockbattles.specialabilities.PumpkinWall;
+import net.hectus.hectusblockbattles.warps.Warp;
+import net.hectus.hectusblockbattles.warps.Warps;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 

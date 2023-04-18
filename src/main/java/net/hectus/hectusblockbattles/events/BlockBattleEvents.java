@@ -1,10 +1,10 @@
-package net.hectus.hectusblockbattles.Events;
+package net.hectus.hectusblockbattles.events;
 
 import net.hectus.hectusblockbattles.BasicBlocks;
-import net.hectus.hectusblockbattles.Match.Match;
-import net.hectus.hectusblockbattles.Match.MatchManager;
-import net.hectus.hectusblockbattles.PlayerMode.PlayerMode;
-import net.hectus.hectusblockbattles.PlayerMode.PlayerModeManager;
+import net.hectus.hectusblockbattles.match.Match;
+import net.hectus.hectusblockbattles.match.MatchManager;
+import net.hectus.hectusblockbattles.playermode.PlayerMode;
+import net.hectus.hectusblockbattles.playermode.PlayerModeManager;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;

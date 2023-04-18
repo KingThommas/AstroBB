@@ -1,4 +1,4 @@
-package net.hectus.hectusblockbattles.Warps;
+package net.hectus.hectusblockbattles.warps;
 
 public enum Warp {
     DEFAULT(true),

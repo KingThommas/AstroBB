@@ -1,6 +1,6 @@
 package net.hectus.hectusblockbattles;
 
-import net.hectus.hectusblockbattles.Warps.Warp;
+import net.hectus.hectusblockbattles.warps.Warp;
 import org.bukkit.Material;
 
 public final class BasicBlocks {

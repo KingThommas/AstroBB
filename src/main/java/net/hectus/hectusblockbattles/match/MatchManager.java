@@ -1,4 +1,4 @@
-package net.hectus.hectusblockbattles.Match;
+package net.hectus.hectusblockbattles.match;
 
 import org.bukkit.World;
 

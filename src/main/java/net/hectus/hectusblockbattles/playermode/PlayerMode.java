@@ -1,4 +1,4 @@
-package net.hectus.hectusblockbattles.PlayerMode;
+package net.hectus.hectusblockbattles.playermode;
 
 public enum PlayerMode {
     DEFAULT,

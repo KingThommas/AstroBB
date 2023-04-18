@@ -1,4 +1,4 @@
-package net.hectus.hectusblockbattles.Events;
+package net.hectus.hectusblockbattles.events;
 
 import net.hectus.hectusblockbattles.IngameShop;
 import org.bukkit.entity.Player;
