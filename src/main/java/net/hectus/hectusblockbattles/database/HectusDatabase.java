@@ -3,7 +3,6 @@ import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import net.hectus.hectusblockbattles.HectusBlockBattles;
 import org.bukkit.configuration.file.FileConfiguration;
-
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,21 +24,17 @@ public class HectusDatabase {
             HectusBlockBattles.disablePlugin();
         }
 
-        String setup = "";
-        try (InputStream stream = HectusBlockBattles.class.getResourceAsStream("/setup.sql")) {
-            setup = new String(stream.readAllBytes());
+        String setupQuery = "";
+        try {
+            setupQuery = readFile("/setup.sql");
         } catch (IOException e) {
             HectusBlockBattles.LOGGER.severe("Could not read database setup file.");
             HectusBlockBattles.disablePlugin();
         }
 
-        try (Connection conn = dataSource.getConnection()) {
-            HectusBlockBattles.LOGGER.info("Executing database setup...");
-            for (String query : setup.split(";")) {
-                conn.createStatement().execute(query);
-            }
+        try {
+            multipleQuery(setupQuery);
         } catch (SQLException e) {
-            HectusBlockBattles.LOGGER.info(e.getMessage());
             HectusBlockBattles.LOGGER.severe("Could not execute database setup.");
             HectusBlockBattles.disablePlugin();
         }
@@ -88,6 +83,22 @@ public class HectusDatabase {
     public ResultSet queryResult(String query) throws SQLException {
         try (Connection conn = dataSource.getConnection()) {
             return conn.createStatement().executeQuery(query);
+        }
+    }
+
+    public static String readFile(String filePath) throws IOException {
+        String file;
+        try ( InputStream stream = HectusBlockBattles.class.getResourceAsStream(filePath)) {
+            file = new String(stream.readAllBytes());
+        }
+        return file;
+    }
+
+    public void multipleQuery(String queries) throws SQLException {
+        try (Connection conn = dataSource.getConnection()) {
+            for (String query : queries.split(";")) {
+                conn.createStatement().execute(query);
+            }
         }
     }
 
