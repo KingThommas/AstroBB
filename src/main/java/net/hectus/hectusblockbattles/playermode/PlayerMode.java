@@ -2,7 +2,7 @@ package net.hectus.hectusblockbattles.playermode;
 
 public enum PlayerMode {
     DEFAULT,
-    BLOCKBATTLES,
+    BLOCK_BATTLES,
     PRACTICE,
-    SHOPPHASE
+    SHOP_PHASE
 }
