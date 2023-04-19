@@ -1,7 +1,7 @@
 package net.hectus.hectusblockbattles.events;
 
 import net.hectus.hectusblockbattles.BasicBlocks;
-import net.hectus.hectusblockbattles.match.Match;
+import net.hectus.hectusblockbattles.match.LocalMatchSingles;
 import net.hectus.hectusblockbattles.match.MatchManager;
 import net.hectus.hectusblockbattles.playermode.PlayerMode;
 import net.hectus.hectusblockbattles.playermode.PlayerModeManager;
@@ -32,17 +32,17 @@ public class BlockBattleEvents  implements Listener {
         int x = playerLoc.getBlockX();
         int z = playerLoc.getBlockZ();
 
-        Match match = MatchManager.getMatch(player.getWorld());
-        if (match == null) {
+        LocalMatchSingles localMatchSingles = MatchManager.getMatch(player.getWorld());
+        if (localMatchSingles == null) {
             return;
         }
 
-        if (PlayerModeManager.getPlayerMode(player) != PlayerMode.BLOCKBATTLES) {
+        if (PlayerModeManager.getPlayerMode(player) != PlayerMode.BLOCK_BATTLES) {
             return;
         }
 
         if (x < 0 || x >= 9 || z >= 9 || z < 0) {
-            match.end(match.getOppositeTurnPlayer(), player,  player, "stepped out of bounds");
+            localMatchSingles.end(localMatchSingles.getOppositeTurnPlayer(), player,  player, "stepped out of bounds");
         }
     }
 
@@ -50,7 +50,7 @@ public class BlockBattleEvents  implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         Player placerPlayer = event.getPlayer();
 
-        if (PlayerModeManager.getPlayerMode(placerPlayer) != PlayerMode.BLOCKBATTLES) {
+        if (PlayerModeManager.getPlayerMode(placerPlayer) != PlayerMode.BLOCK_BATTLES) {
             return;
         }
 
@@ -60,42 +60,42 @@ public class BlockBattleEvents  implements Listener {
         int y = block.getY();
         int z = block.getZ();
 
-        Match match = MatchManager.getMatch(placerPlayer.getWorld());
-        if (match == null) {
-            match = new Match();
-            MatchManager.addMatch(match, placerPlayer.getWorld());
+        LocalMatchSingles localMatchSingles = MatchManager.getMatch(placerPlayer.getWorld());
+        if (localMatchSingles == null) {
+            localMatchSingles = new LocalMatchSingles();
+            MatchManager.addMatch(localMatchSingles, placerPlayer.getWorld());
         }
 
-        Player currentTurnPlayer = match.getCurrentTurnPlayer();
-        Player oppositeTurnPlayer = match.getOppositeTurnPlayer();
+        Player currentTurnPlayer = localMatchSingles.getCurrentTurnPlayer();
+        Player oppositeTurnPlayer = localMatchSingles.getOppositeTurnPlayer();
 
-        Material lastBlock = match.getLastBlock();
-        boolean turn = match.getTurn();
-        double gameScore = match.getGameScore();
+        Material lastBlock = localMatchSingles.getLastBlock();
+        boolean turn = localMatchSingles.getTurn();
+        double gameScore = localMatchSingles.getGameScore();
         if (currentTurnPlayer != placerPlayer) {
-            match.end(oppositeTurnPlayer, placerPlayer, placerPlayer,"placed a block not in their turn");
+            localMatchSingles.end(oppositeTurnPlayer, placerPlayer, placerPlayer,"placed a block not in their turn");
             return;
         }
-        if (!match.check(x, y, z, material, placerPlayer)) {
-            match.end(oppositeTurnPlayer, placerPlayer, placerPlayer, "placed a block incorrectly");
+        if (!localMatchSingles.check(x, y, z, material, placerPlayer)) {
+            localMatchSingles.end(oppositeTurnPlayer, placerPlayer, placerPlayer, "placed a block incorrectly");
             return;
         }
-        if (!BasicBlocks.blockCheck(material, match.getCurrentWarp(), match.getNight())) {
-            match.end(oppositeTurnPlayer, placerPlayer, placerPlayer, "placed an illegal block");
+        if (!BasicBlocks.blockCheck(material, localMatchSingles.getCurrentWarp(), localMatchSingles.getNight())) {
+            localMatchSingles.end(oppositeTurnPlayer, placerPlayer, placerPlayer, "placed an illegal block");
             return;
         }
         if (!(9 >= x && x >= 0 && 9 >= z && z >= 0)) {
-            match.end(oppositeTurnPlayer, placerPlayer, placerPlayer,"placed a block out of bounds");
+            localMatchSingles.end(oppositeTurnPlayer, placerPlayer, placerPlayer,"placed a block out of bounds");
             return;
         }
-        if (match.getTurnJustStarted()) {
-            gameScore = BasicBlocks.calculateGameScore(gameScore, material, lastBlock, turn, match.getBlockBoosts());
+        if (localMatchSingles.getTurnJustStarted()) {
+            gameScore = BasicBlocks.calculateGameScore(gameScore, material, lastBlock, turn, localMatchSingles.getBlockBoosts());
         }
-        match.setGameScore(gameScore);
+        localMatchSingles.setGameScore(gameScore);
         if (gameScore > 5) {
-            match.end(match.getPlayer(true), match.getPlayer(false), match.getPlayer(true), "got a high score");
+            localMatchSingles.end(localMatchSingles.getPlayer(true), localMatchSingles.getPlayer(false), localMatchSingles.getPlayer(true), "got a high score");
         } else if (gameScore < -5) {
-            match.end(match.getPlayer(false), match.getPlayer(true), match.getPlayer(false), "got a high score");
+            localMatchSingles.end(localMatchSingles.getPlayer(false), localMatchSingles.getPlayer(true), localMatchSingles.getPlayer(false), "got a high score");
         }
     }
 
