@@ -1,10 +1,9 @@
 package net.hectus.hectusblockbattles;
 
-import net.hectus.hectusblockbattles.Database.HectusDatabase;
-import net.hectus.hectusblockbattles.Events.BlockBattleEvents;
-import net.hectus.hectusblockbattles.Events.IngameShopEvents;
-import net.hectus.hectusblockbattles.Events.ItemExplorerEvents;
-import net.hectus.hectusblockbattles.structures.TestCommand;
+import net.hectus.hectusblockbattles.events.BlockBattleEvents;
+import net.hectus.hectusblockbattles.events.IngameShopEvents;
+import net.hectus.hectusblockbattles.events.ItemExplorerEvents;
+import net.hectus.hectusblockbattles.commands.TestCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
