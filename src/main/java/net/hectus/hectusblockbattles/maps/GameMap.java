@@ -1,5 +1,6 @@
 package net.hectus.hectusblockbattles.maps;
 
+import net.hectus.hectusblockbattles.warps.Warp;
 import org.bukkit.World;
 
 public interface GameMap {
@@ -9,4 +10,9 @@ public interface GameMap {
 
     boolean isLoaded();
     World getWorld();
+    boolean isNight();
+    void setNight(boolean isNight);
+    Warp currentWarp();
+    boolean setWarp(Warp warp);
+
 }
