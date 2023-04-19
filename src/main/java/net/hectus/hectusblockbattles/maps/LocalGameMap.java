@@ -13,7 +13,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-public class LocalGameMap implements GameMap {
+public abstract class LocalGameMap implements GameMap {
     private final File sourceWorldFolder;
     private File activeWorldFolder;
 
