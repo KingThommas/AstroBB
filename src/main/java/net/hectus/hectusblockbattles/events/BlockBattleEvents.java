@@ -12,6 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -32,7 +33,7 @@ public class BlockBattleEvents  implements Listener {
         int x = playerLoc.getBlockX();
         int z = playerLoc.getBlockZ();
 
-        LocalMatchSingles localMatchSingles = MatchManager.getMatch(player.getWorld());
+        LocalMatchSingles localMatchSingles = (LocalMatchSingles) MatchManager.getMatch(player.getWorld());
         if (localMatchSingles == null) {
             return;
         }
@@ -41,9 +42,23 @@ public class BlockBattleEvents  implements Listener {
             return;
         }
 
-        if (x < 0 || x >= 9 || z >= 9 || z < 0) {
+        if (localMatchSingles.getCurrentTurnPlayer() != player && event.hasChangedBlock()) {
+            localMatchSingles.end(localMatchSingles.getCurrentTurnPlayer(), player, player, "moved out of turn");
+        }
+
+        if (!localMatchSingles.checkBounds(x, z)) {
             localMatchSingles.end(localMatchSingles.getOppositeTurnPlayer(), player,  player, "stepped out of bounds");
         }
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (PlayerModeManager.getPlayerMode(event.getPlayer()) != PlayerMode.BLOCK_BATTLES) {
+            return;
+        }
+
+        event.getPlayer().sendMessage("You can't break blocks in Block Battles!");
+        event.setCancelled(true);
     }
 
     @EventHandler
@@ -60,10 +75,10 @@ public class BlockBattleEvents  implements Listener {
         int y = block.getY();
         int z = block.getZ();
 
-        LocalMatchSingles localMatchSingles = MatchManager.getMatch(placerPlayer.getWorld());
+        LocalMatchSingles localMatchSingles = (LocalMatchSingles) MatchManager.getMatch(placerPlayer.getWorld());
         if (localMatchSingles == null) {
             localMatchSingles = new LocalMatchSingles();
-            MatchManager.addMatch(localMatchSingles, placerPlayer.getWorld());
+            MatchManager.addMatch(localMatchSingles);
         }
 
         Player currentTurnPlayer = localMatchSingles.getCurrentTurnPlayer();
@@ -84,7 +99,7 @@ public class BlockBattleEvents  implements Listener {
             localMatchSingles.end(oppositeTurnPlayer, placerPlayer, placerPlayer, "placed an illegal block");
             return;
         }
-        if (!(9 >= x && x >= 0 && 9 >= z && z >= 0)) {
+        if (!localMatchSingles.checkBounds(x, z)) {
             localMatchSingles.end(oppositeTurnPlayer, placerPlayer, placerPlayer,"placed a block out of bounds");
             return;
         }

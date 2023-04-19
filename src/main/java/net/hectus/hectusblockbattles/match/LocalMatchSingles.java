@@ -8,6 +8,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
@@ -36,10 +37,12 @@ public class LocalMatchSingles implements Match, Listener {
     private BukkitTask main;
     private int turnIndex;
     private int turnTimeLeft;
+    private Location location;
 
     public LocalMatchSingles(JavaPlugin plugin, GameMap gameMap, Player p1, Player p2) {
         this.plugin = plugin;
         this.gameMap = gameMap;
+        this.location = new Location(gameMap.getWorld(), 0, 0, 0);
 
         players = new ArrayList<>();
         players.add(p1);
@@ -69,7 +72,7 @@ public class LocalMatchSingles implements Match, Listener {
 
     @Override
     public List<Player> getPlayers() {
-        return null;
+        return players;
     }
 
     public void end(Player won, Player lost, Player causeSubject, String cause) {
@@ -208,7 +211,27 @@ public class LocalMatchSingles implements Match, Listener {
 
     @Override
     public Player getCurrentTurnPlayer() {
-        return null;
+        return players.get(turnIndex);
+    }
+
+    public Player getPlayer(boolean turn) {
+        return turn ? players.get(1) : players.get(0);
+    }
+
+    public boolean getTurn() {
+        return turnIndex == 1;
+    }
+
+    public Player getOppositeTurnPlayer() {
+        return getPlayer(!getTurn());
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public boolean checkBounds(int x, int z) {
+        return x >= location.x() && x < location.x() + 9 && z >= location.z() && z < location.z() + 9;
     }
 
     @Override
