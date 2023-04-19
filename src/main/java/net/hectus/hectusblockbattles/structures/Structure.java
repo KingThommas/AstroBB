@@ -1,4 +1,4 @@
-package net.hectus.hectusblockbattles.Structures;
+package net.hectus.hectusblockbattles.structures;
 
 import org.bukkit.Material;
 import org.bukkit.World;

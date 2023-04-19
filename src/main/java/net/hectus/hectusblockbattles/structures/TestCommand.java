@@ -1,4 +1,4 @@
-package net.hectus.hectusblockbattles.Structures;
+package net.hectus.hectusblockbattles.structures;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;

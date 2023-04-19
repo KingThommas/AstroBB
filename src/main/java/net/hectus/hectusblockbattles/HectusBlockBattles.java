@@ -4,7 +4,7 @@ import net.hectus.hectusblockbattles.Database.HectusDatabase;
 import net.hectus.hectusblockbattles.Events.BlockBattleEvents;
 import net.hectus.hectusblockbattles.Events.IngameShopEvents;
 import net.hectus.hectusblockbattles.Events.ItemExplorerEvents;
-import net.hectus.hectusblockbattles.Structures.TestCommand;
+import net.hectus.hectusblockbattles.structures.TestCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
