@@ -1,9 +1,10 @@
 package net.hectus.hectusblockbattles;
 
-import net.hectus.hectusblockbattles.database.HectusDatabase;
-import net.hectus.hectusblockbattles.events.BlockBattleEvents;
-import net.hectus.hectusblockbattles.events.IngameShopEvents;
-import net.hectus.hectusblockbattles.events.ItemExplorerEvents;
+import net.hectus.hectusblockbattles.Database.HectusDatabase;
+import net.hectus.hectusblockbattles.Events.BlockBattleEvents;
+import net.hectus.hectusblockbattles.Events.IngameShopEvents;
+import net.hectus.hectusblockbattles.Events.ItemExplorerEvents;
+import net.hectus.hectusblockbattles.Structures.TestCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -19,8 +20,8 @@ public final class HectusBlockBattles extends JavaPlugin {
 
         this.saveDefaultConfig();
 
-        HectusDatabase database = new HectusDatabase();
-        database.initialize(this.getConfig());
+//        HectusDatabase database = new HectusDatabase();
+//        database.initialize(this.getConfig());
 
         IngameShop.initialize();
 
@@ -29,6 +30,11 @@ public final class HectusBlockBattles extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ItemExplorerEvents(), this);
 
         LOGGER.info("Hectus plugin started.");
+
+        // TODO: REMOVE
+        getDataFolder().mkdirs();
+        getCommand("test").setExecutor(new TestCommand(this));
+        // ----
     }
 
     @Override
