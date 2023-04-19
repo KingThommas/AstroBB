@@ -10,7 +10,7 @@ public interface Match {
     boolean start();
     void stop(boolean isAbrupt);
     public Player getCurrentTurnPlayer();
-    public void nextTurn();
+    public void nextTurn(boolean wasSkipped);
     GameMap getGameMap();
     List<Player> getPlayers();
     boolean isRunning();
