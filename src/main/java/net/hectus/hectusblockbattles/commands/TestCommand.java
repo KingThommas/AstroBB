@@ -1,8 +1,9 @@
-package net.hectus.hectusblockbattles.structures;
+package net.hectus.hectusblockbattles.commands;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import net.hectus.hectusblockbattles.structures.Structure;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
