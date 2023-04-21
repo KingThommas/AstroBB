@@ -20,7 +20,6 @@ public class LocalGameMap implements GameMap {
 
     private World world;
     private Warp currentWarp;
-    private boolean isNight;
 
     public LocalGameMap(File mapsFolder, String mapName, boolean loadOnInit) {
         this.sourceWorldFolder = new File(mapsFolder, mapName);
