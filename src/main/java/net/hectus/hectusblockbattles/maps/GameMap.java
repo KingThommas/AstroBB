@@ -10,9 +10,8 @@ public interface GameMap {
 
     boolean isLoaded();
     World getWorld();
-    boolean isNight();
-    void setNight(boolean isNight);
     Warp currentWarp();
     boolean setWarp(Warp warp);
-
+    boolean isNight();
+    void setNight(boolean isNight);
 }
