@@ -92,6 +92,8 @@ public class LocalMatchSingles implements Match, Listener {
             return true;
         }
 
+        Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
+
         // Teleport players
 
         // Enter shop phase (45-second buy time)
