@@ -1,5 +1,6 @@
 package net.hectus.hectusblockbattles.match;
 
+import net.hectus.hectusblockbattles.HectusBlockBattles;
 import net.hectus.hectusblockbattles.maps.GameMap;
 import net.hectus.hectusblockbattles.playermode.PlayerMode;
 import net.hectus.hectusblockbattles.playermode.PlayerModeManager;
@@ -251,7 +252,7 @@ public class LocalMatchSingles implements Match, Listener {
         blocks.add(e.getBlockPlaced());
 
         Structure build = new Structure("Build", playerPlacedBlocks.get(e.getPlayer()));
-        for (Structure structure : Structures.structures) {
+        for (Structure structure : HectusBlockBattles.structures) { // TODO: dependency injection?
             Bukkit.getLogger().log(Level.INFO, "TESTING: " + structure.getName());
             if (structure.hasSubset(build)) {
                 if (structure.getPlacedBlocks().size() == blocks.size()) {
