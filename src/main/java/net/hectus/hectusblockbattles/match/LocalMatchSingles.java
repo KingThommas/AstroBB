@@ -239,7 +239,7 @@ public class LocalMatchSingles implements Match, Listener {
             return;
         }
 
-        if (player != (players.get(turnIndex))) {
+        if (turnIndex < 0 || player != (players.get(turnIndex))) {
             e.setCancelled(true);
             return;
         }
