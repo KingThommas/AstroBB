@@ -1,18 +1,39 @@
 package net.hectus.hectusblockbattles.warps;
 
 public enum Warp {
-    DEFAULT(true),
-    NETHER(false),
-    GEODE(false),
-    CAVE(false);
+    DEFAULT(1,true),
+    NETHER(0.8, false),
+    ICE(0.69, false),
+    SNOW(0.8, false),
+    CLIFF(0.67, false),
+    UNDERWATER(0.73, false),
+    VOID(0.67, true),
+    REDSTONE(0.65, false),
+    FOREST(1, false),
+    DESERT(0.8, false),
+    AETHER(0.8, false),
+    BOOK(0.2, false),
+    SUN(0.75, false),
+    MUSHROOM(0.6, false),
+    END(0.85, true),
+    GEODE(0.3, false), // Amethyst?
+    CAVE(0, false), // Doesn't exist in the docs
+    HEAVEN(0.5, false),
+    HELL(0.5, false);
 
-    private boolean night;
+    private final double chance;
+    private final boolean isNight;
 
     public boolean isNight() {
-        return night;
+        return isNight;
     }
 
-    Warp(boolean night) {
-        this.night = night;
+    public double getChance() {
+        return chance;
+    }
+
+    Warp(double chance, boolean isNight) {
+        this.chance = chance;
+        this.isNight = isNight;
     }
 }
