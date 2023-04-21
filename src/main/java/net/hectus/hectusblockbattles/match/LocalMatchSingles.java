@@ -173,7 +173,7 @@ public class LocalMatchSingles implements Match, Listener {
             player.setVelocity(new Vector(0, 2, 0));
             player.setFlying(true);
             if (isAbrupt) {
-                // TODO: SEND TO LOBBY
+                sendPlayersToLobby(getGameMap().getWorld().getPlayers());
             }
         }
 
@@ -197,9 +197,7 @@ public class LocalMatchSingles implements Match, Listener {
                 }
 
                 if (i <= 0) {
-                    for (Player player : getGameMap().getWorld().getPlayers()) {
-                        // TODO: SEND TO LOBBY
-                    }
+                    sendPlayersToLobby(getGameMap().getWorld().getPlayers());
                     getGameMap().unload();
                     this.cancel();
                 }
@@ -207,6 +205,13 @@ public class LocalMatchSingles implements Match, Listener {
                 i--;
             }
         }.runTaskTimer(plugin, 0, 1);
+    }
+
+    private void sendPlayersToLobby(List<Player> players) {
+        for (Player player : players) {
+            PlayerModeManager.setPlayerMode(PlayerMode.DEFAULT, player);
+            // TODO: SEND TO LOBBY
+        }
     }
 
     @Override
