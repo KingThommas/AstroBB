@@ -3,6 +3,7 @@ package net.hectus.hectusblockbattles;
 import net.hectus.hectusblockbattles.warps.Warp;
 import org.bukkit.Material;
 
+// TODO: To be replaced by structure system with its metadata
 public final class BasicBlocks {
     private static final Material[] groupBlocks = {Material.NETHER_WART_BLOCK, Material.NETHERRACK, Material.NETHER_GOLD_ORE, Material.NETHER_BRICKS, Material.RED_NETHER_BRICKS, Material.NETHERITE_BLOCK, //the first block of a group has a special ability, here it is removing opponents luck boost
                                             Material.SEA_LANTERN, Material.WET_SPONGE, Material.PRISMARINE, Material.PRISMARINE_BRICKS, Material.DARK_PRISMARINE, null, //tells the player who's winning

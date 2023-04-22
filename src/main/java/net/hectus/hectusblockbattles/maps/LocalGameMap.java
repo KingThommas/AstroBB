@@ -23,12 +23,8 @@ public class LocalGameMap implements GameMap {
 
     private World sourceWorld;
 
-    private Warp currentWarp;
-    private boolean night;
-
     public LocalGameMap(File mapsFolder, String mapName, boolean loadOnInit, World sourceWorld) {
         this.sourceWorldFolder = new File(mapsFolder, mapName);
-        this.night = false;
         this.currentWarp = Warp.DEFAULT;
         this.sourceWorld = sourceWorld;
         if (loadOnInit) load();
@@ -93,33 +89,6 @@ public class LocalGameMap implements GameMap {
         return this.sourceWorld;
     }
 
-    @Override
-    public boolean isNight() {
-        return this.night;
-    }
-
-    @Override
-    public void setNight(boolean isNight) {
-        if (!isNight) {
-            world.setTime(0);
-        } else {
-            if (currentWarp.isNight()) {
-                world.setTime(13000);
-            }
-        }
-    }
-
-    @Override
-    public Warp currentWarp() {
-        return this.currentWarp;
-    }
-
-    @Override
-    public boolean setWarp(Warp warp) {
-        this.currentWarp = warp;
-        return true;
-    }
-
     private static class FileUtils {
         public static void copyDirectory(String sourceDirectory, String destinationDirectory) throws IOException {
             try (Stream<Path> walk = Files.walk(Paths.get(sourceDirectory))) {
@@ -166,6 +135,10 @@ public class LocalGameMap implements GameMap {
 
     @Override
     public void setNight(boolean isNight) {
-        world.setTime(isNight? 18000 : 6000); // 18000 is midnight, 6000 is noon
+        if (!currentWarp.isNight()) {
+            world.setTime(6000);
+        } else {
+            world.setTime(isNight? 18000 : 6000); // 18000 is midnight, 6000 is noon
+        }
     }
 }

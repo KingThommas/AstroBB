@@ -4,6 +4,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+
+// TODO: Also to be later removed and replaced with a structure system
 public class Warps {
     int pos;
     int step;
