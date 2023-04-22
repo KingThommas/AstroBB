@@ -1,6 +1,10 @@
 package net.hectus.hectusblockbattles.commands;
 
+import net.hectus.hectusblockbattles.HectusBlockBattles;
+import net.hectus.hectusblockbattles.maps.GameMap;
+import net.hectus.hectusblockbattles.maps.LocalGameMap;
 import net.hectus.hectusblockbattles.match.LocalMatchSingles;
+import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.hectusblockbattles.match.MatchManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -13,6 +17,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+
 public class MatchCommand implements CommandExecutor {
     private final JavaPlugin plugin;
 
@@ -21,7 +27,7 @@ public class MatchCommand implements CommandExecutor {
     }
 
     /* Currently, this is the only entry point for an actual
-     * Block Battle™ match. Simply put two distinct usernames
+     * Block Battle match. Simply put two distinct usernames
      * and it *should* start a match. - love, chimkenu.
      */
     @Override
@@ -40,6 +46,8 @@ public class MatchCommand implements CommandExecutor {
         Player p1 = Bukkit.getPlayer(args[0]);
         Player p2 = Bukkit.getPlayer(args[1]);
 
+        HectusBlockBattles.LOGGER.info("p1: " + p1);
+
         if (!(p1 != null && p1.isOnline() && p2 != null && p2.isOnline())) {
             sender.sendMessage(Component.text("This player is not online...", NamedTextColor.RED));
             return true;
@@ -56,7 +64,11 @@ public class MatchCommand implements CommandExecutor {
                 .append(p2.displayName()));
 
         // TODO: MAKE THIS WORK
-        // MatchManager.addMatch(new LocalMatchSingles(plugin, new LocalGameMap(), p1, p2));
+        File mapsFolder = new File(plugin.getDataFolder(), "maps");
+        GameMap map = new LocalGameMap(mapsFolder, "defaultmap", true, ((Player)sender).getWorld());
+        Match match = new LocalMatchSingles(plugin, map, p1, p2);
+        MatchManager.addMatch(match);
+        match.start();
 
         return true;
     }

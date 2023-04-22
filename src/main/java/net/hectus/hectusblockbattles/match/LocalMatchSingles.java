@@ -1,16 +1,15 @@
 package net.hectus.hectusblockbattles.match;
 
+import net.hectus.hectusblockbattles.IngameShop;
 import net.hectus.hectusblockbattles.maps.GameMap;
 import net.hectus.hectusblockbattles.playermode.PlayerMode;
 import net.hectus.hectusblockbattles.playermode.PlayerModeManager;
 import net.hectus.hectusblockbattles.structures.Structure;
+import net.hectus.hectusblockbattles.structures.Structures;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -39,10 +38,12 @@ public class LocalMatchSingles implements Match, Listener {
     private int turnTimeLeft;
     private Location location;
 
+    private Block lastBlock;
+
     public LocalMatchSingles(JavaPlugin plugin, GameMap gameMap, Player p1, Player p2) {
         this.plugin = plugin;
         this.gameMap = gameMap;
-        this.location = new Location(gameMap.getWorld(), 0, 0, 0);
+        this.location = new Location(gameMap.getWorld(), 0, 1, 0);
 
         players = new ArrayList<>();
         players.add(p1);
@@ -96,11 +97,17 @@ public class LocalMatchSingles implements Match, Listener {
         }
 
         // Teleport players
+        for (Player player : players) {
+            player.teleport(location);
+            player.setFlying(false);
+            player.setVelocity(new Vector(0, 0, 0));
+        }
 
         // Enter shop phase (45-second buy time)
         for (Player player : players) {
             PlayerModeManager.setPlayerMode(PlayerMode.SHOP_PHASE, player);
             // TODO: OPEN SHOP INVENTORY
+            IngameShop.displayShop(player);
         }
 
         final int BUY_TIME = 45 * 20;
@@ -123,13 +130,14 @@ public class LocalMatchSingles implements Match, Listener {
                         PlayerModeManager.setPlayerMode(PlayerMode.BLOCK_BATTLES, player);
                         player.closeInventory();
                     }
-
+                    nextTurn(false);
                     this.cancel();
                 }
 
                 t--;
             }
         }.runTaskTimer(plugin, 100, 1);
+
 
         // Run main match
         main = new BukkitRunnable() {
@@ -138,6 +146,7 @@ public class LocalMatchSingles implements Match, Listener {
                 if (!isRunning() || getGameMap().getWorld() == null) {
                     this.cancel();
                 }
+
 
                 for (Player player : players) {
                     player.sendActionBar(players.get(turnIndex).displayName().color(NamedTextColor.YELLOW)
@@ -150,7 +159,7 @@ public class LocalMatchSingles implements Match, Listener {
                 if (turnTimeLeft <= 0) {
                     for (Player player : players) {
                         player.sendMessage(players.get(turnIndex).displayName().color(NamedTextColor.YELLOW)
-                                .append(Component.text("did not play in time!", NamedTextColor.RED)));
+                                .append(Component.text(" did not play in time!", NamedTextColor.RED)));
                     }
                     nextTurn(true);
                 }
@@ -169,11 +178,13 @@ public class LocalMatchSingles implements Match, Listener {
 
         HandlerList.unregisterAll(this);
 
+        World sourceWorld = getGameMap().getSourceWorld();
         for (Player player : getGameMap().getWorld().getPlayers()) {
             player.setVelocity(new Vector(0, 2, 0));
             player.setFlying(true);
             if (isAbrupt) {
                 // TODO: SEND TO LOBBY
+                player.teleport(sourceWorld.getSpawnLocation());
             }
         }
 
@@ -197,8 +208,10 @@ public class LocalMatchSingles implements Match, Listener {
                 }
 
                 if (i <= 0) {
+                    World sourceWorld = getGameMap().getSourceWorld();
                     for (Player player : getGameMap().getWorld().getPlayers()) {
                         // TODO: SEND TO LOBBY
+                        player.teleport(sourceWorld.getSpawnLocation());
                     }
                     getGameMap().unload();
                     this.cancel();
@@ -226,6 +239,10 @@ public class LocalMatchSingles implements Match, Listener {
         return getPlayer(!getTurn());
     }
 
+    public Block getLastBlock() {
+        return lastBlock;
+    }
+
     public Location getLocation() {
         return location;
     }
@@ -237,6 +254,11 @@ public class LocalMatchSingles implements Match, Listener {
     @Override
     public boolean isRunning() {
         return main != null && !main.isCancelled();
+    }
+
+    @Override
+    public double getGameScore() {
+        return 0;
     }
 
     @EventHandler
@@ -270,9 +292,10 @@ public class LocalMatchSingles implements Match, Listener {
         playerPlacedBlocks.putIfAbsent(player, new HashSet<>());
         Set<Block> blocks = playerPlacedBlocks.get(player);
         blocks.add(e.getBlockPlaced());
+        lastBlock = e.getBlockPlaced();
 
         Structure build = new Structure("Build", playerPlacedBlocks.get(e.getPlayer()));
-        for (Structure structure : Structures.structures) {
+        for (Structure structure : Structures.getAllStructures()) {
             Bukkit.getLogger().log(Level.INFO, "TESTING: " + structure.getName());
             if (structure.hasSubset(build)) {
                 if (structure.getPlacedBlocks().size() == blocks.size()) {

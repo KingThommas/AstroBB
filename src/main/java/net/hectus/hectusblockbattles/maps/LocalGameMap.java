@@ -1,5 +1,6 @@
 package net.hectus.hectusblockbattles.maps;
 
+import net.hectus.hectusblockbattles.warps.Warp;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -13,14 +14,22 @@ import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-public abstract class LocalGameMap implements GameMap {
+public class LocalGameMap implements GameMap {
     private final File sourceWorldFolder;
     private File activeWorldFolder;
 
     private World world;
 
-    public LocalGameMap(File mapsFolder, String mapName, boolean loadOnInit) {
+    private World sourceWorld;
+
+    private Warp currentWarp;
+    private boolean night;
+
+    public LocalGameMap(File mapsFolder, String mapName, boolean loadOnInit, World sourceWorld) {
         this.sourceWorldFolder = new File(mapsFolder, mapName);
+        this.night = false;
+        this.currentWarp = Warp.DEFAULT;
+        this.sourceWorld = sourceWorld;
         if (loadOnInit) load();
     }
 
@@ -29,7 +38,7 @@ public abstract class LocalGameMap implements GameMap {
         if (isLoaded()) return true;
 
         this.activeWorldFolder = new File(
-                Bukkit.getWorldContainer().getParentFile(),
+                Bukkit.getWorldContainer(),
                 sourceWorldFolder.getName() + "_" + System.currentTimeMillis()
         );
 
@@ -41,7 +50,7 @@ public abstract class LocalGameMap implements GameMap {
             return false;
         }
 
-        world = Bukkit.createWorld(new WorldCreator(activeWorldFolder.getName()));
+        world = Bukkit.createWorld(new WorldCreator(activeWorldFolder.getName()).generator(new MapWorldGenerator()));
         if (world != null) world.setAutoSave(false);
         return isLoaded();
     }
@@ -76,6 +85,38 @@ public abstract class LocalGameMap implements GameMap {
     @Override
     public World getWorld() {
         return world;
+    }
+
+    @Override
+    public World getSourceWorld() {
+        return this.sourceWorld;
+    }
+
+    @Override
+    public boolean isNight() {
+        return this.night;
+    }
+
+    @Override
+    public void setNight(boolean isNight) {
+        if (!isNight) {
+            world.setTime(0);
+        } else {
+            if (currentWarp.isNight()) {
+                world.setTime(13000);
+            }
+        }
+    }
+
+    @Override
+    public Warp currentWarp() {
+        return this.currentWarp;
+    }
+
+    @Override
+    public boolean setWarp(Warp warp) {
+        this.currentWarp = warp;
+        return true;
     }
 
     private static class FileUtils {
