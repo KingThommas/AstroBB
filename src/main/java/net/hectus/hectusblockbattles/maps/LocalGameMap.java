@@ -19,6 +19,7 @@ public class LocalGameMap implements GameMap {
     private File activeWorldFolder;
 
     private World world;
+    private Warp currentWarp;
 
     private World sourceWorld;
 
@@ -142,5 +143,29 @@ public class LocalGameMap implements GameMap {
                         .forEach(File::delete);
             }
         }
+
+    }
+    @Override
+    public Warp currentWarp() {
+        return currentWarp;
+    }
+
+    @Override
+    public boolean setWarp(Warp warp) {
+        if (currentWarp == warp) {
+            return false;
+        }
+        currentWarp = warp;
+        return true;
+    }
+
+    @Override
+    public boolean isNight() {
+        return world.isDayTime();
+    }
+
+    @Override
+    public void setNight(boolean isNight) {
+        world.setTime(isNight? 18000 : 6000); // 18000 is midnight, 6000 is noon
     }
 }

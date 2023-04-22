@@ -15,5 +15,4 @@ public interface GameMap {
     void setNight(boolean isNight);
     Warp currentWarp();
     boolean setWarp(Warp warp);
-
 }

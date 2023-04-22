@@ -96,6 +96,8 @@ public class LocalMatchSingles implements Match, Listener {
             return true;
         }
 
+        Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
+
         // Teleport players
         for (Player player : players) {
             player.teleport(location);
@@ -138,7 +140,6 @@ public class LocalMatchSingles implements Match, Listener {
             }
         }.runTaskTimer(plugin, 100, 1);
 
-
         // Run main match
         main = new BukkitRunnable() {
             @Override
@@ -146,7 +147,6 @@ public class LocalMatchSingles implements Match, Listener {
                 if (!isRunning() || getGameMap().getWorld() == null) {
                     this.cancel();
                 }
-
 
                 for (Player player : players) {
                     player.sendActionBar(players.get(turnIndex).displayName().color(NamedTextColor.YELLOW)
@@ -178,13 +178,11 @@ public class LocalMatchSingles implements Match, Listener {
 
         HandlerList.unregisterAll(this);
 
-        World sourceWorld = getGameMap().getSourceWorld();
         for (Player player : getGameMap().getWorld().getPlayers()) {
             player.setVelocity(new Vector(0, 2, 0));
             player.setFlying(true);
             if (isAbrupt) {
-                // TODO: SEND TO LOBBY
-                player.teleport(sourceWorld.getSpawnLocation());
+                sendPlayerToLobby(player);
             }
         }
 
@@ -208,10 +206,8 @@ public class LocalMatchSingles implements Match, Listener {
                 }
 
                 if (i <= 0) {
-                    World sourceWorld = getGameMap().getSourceWorld();
                     for (Player player : getGameMap().getWorld().getPlayers()) {
-                        // TODO: SEND TO LOBBY
-                        player.teleport(sourceWorld.getSpawnLocation());
+                        sendPlayerToLobby(player);
                     }
                     getGameMap().unload();
                     this.cancel();
@@ -222,9 +218,20 @@ public class LocalMatchSingles implements Match, Listener {
         }.runTaskTimer(plugin, 0, 1);
     }
 
+    private void sendPlayerToLobby(Player player) {
+        PlayerModeManager.setPlayerMode(PlayerMode.DEFAULT, player);
+        // TODO: SEND TO LOBBY
+        player.teleport(getGameMap().getSourceWorld().getSpawnLocation());
+    }
+
     @Override
     public Player getCurrentTurnPlayer() {
         return players.get(turnIndex);
+    }
+
+    @Override
+    public double getGameScore() {
+        return 0;
     }
 
     public Player getPlayer(boolean turn) {
@@ -256,11 +263,6 @@ public class LocalMatchSingles implements Match, Listener {
         return main != null && !main.isCancelled();
     }
 
-    @Override
-    public double getGameScore() {
-        return 0;
-    }
-
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         if (!players.remove(e.getPlayer())) {
@@ -284,7 +286,7 @@ public class LocalMatchSingles implements Match, Listener {
             return;
         }
 
-        if (player != (players.get(turnIndex))) {
+        if (turnIndex < 0 || player != (players.get(turnIndex))) {
             e.setCancelled(true);
             return;
         }

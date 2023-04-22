@@ -59,6 +59,7 @@ public final class HectusBlockBattles extends JavaPlugin {
 
         getCommand("match").setExecutor(new MatchCommand(this));
         getCommand("structure").setExecutor(new StructureCommand(this));
+
     }
 
     @Override
