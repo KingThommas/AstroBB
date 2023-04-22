@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS inventories
     FOREIGN KEY (item_id) REFERENCES items(id)
 );
 
-CREATE TABLE block_battles_ranks
+CREATE TABLE IF NOT EXISTS block_battles_ranks
 (
     id INT AUTO_INCREMENT PRIMARY KEY,
     rank INT NOT NULL UNIQUE,
@@ -34,7 +34,7 @@ CREATE TABLE block_battles_ranks
     rating INT NOT NULL
 );
 
-CREATE TABLE block_battles_stats
+CREATE TABLE IF NOT EXISTS block_battles_stats
 (
     id INT AUTO_INCREMENT PRIMARY KEY,
     player_uuid CHAR(36) NOT NULL,
@@ -53,7 +53,7 @@ CREATE TABLE block_battles_stats
     FOREIGN KEY (rank) REFERENCES block_battles_ranks(rank)
 );
 
-CREATE TABLE skulk_shopping_stats
+CREATE TABLE IF NOT EXISTS skulk_shopping_stats
 (
     id INT AUTO_INCREMENT PRIMARY KEY,
     player_uuid CHAR(36) NOT NULL,
