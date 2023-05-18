@@ -12,6 +12,9 @@ commands:
   structure:
     description: Manages the structures of the Block Battles™ game mode. Currently only saves structures.
     usage: /structure x1 y1 z1 x2 y2 z2 <name>
+  giveup:
+    description: Let you lose the match.
+    usage: /giveup
   test:
     description: Test command
     usage: /test
