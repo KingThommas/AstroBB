@@ -30,9 +30,9 @@ public class GiveupCommand implements CommandExecutor {
         player.sendMessage(Component.text("You have successfully given up.", NamedTextColor.GREEN));
 
         if(player == match.getOppositeTurnPlayer()){
-            match.end(match.getCurrentTurnPlayer(), player, player, "Given up");
+            match.end(match.getCurrentTurnPlayer(), player, player, "Gived up");
         }else{
-            match.end(match.getOppositeTurnPlayer(), player, player, "Given up");
+            match.end(match.getOppositeTurnPlayer(), player, player, "Gived up");
         }
 
         return true;

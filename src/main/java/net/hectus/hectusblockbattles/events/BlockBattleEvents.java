@@ -6,14 +6,23 @@ import net.hectus.hectusblockbattles.playermode.PlayerMode;
 import net.hectus.hectusblockbattles.playermode.PlayerModeManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class BlockBattleEvents  implements Listener {
 
@@ -56,6 +65,36 @@ public class BlockBattleEvents  implements Listener {
 
         event.getPlayer().sendMessage("You can't break blocks in Block Battles!");
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onInteract(PlayerInteractEvent event){
+
+        Player player = event.getPlayer();
+        if(!(event.getAction().equals(Action.RIGHT_CLICK_BLOCK) || event.getAction().equals(Action.RIGHT_CLICK_AIR))){
+            return;
+        }
+
+        LocalMatchSingles localMatchSingles = (LocalMatchSingles) MatchManager.getMatch(player.getWorld());
+        if (localMatchSingles == null) {
+            return;
+        }
+
+        if (PlayerModeManager.getPlayerMode(player) != PlayerMode.BLOCK_BATTLES) {
+            return;
+        }
+
+        if(player.getInventory().getItemInMainHand() == null || player.getInventory().getItemInMainHand().getType().equals(Material.AIR)){
+            return;
+        }
+
+        if (localMatchSingles.getCurrentTurnPlayer() != player) {
+            localMatchSingles.end(localMatchSingles.getCurrentTurnPlayer(), player, player, "used a item not in their turn");
+        }
+
+        if (!localMatchSingles.checkBounds(event.getInteractionPoint().getBlockX(), event.getInteractionPoint().getBlockZ())) {
+            localMatchSingles.end(localMatchSingles.getOppositeTurnPlayer(), player,  player, "used an item out of bounds");
+        }
     }
 
     @EventHandler

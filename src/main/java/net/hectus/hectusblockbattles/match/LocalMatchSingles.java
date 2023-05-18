@@ -11,13 +11,18 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -323,5 +328,30 @@ public class LocalMatchSingles implements Match, Listener {
         blocks.clear();
 
         nextTurn(true);
+    }
+
+    @EventHandler
+    public void onEntitySpawn(EntitySpawnEvent event){
+
+        LivingEntity entity = (LivingEntity) event.getEntity();
+
+        entity.setAI(false);
+        entity.setInvulnerable(true);
+        entity.setSilent(true);
+
+    }
+
+    @EventHandler
+    public void onEntityRename(PlayerInteractEntityEvent event){
+        Player player = event.getPlayer();
+        Entity entity = event.getRightClicked();
+        ItemStack item = player.getInventory().getItemInMainHand();
+
+        if (item.getType().isItem() && item.getItemMeta() != null && item.getItemMeta().hasDisplayName()) {
+            if(item.getItemMeta().getDisplayName().equalsIgnoreCase("dinnerbone") || item.getItemMeta().getDisplayName().equalsIgnoreCase("grumm")){
+                entity.remove();
+                //todo: remove effect from mob.
+            }
+        }
     }
 }
