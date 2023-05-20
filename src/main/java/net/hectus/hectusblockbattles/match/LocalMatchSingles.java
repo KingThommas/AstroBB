@@ -36,6 +36,7 @@ public class LocalMatchSingles implements Match, Listener {
     private final JavaPlugin plugin;
     private final GameMap gameMap;
     private final List<Player> players;
+    private final HashMap<Player, Integer> playerLuckHashmap;
     private final HashMap<Player, Set<Block>> playerPlacedBlocks;
 
     private BukkitTask main;
@@ -55,6 +56,7 @@ public class LocalMatchSingles implements Match, Listener {
         players.add(p2);
 
         playerPlacedBlocks = new HashMap<>();
+        playerLuckHashmap = new HashMap<>();
 
         turnIndex = -1;
         turnTimeLeft = -1;
@@ -239,6 +241,34 @@ public class LocalMatchSingles implements Match, Listener {
         return 0;
     }
 
+    @Override
+    public void setLuck(Player player, int amount) {
+        playerLuckHashmap.put(player, amount);
+    }
+
+    @Override
+    public void addLuck(Player player, int amount) {
+        playerLuckHashmap.put(player, playerLuckHashmap.get(player) + amount);
+    }
+
+    @Override
+    public void removeLuck(Player player, int amount) {
+        playerLuckHashmap.put(player, playerLuckHashmap.get(player) - amount);
+    }
+
+    @Override
+    public int getLuck(Player player) {
+        return playerLuckHashmap.get(player);
+    }
+
+    @Override
+    public boolean luckCheck(Player player, double chance) {
+        int random = (int) Math.round(Math.random()) * 100;
+        double reverseChange = 100 - chance;
+        int luck = playerLuckHashmap.get(player);
+        return random + luck >= reverseChange;
+    }
+
     public Player getPlayer(boolean turn) {
         return turn ? players.get(1) : players.get(0);
     }
@@ -342,13 +372,13 @@ public class LocalMatchSingles implements Match, Listener {
     }
 
     @EventHandler
-    public void onEntityRename(PlayerInteractEntityEvent event){
+    public void onEntityRename(PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
         Entity entity = event.getRightClicked();
         ItemStack item = player.getInventory().getItemInMainHand();
 
         if (item.getType().isItem() && item.getItemMeta() != null && item.getItemMeta().hasDisplayName()) {
-            if(item.getItemMeta().getDisplayName().equalsIgnoreCase("dinnerbone") || item.getItemMeta().getDisplayName().equalsIgnoreCase("grumm")){
+            if (item.getItemMeta().getDisplayName().equalsIgnoreCase("dinnerbone") || item.getItemMeta().getDisplayName().equalsIgnoreCase("grumm")) {
                 entity.remove();
                 //todo: remove effect from mob.
             }

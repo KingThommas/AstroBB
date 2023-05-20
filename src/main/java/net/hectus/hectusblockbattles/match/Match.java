@@ -14,4 +14,11 @@ public interface Match {
     List<Player> getPlayers();
     boolean isRunning();
     double getGameScore();
+    void setLuck(Player player, int amount);
+    void addLuck(Player player, int amount);
+    void removeLuck(Player player, int amount);
+
+    int getLuck(Player player);
+
+    boolean luckCheck(Player player, double chance);
 }
