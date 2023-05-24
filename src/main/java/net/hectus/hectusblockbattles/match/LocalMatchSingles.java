@@ -6,6 +6,8 @@ import net.hectus.hectusblockbattles.playermode.PlayerMode;
 import net.hectus.hectusblockbattles.playermode.PlayerModeManager;
 import net.hectus.hectusblockbattles.structures.Structure;
 import net.hectus.hectusblockbattles.structures.Structures;
+import net.hectus.hectusblockbattles.warps.Warp;
+import net.hectus.hectusblockbattles.warps.WarpSettings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
@@ -24,9 +26,14 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+
 
 import java.time.Duration;
 import java.util.*;
@@ -35,14 +42,25 @@ import java.util.logging.Level;
 public class LocalMatchSingles implements Match, Listener {
     private final JavaPlugin plugin;
     private final GameMap gameMap;
+
+    private Warp warp;
+
     private final List<Player> players;
     private final HashMap<Player, Integer> playerLuckHashmap;
     private final HashMap<Player, Set<Block>> playerPlacedBlocks;
+    private final List<PotionEffectType> potionsToRemoveAtWarp;
+    //todo: on warp -> remove potion effects.
+
+    private boolean RISK;
+    private String END_RISK;
+    private String RISK_TYPE;
+    private String RISK_COUNTER;
+    private String RISK_COUNTER_TYPE;
 
     private BukkitTask main;
     private int turnIndex;
     private int turnTimeLeft;
-    private Location location;
+    private final Location location;
 
     private Block lastBlock;
 
@@ -51,12 +69,24 @@ public class LocalMatchSingles implements Match, Listener {
         this.gameMap = gameMap;
         this.location = new Location(gameMap.getWorld(), 0, 1, 0);
 
+        this.warp = Warp.DEFAULT;
+
         players = new ArrayList<>();
         players.add(p1);
         players.add(p2);
 
         playerPlacedBlocks = new HashMap<>();
         playerLuckHashmap = new HashMap<>();
+
+        potionsToRemoveAtWarp = new ArrayList<>();
+
+        RISK = false;
+        END_RISK = "NONE";
+        RISK_COUNTER = "NONE";
+        RISK_TYPE = "NONE";
+        RISK_COUNTER_TYPE = "NONE";
+
+
 
         turnIndex = -1;
         turnTimeLeft = -1;
@@ -86,6 +116,12 @@ public class LocalMatchSingles implements Match, Listener {
     public void end(Player won, Player lost, Player causeSubject, String cause) {
         PlayerModeManager.initializePlayerMode(won);
         PlayerModeManager.initializePlayerMode(lost);
+        for (PotionEffect effect : won.getActivePotionEffects()) {
+            won.removePotionEffect(effect.getType());
+        }
+        for (PotionEffect effect : lost.getActivePotionEffects()) {
+            lost.removePotionEffect(effect.getType());
+        }
         if (causeSubject != null) {
             if (causeSubject == won) {
                 cause = "you " + cause;
@@ -95,6 +131,7 @@ public class LocalMatchSingles implements Match, Listener {
         }
         won.sendMessage("You won the match because " + cause);
         lost.sendMessage("You lost the match because " + cause);
+        stop(false);
     }
 
     @Override
@@ -290,7 +327,16 @@ public class LocalMatchSingles implements Match, Listener {
     }
 
     public boolean checkBounds(int x, int z) {
-        return x >= location.x() && x < location.x() + 9 && z >= location.z() && z < location.z() + 9;
+
+        Location point1 = this.warp.getCorner1();
+        Location point2 = this.warp.getCorner2();
+
+        double minX = Math.min(point1.getX(), point2.getX());
+        double minZ = Math.min(point1.getZ(), point2.getZ());
+        double maxX = Math.max(point1.getX(), point2.getX());
+        double maxZ = Math.max(point1.getZ(), point2.getZ());
+
+        return (double) x >= minX && (double) x <= maxX && (double) z >= minZ && (double) z <= maxZ;
     }
 
     @Override
@@ -341,6 +387,505 @@ public class LocalMatchSingles implements Match, Listener {
                             .append(Component.text(" played ", NamedTextColor.YELLOW))
                             .append(Component.text(structure.getName())));
                     blocks.clear();
+                    switch (structure.getName()){
+                        case "PURPLE_WOOL":
+                            if(!allowsClass(WarpSettings.Classes.NEUTRAL)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            RISK = true;
+                            END_RISK = "PURPLE_WOOL";
+                            RISK_TYPE = "NEUTRAL";
+                            nextTurn(false);
+                            return;
+                        case "SPRUCE_TRAPDOOR":
+                            if(!allowsClass(WarpSettings.Classes.NEUTRAL)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            if(RISK){
+                                if(Arrays.asList("NEUTRAL", "WATER", "NATURE").contains(RISK_TYPE)){
+                                    RISK = false;
+                                    END_RISK = "NONE";
+                                    RISK_COUNTER = "NONE";
+                                    RISK_COUNTER_TYPE = "NONE";
+                                    RISK_TYPE = "NONE";
+                                    return;
+                                }
+                            }else{
+                                //should the game stop here for wrong usage?
+                            }
+                            break;
+                        case "IRON_TRAPDOOR":
+                            if(!allowsClass(WarpSettings.Classes.NEUTRAL)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            if(RISK){
+                                if(Arrays.asList("NEUTRAL","WATER", "REDSTONE").contains(RISK_TYPE)){
+                                    RISK = true;
+                                    END_RISK = "IRON_TRAPDOOR";
+                                    RISK_COUNTER = "NONE";
+                                    RISK_COUNTER_TYPE = "NONE";
+                                    RISK_TYPE = "NEUTRAL";
+                                    nextTurn(false);
+                                    return;
+                                }
+                            }else{
+                                //should the game stop here for wrong usage?
+                            }
+                            break;
+                        case "GOLD_BLOCK":
+                            if(!allowsClass(WarpSettings.Classes.NEUTRAL)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            if(RISK){
+                                if(Arrays.asList("NEUTRAL","HOT", "NATURE").contains(RISK_TYPE)){
+                                    RISK = true;
+                                    END_RISK = "GOLD_BLOCK";
+                                    RISK_COUNTER = "NONE";
+                                    RISK_COUNTER_TYPE = "NONE";
+                                    RISK_TYPE = "NEUTRAL";
+                                    nextTurn(false);
+                                    return;
+                                }
+                            }else{
+                                //should the game stop here for wrong usage?
+                            }
+                            break;
+                        case "BLACK_WOOL":
+                            if(!allowsClass(WarpSettings.Classes.NEUTRAL)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            //todo: stop any dream blocks;
+                            players.forEach(player1 -> player1.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 1)));
+                            potionsToRemoveAtWarp.add(PotionEffectType.BLINDNESS);
+                            break;
+                        case "SCULK_BLOCK":
+                            if(!allowsClass(WarpSettings.Classes.NEUTRAL)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            //todo: stop neutral or dream blocks;
+                            getOppositeTurnPlayer().addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, Integer.MAX_VALUE, 1));
+                            removeLuck(getOppositeTurnPlayer(), 10);
+                            potionsToRemoveAtWarp.add(PotionEffectType.DARKNESS);
+                            break;
+                        case "GREEN_CARPET":
+                            if(!allowsClass(WarpSettings.Classes.NEUTRAL)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            if(RISK){
+                                if(END_RISK.endsWith("_WOOL")){
+                                    END_RISK = "GREEN_CARPET";
+                                    RISK_COUNTER = "NONE";
+                                    RISK_COUNTER_TYPE = "NONE";
+                                    RISK_TYPE = "NEUTRAL";
+                                    nextTurn(false);
+                                    return;
+                                }
+                            }else{
+                                //should the game stop here for wrong usage?
+                            }
+                            break;
+                        case "MAGMA_BLOCK":
+                            if(!allowsClass(WarpSettings.Classes.HOT)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            RISK = true;
+                            END_RISK = "MAGMA_BLOCK";
+                            RISK_COUNTER = "NONE";
+                            RISK_COUNTER_TYPE = "NONE";
+                            RISK_TYPE = "HOT";
+                            nextTurn(false);
+                            return;
+                        case "NETHERRACK":
+                            if(!allowsClass(WarpSettings.Classes.HOT)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            if(RISK){
+                                if(Arrays.asList("NEUTRAL","HOT", "NATURE").contains(RISK_TYPE)){
+                                    END_RISK = "NETHERRACK";
+                                    RISK_COUNTER = "NONE";
+                                    RISK_COUNTER_TYPE = "NONE";
+                                    RISK_TYPE = "HOT";
+                                    nextTurn(false);
+                                    return;
+                                }
+                            }else{
+                                //should the game stop here for wrong usage?
+                            }
+                        case "ORANGE_WOOL":
+                            if(!allowsClass(WarpSettings.Classes.HOT)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            if(RISK){
+                                if(Arrays.asList("REDSTONE", "DREAM").contains(RISK_TYPE)){
+                                    END_RISK = "ORANGE_WOOL";
+                                    RISK_COUNTER = "NONE";
+                                    RISK_COUNTER_TYPE = "NONE";
+                                    RISK_TYPE = "HOT";
+                                    nextTurn(false);
+                                    return;
+                                }
+                            }else{
+                                //should the game stop here for wrong usage?
+                            }
+                        case "CAMPFIRE":
+                            if(!allowsClass(WarpSettings.Classes.HOT)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            if(RISK){
+                                if(Arrays.asList("NEUTRAL", "HOT", "COLD").contains(RISK_TYPE) || END_RISK == "BEEHIVE"){
+                                    END_RISK = "ORANGE_WOOL";
+                                    RISK_COUNTER = "NONE";
+                                    RISK_COUNTER_TYPE = "NONE";
+                                    RISK_TYPE = "HOT";
+                                    nextTurn(false);
+                                    return;
+                                }
+                            }else{
+                                //should the game stop here for wrong usage?
+                            }
+                        case "PACKED_ICE":
+                            if(!allowsClass(WarpSettings.Classes.COLD)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            RISK = true;
+                            END_RISK = "PACKED_ICE";
+                            RISK_TYPE = "COLD";
+                            nextTurn(false);
+                            return;
+                        case "BLUE_ICE":
+                            if(!allowsClass(WarpSettings.Classes.COLD)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            if(RISK){
+                                if(Arrays.asList("COLD", "WATER", "DREAM").contains(RISK_TYPE)){
+                                    RISK = false;
+                                    END_RISK = "NONE";
+                                    RISK_COUNTER = "NONE";
+                                    RISK_COUNTER_TYPE = "NONE";
+                                    RISK_TYPE = "NONE";
+                                }
+                            }else{
+                                //should the game stop here for wrong usage?
+                            }
+                        case "SPRUCE_LEAVES":
+                            if(!allowsClass(WarpSettings.Classes.COLD)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            if(RISK){
+                                if(Arrays.asList("NEUTRAL", "NATURE").contains(RISK_TYPE)){
+                                    END_RISK = "SPRUCE_LEAVES";
+                                    RISK_COUNTER = "NONE";
+                                    RISK_COUNTER_TYPE = "NONE";
+                                    RISK_TYPE = "COLD";
+                                    nextTurn(false);
+                                    return;
+                                }
+                            }else{
+                                RISK = true;
+                                END_RISK = "SPRUCE_LEAVES";
+                                RISK_COUNTER = "NONE";
+                                RISK_COUNTER_TYPE = "NONE";
+                                RISK_TYPE = "COLD";
+                                nextTurn(false);
+                                return;
+                            }
+                        case "LIGHT_BLUE_WOOL":
+                            if(!allowsClass(WarpSettings.Classes.COLD)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            RISK = true;
+                            END_RISK = "LIGHT_BLUE_WOOL";
+                            RISK_TYPE = "COLD";
+                            nextTurn(false);
+                            return;
+                        case "WHITE_WOOL":
+                            if(!allowsClass(WarpSettings.Classes.COLD)){
+                                this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
+                                return;
+                            }
+                            if(RISK){
+                                if(Arrays.asList("NEUTRAL", "WATER", "REDSTONE", "DREAM").contains(RISK_TYPE)){
+                                    RISK = false;
+                                    END_RISK = "NONE";
+                                    RISK_TYPE = "NONE";
+                                    RISK_COUNTER_TYPE = "NONE";
+                                    RISK_COUNTER = "NONE";
+                                }
+                            }
+                            players.forEach(player1 -> player1.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 225)));
+                            potionsToRemoveAtWarp.add(PotionEffectType.SLOW);
+                        case "WARP_NETHER":
+                            if(warp.getDimension().equals(WarpSettings.Dimension.END) || warp.getDimension().equals(WarpSettings.Dimension.OVERWORLD) || warp.getTemperature().equals(WarpSettings.Temperature.WARM) || warp.getTemperature().equals(WarpSettings.Temperature.MEDIUM)){
+                                if(luckCheck(getCurrentTurnPlayer(), Warp.NETHER.getChance() * 100)){
+                                    warp = Warp.NETHER;
+                                    //todo: warp;
+                                }else{
+                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                }
+                            }else{
+                                end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used here.");
+                            }
+                            break;
+                        case "WARP_ICE":
+                            if(warp.getTemperature().equals(WarpSettings.Temperature.WARM)){
+                                end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used here.");
+                            }else{
+                                if(luckCheck(player, Warp.ICE.getChance() * 100)){
+                                    addLuck(player, 5);
+                                    warp = Warp.ICE;
+                                    //todo: warp;
+                                }else{
+                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                }
+                            }
+                            break;
+                        case "WARP_SNOW":
+                            if(warp.getTemperature().equals(WarpSettings.Temperature.WARM)){
+                                end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used here.");
+                            }else{
+                                if(luckCheck(player, Warp.SNOW.getChance() * 100)){
+                                    addLuck(player, 5);
+                                    warp = Warp.SNOW;
+                                    //todo: warp;
+                                }else{
+                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                }
+                            }
+                            break;
+                        case "WARP_CLIFF":
+                            if(warp.getTemperature().equals(WarpSettings.Temperature.MEDIUM) || warp.getTemperature().equals(WarpSettings.Temperature.COLD)){
+                                if(luckCheck(player, Warp.CLIFF.getChance() * 100)){
+                                    addLuck(player, 15);
+                                    warp = Warp.CLIFF;
+                                    //todo: warp;
+                                }else{
+                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                }
+                            }else{
+                                end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used here.");
+                            }
+                            break;
+                        case "WARP_UNDERWATER":
+                            if(warp.getTemperature().equals(WarpSettings.Temperature.WARM) || warp.getDimension().equals(WarpSettings.Dimension.NETHER)){
+                                end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used here.");
+                            }else{
+                                if(luckCheck(player, Warp.UNDERWATER.getChance() * 100)){
+                                    addLuck(player, 8);
+                                    warp = Warp.UNDERWATER;
+                                    //todo: warp;
+                                }else{
+                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                }
+                            }
+                            break;
+                        case "WARP_VOID":
+                            if(warp.getLayer().equals(WarpSettings.Layer.SURFACE)){
+                                end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used here.");
+                            }else{
+                                if(luckCheck(player, Warp.VOID.getChance() * 100)){
+                                    addLuck(player, 15);
+                                    warp = Warp.VOID;
+                                    //todo: warp;
+                                    getOppositeTurnPlayer().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 225));
+                                    getOppositeTurnPlayer().addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 225));
+                                    potionsToRemoveAtWarp.add(PotionEffectType.BLINDNESS);
+                                    potionsToRemoveAtWarp.add(PotionEffectType.JUMP);
+                                }else{
+                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                }
+                            }
+                            break;
+                        case "WARP_REDSTONE":
+                            if(!(warp.getTemperature().equals(WarpSettings.Temperature.MEDIUM) || warp.getTemperature().equals(WarpSettings.Temperature.WARM))){
+                                end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used here.");
+                            }else{
+                                if(luckCheck(player, Warp.REDSTONE.getChance() * 100)){
+                                    addLuck(player, 5);
+                                    warp = Warp.REDSTONE;
+                                    //todo: warp;
+                                    //todo: All redstone items played in this warp give +5 Luck to the user;
+                                }else{
+                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                }
+                            }
+                            break;
+                        case "WARP_FOREST":
+                            if(!(warp.getLayer().equals(WarpSettings.Layer.SURFACE) && warp.getDimension().equals(WarpSettings.Dimension.OVERWORLD))){
+                                end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used here.");
+                            }else{
+                                if(luckCheck(player, Warp.FOREST.getChance() * 100)){
+                                    warp = Warp.FOREST;
+                                    //todo: warp;
+                                }else{
+                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                }
+                            }
+                            break;
+                        case "WARP_DESERT":
+                            if(!(warp.getLayer().equals(WarpSettings.Layer.SURFACE) && warp.getDimension().equals(WarpSettings.Dimension.OVERWORLD))){
+                                end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used here.");
+                            }else{
+                                if(luckCheck(player, Warp.DESERT.getChance() * 100)){
+                                    warp = Warp.DESERT;
+                                    getOppositeTurnPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 1));
+                                    potionsToRemoveAtWarp.add(PotionEffectType.SLOW);
+                                    addLuck(player, 5);
+                                    //todo: warp;
+                                }else{
+                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                }
+                            }
+                            break;
+                        case "WARP_AETHER":
+                            if(!warp.getDimension().equals(WarpSettings.Dimension.OVERWORLD)){
+                                end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used here.");
+                            }else{
+                                if(luckCheck(player, Warp.AETHER.getChance() * 100)){
+                                    warp = Warp.AETHER;
+                                    addLuck(player, 10);
+                                    //todo: warp;
+                                }else{
+                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                }
+                            }
+                            break;
+                        case "WARP_BOOK":
+                            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/London"));
+                            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+                            if(dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY){
+                                end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used today (based on UTC/GMT).");
+                            }else{
+                                if(luckCheck(player, Warp.BOOK.getChance() * 100)){
+                                    warp = Warp.BOOK;
+                                    addLuck(player, 35);
+                                    //todo: warp;
+                                }else{
+                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                }
+                            }
+                            break;
+                        case "WARP_AMETHYST":
+                            if(luckCheck(player, Warp.AMETHYST.getChance() * 100)){
+                                warp = Warp.AMETHYST;
+                                addLuck(player, 20);
+                                //todo: warp;
+                            }else{
+                                getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                            }
+                            break;
+                        case "WARP_SUN":
+                            Calendar.getInstance(TimeZone.getTimeZone("Europe/London"));
+                            if(Calendar.HOUR_OF_DAY >= 6 && Calendar.HOUR_OF_DAY < 18){
+                                end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used at this moment of the day (based on UTC/GMT).");
+                            }else{
+                                if(luckCheck(player, Warp.SUN.getChance() * 100)){
+                                    warp = Warp.SUN;
+                                    //todo: warp;
+                                    potionsToRemoveAtWarp.add(PotionEffectType.BLINDNESS);
+                                    getOppositeTurnPlayer().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 1));
+                                    for(Player player1 : players){
+                                        for(ItemStack itemStack : player1.getInventory().getContents()){
+                                            List<Material> waterItems = new ArrayList<>(Arrays.asList(
+                                                    Material.TRIDENT,
+                                                    Material.BRAIN_CORAL_BLOCK,
+                                                    Material.HORN_CORAL,
+                                                    Material.SEA_LANTERN,
+                                                    Material.WATER_BUCKET,
+                                                    Material.DRIED_KELP_BLOCK,
+                                                    Material.OAK_BOAT,
+                                                    Material.AXOLOTL_SPAWN_EGG,
+                                                    Material.VERDANT_FROGLIGHT,
+                                                    Material.PUFFERFISH_BUCKET,
+                                                    Material.BLUE_STAINED_GLASS
+                                            ));
+                                            if(waterItems.contains(itemStack.getType())){
+                                                player1.getInventory().remove(itemStack);
+                                            }
+                                        }
+                                    }
+                                }else{
+                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                }
+                            }
+                            break;
+                        case "WARP_MUSHROOM":
+                            if(warp != Warp.FOREST){
+                                end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used here.");
+                            }
+                            if(luckCheck(player, Warp.MUSHROOM.getChance() * 100)){
+                                warp = Warp.MUSHROOM;
+                                //todo: warp;
+                                //todo: +1 random item;
+                            }else{
+                                getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                            }
+                            break;
+                        case "WARP_END":
+                            if(warp.getDimension() != WarpSettings.Dimension.OVERWORLD){
+                                end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used here.");
+                            }
+                            if(luckCheck(player, Warp.END.getChance() * 100)){
+                                warp = Warp.END;
+                                //todo: warp;
+                                addLuck(player, 10);
+                                player.getInventory().addItem(new ItemStack(Material.ENDER_PEARL, 1));
+                            }else{
+                                getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                            }
+                            break;
+                        case "WARP_GOD":
+                            if(Math.random() < 0.5){
+                                warp = Warp.HEAVEN;
+                                addLuck(getCurrentTurnPlayer(), 20);
+                                addLuck(getOppositeTurnPlayer(), 10);
+                                //todo: warp;
+                            }else{
+                                warp = Warp.HELL;
+                                removeLuck(getCurrentTurnPlayer(), 10);
+                                removeLuck(getOppositeTurnPlayer(), 20);
+                                //todo: warp;
+                            }
+                        default:
+                            for(Player Lplayer : players){
+                                Lplayer.sendMessage(Component.text("This structure is", NamedTextColor.GRAY)
+                                        .append(Component.text(" known ", NamedTextColor.GREEN))
+                                        .append(Component.text("but has", NamedTextColor.GRAY))
+                                        .append(Component.text(" no actions linked", NamedTextColor.RED))
+                                        .append(Component.text(".", NamedTextColor.GRAY)));
+                            }
+                            nextTurn(true);
+                            return;
+                    }
                 }
 
                 return;
@@ -356,6 +901,10 @@ public class LocalMatchSingles implements Match, Listener {
         }
 
         blocks.clear();
+
+        if(RISK){
+            this.end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Can't counter " + END_RISK);
+        }
 
         nextTurn(true);
     }
@@ -381,6 +930,42 @@ public class LocalMatchSingles implements Match, Listener {
             if (item.getItemMeta().getDisplayName().equalsIgnoreCase("dinnerbone") || item.getItemMeta().getDisplayName().equalsIgnoreCase("grumm")) {
                 entity.remove();
                 //todo: remove effect from mob.
+            }
+        }
+    }
+
+    private boolean allowsClass(WarpSettings.Classes allow){
+
+        for (WarpSettings.Classes classes : warp.getAllow()) {
+            if (classes.equals(allow)) {
+                return true;
+            }
+        }
+        return false;
+
+    }
+    public void moveRegion(World world, Location start, Location end, Location newLocation) {
+        int minX = Math.min(start.getBlockX(), end.getBlockX());
+        int minY = Math.min(start.getBlockY(), end.getBlockY());
+        int minZ = Math.min(start.getBlockZ(), end.getBlockZ());
+
+        int maxX = Math.max(start.getBlockX(), end.getBlockX());
+        int maxY = Math.max(start.getBlockY(), end.getBlockY());
+        int maxZ = Math.max(start.getBlockZ(), end.getBlockZ());
+
+        int dx = newLocation.getBlockX() - minX;
+        int dy = newLocation.getBlockY() - minY;
+        int dz = newLocation.getBlockZ() - minZ;
+
+        for (int y = maxY; y >= minY; y--) {
+            for (int x = minX; x <= maxX; x++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    Block block = world.getBlockAt(x, y, z);
+                    Block newBlock = world.getBlockAt(x + dx, y + dy, z + dz);
+                    newBlock.setType(block.getType());
+                    newBlock.setBlockData(block.getBlockData());
+                    block.setType(Material.AIR);
+                }
             }
         }
     }
