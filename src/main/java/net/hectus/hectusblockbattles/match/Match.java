@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 public interface Match {
-    boolean start();
+    void start();
     void stop(boolean isAbrupt);
     Player getCurrentTurnPlayer();
     void nextTurn(boolean wasSkipped);

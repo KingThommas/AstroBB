@@ -3,8 +3,8 @@ package net.hectus.hectusblockbattles.commands;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import net.hectus.hectusblockbattles.structures.Structure;
+import net.hectus.util.color.McColor;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -27,19 +27,14 @@ public class StructureCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage(Component.text("Only players may execute this command.",  NamedTextColor.RED));
-            return true;
-        }
-
         String structureName = args[6];
 
         if (args.length == 7) {
             Structure toSerialize;
             try {
-                toSerialize = new Structure(player.getWorld(), structureName, Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
+                toSerialize = new Structure(((Player) sender).getWorld(), structureName, Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
             } catch (NumberFormatException exception) {
-                sender.sendMessage(Component.text("Wrong args!", NamedTextColor.RED));
+                sender.sendMessage(Component.text(McColor.RED + "Wrong args!"));
                 return false;
             }
 
@@ -70,7 +65,7 @@ public class StructureCommand implements CommandExecutor {
 
             Bukkit.getLogger().log(Level.INFO, "DEBUG: Serialized.");
 
-            sender.sendMessage(Component.text("You did it! Check logs for info.", NamedTextColor.GREEN));
+            sender.sendMessage(Component.text(McColor.GREEN + "You did it! Check logs for info."));
             return true;
         }
 

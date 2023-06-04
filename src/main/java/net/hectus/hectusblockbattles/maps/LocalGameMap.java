@@ -21,7 +21,7 @@ public class LocalGameMap implements GameMap {
     private World world;
     private Warp currentWarp;
 
-    private World sourceWorld;
+    private final World sourceWorld;
 
     public LocalGameMap(File mapsFolder, String mapName, boolean loadOnInit, World sourceWorld) {
         this.sourceWorldFolder = new File(mapsFolder, mapName);

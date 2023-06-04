@@ -9,8 +9,7 @@ public final class MatchManager {
 
     public static Match getMatch(World world) {
         for (Match match : matches) {
-            if (match.getGameMap().getWorld() == world)
-                return match;
+            if (match.getGameMap().getWorld() == world) return match;
         }
         return null;
     }

@@ -1,6 +1,6 @@
 package net.hectus.hectusblockbattles.match;
 
-import net.hectus.hectusblockbattles.IngameShop;
+import net.hectus.hectusblockbattles.InGameShop;
 import net.hectus.hectusblockbattles.maps.GameMap;
 import net.hectus.hectusblockbattles.playermode.PlayerMode;
 import net.hectus.hectusblockbattles.playermode.PlayerModeManager;
@@ -8,8 +8,9 @@ import net.hectus.hectusblockbattles.structures.Structure;
 import net.hectus.hectusblockbattles.structures.Structures;
 import net.hectus.hectusblockbattles.warps.Warp;
 import net.hectus.hectusblockbattles.warps.WarpSettings;
+import net.hectus.util.color.McColor;
+import net.hectus.util.var.Time;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -32,13 +33,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 
 
 import java.time.Duration;
 import java.util.*;
 import java.util.logging.Level;
 
+@SuppressWarnings("deprecation")
 public class LocalMatchSingles implements Match, Listener {
     private final JavaPlugin plugin;
     private final GameMap gameMap;
@@ -54,15 +55,11 @@ public class LocalMatchSingles implements Match, Listener {
     private boolean RISK;
     private String END_RISK;
     private String RISK_TYPE;
-    private String RISK_COUNTER;
-    private String RISK_COUNTER_TYPE;
 
     private BukkitTask main;
     private int turnIndex;
     private int turnTimeLeft;
     private final Location location;
-
-    private Block lastBlock;
 
     public LocalMatchSingles(JavaPlugin plugin, GameMap gameMap, Player p1, Player p2) {
         this.plugin = plugin;
@@ -71,7 +68,7 @@ public class LocalMatchSingles implements Match, Listener {
 
         this.warp = Warp.DEFAULT;
 
-        players = new ArrayList<>();
+        players = new LinkedList<>();
         players.add(p1);
         players.add(p2);
 
@@ -82,10 +79,7 @@ public class LocalMatchSingles implements Match, Listener {
 
         RISK = false;
         END_RISK = "NONE";
-        RISK_COUNTER = "NONE";
         RISK_TYPE = "NONE";
-        RISK_COUNTER_TYPE = "NONE";
-
 
 
         turnIndex = -1;
@@ -123,21 +117,24 @@ public class LocalMatchSingles implements Match, Listener {
             lost.removePotionEffect(effect.getType());
         }
         if (causeSubject != null) {
+            StringBuilder causeBuilder = new StringBuilder();
             if (causeSubject == won) {
-                cause = "you " + cause;
+                causeBuilder.append("you ");
             } else {
-                cause = "your opponent " + cause;
+                causeBuilder.append("your opponent ");
             }
+            causeBuilder.append(cause);
+            cause = causeBuilder.toString();
         }
-        won.sendMessage("You won the match because " + cause);
-        lost.sendMessage("You lost the match because " + cause);
+        won.sendMessage(Component.text(McColor.GREEN + "You won the match because " + cause));
+        lost.sendMessage(Component.text(McColor.RED + "You lost the match because " + cause));
         stop(false);
     }
 
     @Override
-    public boolean start() {
+    public void start() {
         if (isRunning()) {
-            return true;
+            return;
         }
 
         Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
@@ -153,10 +150,10 @@ public class LocalMatchSingles implements Match, Listener {
         for (Player player : players) {
             PlayerModeManager.setPlayerMode(PlayerMode.SHOP_PHASE, player);
             // TODO: OPEN SHOP INVENTORY
-            IngameShop.displayShop(player);
+            InGameShop.displayShop(player);
         }
 
-        final int BUY_TIME = 45 * 20;
+        final int BUY_TIME = 45;
         new BukkitRunnable() {
             int t = BUY_TIME;
             @Override
@@ -165,10 +162,8 @@ public class LocalMatchSingles implements Match, Listener {
                     this.cancel();
                 }
 
-                if (t % 20 == 0) {
-                    for (Player player : players) {
-                        player.sendActionBar(Component.text(t, NamedTextColor.GRAY));
-                    }
+                for (Player player : players) {
+                    player.sendActionBar(Component.text(McColor.GRAY + Time.format(t)));
                 }
 
                 if (t <= 0) {
@@ -182,7 +177,7 @@ public class LocalMatchSingles implements Match, Listener {
 
                 t--;
             }
-        }.runTaskTimer(plugin, 100, 1);
+        }.runTaskTimer(plugin, 100L, 20L);
 
         // Run main match
         main = new BukkitRunnable() {
@@ -192,25 +187,24 @@ public class LocalMatchSingles implements Match, Listener {
                     this.cancel();
                 }
 
+                String currentPlayer = players.get(turnIndex).getName();
+
                 for (Player player : players) {
-                    player.sendActionBar(players.get(turnIndex).displayName().color(NamedTextColor.YELLOW)
-                            .append(Component.text("'s turn. Time left: ", NamedTextColor.GRAY))
-                            .append(Component.text(turnTimeLeft / 20d, NamedTextColor.YELLOW)));
+                    player.sendActionBar(Component.text(McColor.YELLOW + currentPlayer + "'s turn." + McColor.GRAY + " Time left: " + McColor.YELLOW + Time.format(turnTimeLeft)));
                 }
 
                 turnTimeLeft--;
 
                 if (turnTimeLeft <= 0) {
                     for (Player player : players) {
-                        player.sendMessage(players.get(turnIndex).displayName().color(NamedTextColor.YELLOW)
-                                .append(Component.text(" did not play in time!", NamedTextColor.RED)));
+                        player.sendMessage(Component.text(McColor.YELLOW + currentPlayer + McColor.RED + " didn't play in time!"));
                     }
                     nextTurn(true);
                 }
             }
-        }.runTaskTimer(plugin, 101 + BUY_TIME, 1);
+        }.runTaskTimer(plugin, 105L + BUY_TIME, 20L);
 
-        return isRunning();
+        isRunning();
     }
 
     @Override
@@ -236,13 +230,11 @@ public class LocalMatchSingles implements Match, Listener {
         }
 
         new BukkitRunnable() {
-            int i = 10 * 20;
+            int i = 10;
             @Override
             public void run() {
                 for (Player player : getGameMap().getWorld().getPlayers()) {
-                    player.sendActionBar(Component.text("Returning to lobby in ", NamedTextColor.YELLOW)
-                            .append(Component.text(i / 20, NamedTextColor.RED))
-                            .append(Component.text("...", NamedTextColor.YELLOW)));
+                    player.sendActionBar(Component.text(McColor.YELLOW + "Returning to lobby in" + Time.format(i) + "..."));
                 }
 
                 if (getGameMap().getWorld().getPlayers().size() < 1) {
@@ -259,13 +251,12 @@ public class LocalMatchSingles implements Match, Listener {
 
                 i--;
             }
-        }.runTaskTimer(plugin, 0, 1);
+        }.runTaskTimer(plugin, 0L, 20L);
     }
 
     private void sendPlayerToLobby(Player player) {
         PlayerModeManager.setPlayerMode(PlayerMode.DEFAULT, player);
-        // TODO: SEND TO LOBBY
-        player.teleport(getGameMap().getSourceWorld().getSpawnLocation());
+        player.kick();
     }
 
     @Override
@@ -318,25 +309,17 @@ public class LocalMatchSingles implements Match, Listener {
         return getPlayer(!getTurn());
     }
 
-    public Block getLastBlock() {
-        return lastBlock;
-    }
+    public boolean outOfBounds(double x, double z) {
 
-    public Location getLocation() {
-        return location;
-    }
+        Location corner1 = this.warp.getCorner1();
+        Location corner2 = this.warp.getCorner2();
 
-    public boolean checkBounds(int x, int z) {
+        double minX = Math.min(corner1.getX(), corner2.getX());
+        double minZ = Math.min(corner1.getZ(), corner2.getZ());
+        double maxX = Math.max(corner1.getX(), corner2.getX());
+        double maxZ = Math.max(corner1.getZ(), corner2.getZ());
 
-        Location point1 = this.warp.getCorner1();
-        Location point2 = this.warp.getCorner2();
-
-        double minX = Math.min(point1.getX(), point2.getX());
-        double minZ = Math.min(point1.getZ(), point2.getZ());
-        double maxX = Math.max(point1.getX(), point2.getX());
-        double maxZ = Math.max(point1.getZ(), point2.getZ());
-
-        return (double) x >= minX && (double) x <= maxX && (double) z >= minZ && (double) z <= maxZ;
+        return x < minX || x > maxX || z < minZ || z > maxZ;
     }
 
     @Override
@@ -375,21 +358,19 @@ public class LocalMatchSingles implements Match, Listener {
         playerPlacedBlocks.putIfAbsent(player, new HashSet<>());
         Set<Block> blocks = playerPlacedBlocks.get(player);
         blocks.add(e.getBlockPlaced());
-        lastBlock = e.getBlockPlaced();
 
         Structure build = new Structure("Build", playerPlacedBlocks.get(e.getPlayer()));
         for (Structure structure : Structures.getAllStructures()) {
             Bukkit.getLogger().log(Level.INFO, "TESTING: " + structure.getName());
             if (structure.hasSubset(build)) {
                 if (structure.getPlacedBlocks().size() == blocks.size()) {
-                    // Perfect match
-                    Bukkit.broadcast(player.displayName()
-                            .append(Component.text(" played ", NamedTextColor.YELLOW))
-                            .append(Component.text(structure.getName())));
+                    Bukkit.broadcast(Component.text(player.getName() + McColor.YELLOW + " played " + structure.getName()));
+
                     blocks.clear();
+
                     switch (structure.getName()){
                         case "PURPLE_WOOL":
-                            if(!allowsClass(WarpSettings.Classes.NEUTRAL)){
+                            if(disallowsClass(WarpSettings.Class.NEUTRAL)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
@@ -399,63 +380,50 @@ public class LocalMatchSingles implements Match, Listener {
                             nextTurn(false);
                             return;
                         case "SPRUCE_TRAPDOOR":
-                            if(!allowsClass(WarpSettings.Classes.NEUTRAL)){
+                            if (disallowsClass(WarpSettings.Class.NEUTRAL)) {
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
-                            if(RISK){
+                            if (RISK) {
                                 if(Arrays.asList("NEUTRAL", "WATER", "NATURE").contains(RISK_TYPE)){
                                     RISK = false;
                                     END_RISK = "NONE";
-                                    RISK_COUNTER = "NONE";
-                                    RISK_COUNTER_TYPE = "NONE";
                                     RISK_TYPE = "NONE";
                                     return;
                                 }
-                            }else{
-                                //should the game stop here for wrong usage?
                             }
                             break;
                         case "IRON_TRAPDOOR":
-                            if(!allowsClass(WarpSettings.Classes.NEUTRAL)){
+                            if(disallowsClass(WarpSettings.Class.NEUTRAL)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
                             if(RISK){
                                 if(Arrays.asList("NEUTRAL","WATER", "REDSTONE").contains(RISK_TYPE)){
-                                    RISK = true;
                                     END_RISK = "IRON_TRAPDOOR";
-                                    RISK_COUNTER = "NONE";
-                                    RISK_COUNTER_TYPE = "NONE";
                                     RISK_TYPE = "NEUTRAL";
                                     nextTurn(false);
                                     return;
                                 }
-                            }else{
-                                //should the game stop here for wrong usage?
                             }
+
                             break;
                         case "GOLD_BLOCK":
-                            if(!allowsClass(WarpSettings.Classes.NEUTRAL)){
+                            if(disallowsClass(WarpSettings.Class.NEUTRAL)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
                             if(RISK){
                                 if(Arrays.asList("NEUTRAL","HOT", "NATURE").contains(RISK_TYPE)){
-                                    RISK = true;
                                     END_RISK = "GOLD_BLOCK";
-                                    RISK_COUNTER = "NONE";
-                                    RISK_COUNTER_TYPE = "NONE";
                                     RISK_TYPE = "NEUTRAL";
                                     nextTurn(false);
                                     return;
                                 }
-                            }else{
-                                //should the game stop here for wrong usage?
                             }
                             break;
                         case "BLACK_WOOL":
-                            if(!allowsClass(WarpSettings.Classes.NEUTRAL)){
+                            if(disallowsClass(WarpSettings.Class.NEUTRAL)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
@@ -464,7 +432,7 @@ public class LocalMatchSingles implements Match, Listener {
                             potionsToRemoveAtWarp.add(PotionEffectType.BLINDNESS);
                             break;
                         case "SCULK_BLOCK":
-                            if(!allowsClass(WarpSettings.Classes.NEUTRAL)){
+                            if(disallowsClass(WarpSettings.Class.NEUTRAL)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
@@ -474,88 +442,70 @@ public class LocalMatchSingles implements Match, Listener {
                             potionsToRemoveAtWarp.add(PotionEffectType.DARKNESS);
                             break;
                         case "GREEN_CARPET":
-                            if(!allowsClass(WarpSettings.Classes.NEUTRAL)){
+                            if(disallowsClass(WarpSettings.Class.NEUTRAL)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
                             if(RISK){
                                 if(END_RISK.endsWith("_WOOL")){
                                     END_RISK = "GREEN_CARPET";
-                                    RISK_COUNTER = "NONE";
-                                    RISK_COUNTER_TYPE = "NONE";
                                     RISK_TYPE = "NEUTRAL";
                                     nextTurn(false);
                                     return;
                                 }
-                            }else{
-                                //should the game stop here for wrong usage?
                             }
                             break;
                         case "MAGMA_BLOCK":
-                            if(!allowsClass(WarpSettings.Classes.HOT)){
+                            if(disallowsClass(WarpSettings.Class.HOT)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
                             RISK = true;
                             END_RISK = "MAGMA_BLOCK";
-                            RISK_COUNTER = "NONE";
-                            RISK_COUNTER_TYPE = "NONE";
                             RISK_TYPE = "HOT";
                             nextTurn(false);
                             return;
                         case "NETHERRACK":
-                            if(!allowsClass(WarpSettings.Classes.HOT)){
+                            if(disallowsClass(WarpSettings.Class.HOT)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
                             if(RISK){
                                 if(Arrays.asList("NEUTRAL","HOT", "NATURE").contains(RISK_TYPE)){
                                     END_RISK = "NETHERRACK";
-                                    RISK_COUNTER = "NONE";
-                                    RISK_COUNTER_TYPE = "NONE";
                                     RISK_TYPE = "HOT";
                                     nextTurn(false);
                                     return;
                                 }
-                            }else{
-                                //should the game stop here for wrong usage?
                             }
                         case "ORANGE_WOOL":
-                            if(!allowsClass(WarpSettings.Classes.HOT)){
+                            if(disallowsClass(WarpSettings.Class.HOT)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
                             if(RISK){
                                 if(Arrays.asList("REDSTONE", "DREAM").contains(RISK_TYPE)){
                                     END_RISK = "ORANGE_WOOL";
-                                    RISK_COUNTER = "NONE";
-                                    RISK_COUNTER_TYPE = "NONE";
                                     RISK_TYPE = "HOT";
                                     nextTurn(false);
                                     return;
                                 }
-                            }else{
-                                //should the game stop here for wrong usage?
                             }
                         case "CAMPFIRE":
-                            if(!allowsClass(WarpSettings.Classes.HOT)){
+                            if(disallowsClass(WarpSettings.Class.HOT)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
                             if(RISK){
-                                if(Arrays.asList("NEUTRAL", "HOT", "COLD").contains(RISK_TYPE) || END_RISK == "BEEHIVE"){
+                                if(Arrays.asList("NEUTRAL", "HOT", "COLD").contains(RISK_TYPE) || END_RISK.equals("BEEHIVE")){
                                     END_RISK = "ORANGE_WOOL";
-                                    RISK_COUNTER = "NONE";
-                                    RISK_COUNTER_TYPE = "NONE";
                                     RISK_TYPE = "HOT";
                                     nextTurn(false);
                                     return;
                                 }
-                            }else{
-                                //should the game stop here for wrong usage?
                             }
                         case "PACKED_ICE":
-                            if(!allowsClass(WarpSettings.Classes.COLD)){
+                            if(disallowsClass(WarpSettings.Class.COLD)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
@@ -565,7 +515,7 @@ public class LocalMatchSingles implements Match, Listener {
                             nextTurn(false);
                             return;
                         case "BLUE_ICE":
-                            if(!allowsClass(WarpSettings.Classes.COLD)){
+                            if(disallowsClass(WarpSettings.Class.COLD)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
@@ -573,23 +523,17 @@ public class LocalMatchSingles implements Match, Listener {
                                 if(Arrays.asList("COLD", "WATER", "DREAM").contains(RISK_TYPE)){
                                     RISK = false;
                                     END_RISK = "NONE";
-                                    RISK_COUNTER = "NONE";
-                                    RISK_COUNTER_TYPE = "NONE";
                                     RISK_TYPE = "NONE";
                                 }
-                            }else{
-                                //should the game stop here for wrong usage?
                             }
                         case "SPRUCE_LEAVES":
-                            if(!allowsClass(WarpSettings.Classes.COLD)){
+                            if(disallowsClass(WarpSettings.Class.COLD)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
                             if(RISK){
                                 if(Arrays.asList("NEUTRAL", "NATURE").contains(RISK_TYPE)){
                                     END_RISK = "SPRUCE_LEAVES";
-                                    RISK_COUNTER = "NONE";
-                                    RISK_COUNTER_TYPE = "NONE";
                                     RISK_TYPE = "COLD";
                                     nextTurn(false);
                                     return;
@@ -597,14 +541,12 @@ public class LocalMatchSingles implements Match, Listener {
                             }else{
                                 RISK = true;
                                 END_RISK = "SPRUCE_LEAVES";
-                                RISK_COUNTER = "NONE";
-                                RISK_COUNTER_TYPE = "NONE";
                                 RISK_TYPE = "COLD";
                                 nextTurn(false);
                                 return;
                             }
                         case "LIGHT_BLUE_WOOL":
-                            if(!allowsClass(WarpSettings.Classes.COLD)){
+                            if(disallowsClass(WarpSettings.Class.COLD)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
@@ -614,7 +556,7 @@ public class LocalMatchSingles implements Match, Listener {
                             nextTurn(false);
                             return;
                         case "WHITE_WOOL":
-                            if(!allowsClass(WarpSettings.Classes.COLD)){
+                            if(disallowsClass(WarpSettings.Class.COLD)){
                                 this.end(getCurrentTurnPlayer(), getOppositeTurnPlayer(), getCurrentTurnPlayer(), "Used a denied block.");
                                 return;
                             }
@@ -623,8 +565,6 @@ public class LocalMatchSingles implements Match, Listener {
                                     RISK = false;
                                     END_RISK = "NONE";
                                     RISK_TYPE = "NONE";
-                                    RISK_COUNTER_TYPE = "NONE";
-                                    RISK_COUNTER = "NONE";
                                 }
                             }
                             players.forEach(player1 -> player1.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 225)));
@@ -635,8 +575,7 @@ public class LocalMatchSingles implements Match, Listener {
                                     warp = Warp.NETHER;
                                     //todo: warp;
                                 }else{
-                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    failed();
                                 }
                             }else{
                                 end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used here.");
@@ -651,8 +590,7 @@ public class LocalMatchSingles implements Match, Listener {
                                     warp = Warp.ICE;
                                     //todo: warp;
                                 }else{
-                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    failed();
                                 }
                             }
                             break;
@@ -665,8 +603,7 @@ public class LocalMatchSingles implements Match, Listener {
                                     warp = Warp.SNOW;
                                     //todo: warp;
                                 }else{
-                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    failed();
                                 }
                             }
                             break;
@@ -677,8 +614,7 @@ public class LocalMatchSingles implements Match, Listener {
                                     warp = Warp.CLIFF;
                                     //todo: warp;
                                 }else{
-                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    failed();
                                 }
                             }else{
                                 end(getOppositeTurnPlayer(), getCurrentTurnPlayer(), getCurrentTurnPlayer(), "Has played a warp, which cannot be used here.");
@@ -693,8 +629,7 @@ public class LocalMatchSingles implements Match, Listener {
                                     warp = Warp.UNDERWATER;
                                     //todo: warp;
                                 }else{
-                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    failed();
                                 }
                             }
                             break;
@@ -711,8 +646,7 @@ public class LocalMatchSingles implements Match, Listener {
                                     potionsToRemoveAtWarp.add(PotionEffectType.BLINDNESS);
                                     potionsToRemoveAtWarp.add(PotionEffectType.JUMP);
                                 }else{
-                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    failed();
                                 }
                             }
                             break;
@@ -726,8 +660,7 @@ public class LocalMatchSingles implements Match, Listener {
                                     //todo: warp;
                                     //todo: All redstone items played in this warp give +5 Luck to the user;
                                 }else{
-                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    failed();
                                 }
                             }
                             break;
@@ -739,8 +672,7 @@ public class LocalMatchSingles implements Match, Listener {
                                     warp = Warp.FOREST;
                                     //todo: warp;
                                 }else{
-                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    failed();
                                 }
                             }
                             break;
@@ -755,8 +687,7 @@ public class LocalMatchSingles implements Match, Listener {
                                     addLuck(player, 5);
                                     //todo: warp;
                                 }else{
-                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    failed();
                                 }
                             }
                             break;
@@ -769,8 +700,7 @@ public class LocalMatchSingles implements Match, Listener {
                                     addLuck(player, 10);
                                     //todo: warp;
                                 }else{
-                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    failed();
                                 }
                             }
                             break;
@@ -785,8 +715,7 @@ public class LocalMatchSingles implements Match, Listener {
                                     addLuck(player, 35);
                                     //todo: warp;
                                 }else{
-                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    failed();
                                 }
                             }
                             break;
@@ -796,8 +725,7 @@ public class LocalMatchSingles implements Match, Listener {
                                 addLuck(player, 20);
                                 //todo: warp;
                             }else{
-                                getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                failed();
                             }
                             break;
                         case "WARP_SUN":
@@ -831,8 +759,7 @@ public class LocalMatchSingles implements Match, Listener {
                                         }
                                     }
                                 }else{
-                                    getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                    getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                    failed();
                                 }
                             }
                             break;
@@ -845,8 +772,7 @@ public class LocalMatchSingles implements Match, Listener {
                                 //todo: warp;
                                 //todo: +1 random item;
                             }else{
-                                getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                failed();
                             }
                             break;
                         case "WARP_END":
@@ -859,8 +785,7 @@ public class LocalMatchSingles implements Match, Listener {
                                 addLuck(player, 10);
                                 player.getInventory().addItem(new ItemStack(Material.ENDER_PEARL, 1));
                             }else{
-                                getOppositeTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
-                                getCurrentTurnPlayer().showTitle(Title.title(Component.text(""), Component.text("Failed!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+                                failed();
                             }
                             break;
                         case "WARP_GOD":
@@ -876,12 +801,8 @@ public class LocalMatchSingles implements Match, Listener {
                                 //todo: warp;
                             }
                         default:
-                            for(Player Lplayer : players){
-                                Lplayer.sendMessage(Component.text("This structure is", NamedTextColor.GRAY)
-                                        .append(Component.text(" known ", NamedTextColor.GREEN))
-                                        .append(Component.text("but has", NamedTextColor.GRAY))
-                                        .append(Component.text(" no actions linked", NamedTextColor.RED))
-                                        .append(Component.text(".", NamedTextColor.GRAY)));
+                            for (Player lPlayer : players) {
+                                lPlayer.sendMessage(Component.text(McColor.GRAY + "This structure is " + McColor.GREEN + "known" + McColor.GRAY + ", but has " + McColor.RED + "no actions linked"));
                             }
                             nextTurn(true);
                             return;
@@ -893,7 +814,7 @@ public class LocalMatchSingles implements Match, Listener {
         }
 
         // No such structure exists: Misplace!
-        player.showTitle(Title.title(Component.text(""), Component.text("Misplace!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+        player.showTitle(Title.title(Component.text(""), Component.text(McColor.RED + "Misplace!"), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
 
         for (Block block : blocks) {
             player.getWorld().spawnParticle(Particle.BLOCK_CRACK, block.getLocation().add(0.5d, 0.5d, 0.5d), 10, 0.5d, 0.5d, 0.5d, block.getBlockData());
@@ -934,39 +855,19 @@ public class LocalMatchSingles implements Match, Listener {
         }
     }
 
-    private boolean allowsClass(WarpSettings.Classes allow){
+    private boolean disallowsClass(WarpSettings.Class allow){
 
-        for (WarpSettings.Classes classes : warp.getAllow()) {
-            if (classes.equals(allow)) {
-                return true;
+        for (WarpSettings.Class aClass : warp.getAllow()) {
+            if (aClass.equals(allow)) {
+                return false;
             }
         }
-        return false;
+        return true;
 
     }
-    public void moveRegion(World world, Location start, Location end, Location newLocation) {
-        int minX = Math.min(start.getBlockX(), end.getBlockX());
-        int minY = Math.min(start.getBlockY(), end.getBlockY());
-        int minZ = Math.min(start.getBlockZ(), end.getBlockZ());
-
-        int maxX = Math.max(start.getBlockX(), end.getBlockX());
-        int maxY = Math.max(start.getBlockY(), end.getBlockY());
-        int maxZ = Math.max(start.getBlockZ(), end.getBlockZ());
-
-        int dx = newLocation.getBlockX() - minX;
-        int dy = newLocation.getBlockY() - minY;
-        int dz = newLocation.getBlockZ() - minZ;
-
-        for (int y = maxY; y >= minY; y--) {
-            for (int x = minX; x <= maxX; x++) {
-                for (int z = minZ; z <= maxZ; z++) {
-                    Block block = world.getBlockAt(x, y, z);
-                    Block newBlock = world.getBlockAt(x + dx, y + dy, z + dz);
-                    newBlock.setType(block.getType());
-                    newBlock.setBlockData(block.getBlockData());
-                    block.setType(Material.AIR);
-                }
-            }
-        }
+    
+    public void failed() {
+        getOppositeTurnPlayer().showTitle(Title.title(Component.empty(), Component.text(McColor.RED + "Failed!"), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
+        getCurrentTurnPlayer().showTitle(Title.title(Component.empty(), Component.text(McColor.RED + "Failed!"), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
     }
 }

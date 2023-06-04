@@ -4,9 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import net.hectus.hectusblockbattles.structures.Structure;
+import net.hectus.util.color.McColor;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -36,17 +37,14 @@ public class TestCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage(Component.text("Only players may execute this command.",  NamedTextColor.RED));
-            return true;
-        }
+        World world = ((Player) sender).getWorld();
 
         if (args.length == 7) {
             Structure toSerialize;
             try {
-                toSerialize = new Structure(player.getWorld(), args[6], Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
+                toSerialize = new Structure(world, args[6], Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
             } catch (NumberFormatException exception) {
-                sender.sendMessage(Component.text("Wrong args!", NamedTextColor.RED));
+                sender.sendMessage(Component.text(McColor.RED + "Wrong args!"));
                 return false;
             }
 
@@ -85,26 +83,26 @@ public class TestCommand implements CommandExecutor {
             Bukkit.getLogger().log(Level.INFO, deserialized.getPlacedBlocks().toString());
             Bukkit.getLogger().log(Level.INFO, deserialized.getBoundary().toString());
 
-            sender.sendMessage(Component.text("You did it! Check logs for info.", NamedTextColor.GREEN));
+            sender.sendMessage(Component.text(McColor.GREEN + "You did it! Check logs for info."));
             return true;
         }
 
         if (args.length != 12) {
-            sender.sendMessage(Component.text("Wrong args!",  NamedTextColor.RED));
+            sender.sendMessage(Component.text(McColor.RED + "Wrong args!"));
             return false;
         }
 
         Structure original;
         Structure toCompare;
         try {
-            original = new Structure(player.getWorld(), "Original", Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
-            toCompare = new Structure(player.getWorld(), "toCompare", Integer.parseInt(args[6]), Integer.parseInt(args[7]), Integer.parseInt(args[8]), Integer.parseInt(args[9]), Integer.parseInt(args[10]), Integer.parseInt(args[11]));
+            original = new Structure(world, "Original", Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
+            toCompare = new Structure(world, "toCompare", Integer.parseInt(args[6]), Integer.parseInt(args[7]), Integer.parseInt(args[8]), Integer.parseInt(args[9]), Integer.parseInt(args[10]), Integer.parseInt(args[11]));
         } catch (NumberFormatException exception) {
-            sender.sendMessage(Component.text("Wrong args!", NamedTextColor.RED));
+            sender.sendMessage(Component.text(McColor.RED + "Wrong args!"));
             return false;
         }
 
-        sender.sendMessage(Component.text(original.hasSubset(toCompare), NamedTextColor.YELLOW));
+        sender.sendMessage(Component.text(McColor.YELLOW + (original.hasSubset(toCompare) ? "true" : "false")));
 
         return true;
     }

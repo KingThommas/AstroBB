@@ -6,14 +6,12 @@ public class WarpSettings {
         WARM,
         MEDIUM,
         COLD,
-        NONE
     }
 
     public enum Dimension {
         OVERWORLD,
         NETHER,
         END,
-        OTHER,
         NONE
     }
 
@@ -24,7 +22,7 @@ public class WarpSettings {
         NONE
     }
 
-    public enum Classes {
+    public enum Class {
         NEUTRAL,
         HOT,
         COLD,
@@ -33,5 +31,4 @@ public class WarpSettings {
         REDSTONE,
         DREAM
     }
-
 }

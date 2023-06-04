@@ -16,29 +16,26 @@ public final class Structures {
 
     private static final HashSet<Structure> structures = new HashSet<>();
 
-    public static boolean loadStructure(File file, Gson gson) {
+    public static void loadStructure(File file, Gson gson) {
         Structure deserialized;
         try (FileReader fileReader = new FileReader(file)) {
             deserialized = gson.fromJson(fileReader, Structure.class);
         } catch (IOException | JsonIOException | JsonSyntaxException e) {
             Bukkit.getLogger().log(Level.WARNING, "Encountered an exception.");
             e.printStackTrace();
-            return false;
+            return;
         }
-        if (deserialized == null) {
-            return false;
-        }
+
+        if (deserialized == null) return;
+
         structures.add(deserialized);
-        return true;
     }
 
     public static void loadAllStructures(File structuresFolder) {
         if (structuresFolder.exists()) {
             Gson gson = new Gson();
             for (File file : Objects.requireNonNull(structuresFolder.listFiles())) {
-                if (file.isFile()) {
-                    loadStructure(file, gson);
-                }
+                if (file.isFile()) loadStructure(file, gson);
             }
         }
     }

@@ -1,20 +1,66 @@
-name: Hectus-Block-Battles
+##### THE NAME IS "BlockBattles" NOT "Block Battles" !!! #####
+
+### Plugin Name ###
+# Must follow a simple naming scheme, the same as in GitHub project names #
+name: Hectus-BlockBattles
+
+### Build Version ###
+# The version number that will be used in the built .jar file's name #
 version: '${version}'
-main: net.hectus.hectusblockbattles.HectusBlockBattles
+
+### Main Class ###
+# The path of the main class #
+main: net.hectus.hectusblockbattles.HBB
+
+### PaperAPI version ###
+# Which major Minecraft version the plugin uses #
 api-version: 1.19
-authors: [ MarcPG, _GamingSkill_ ]
-description: Plugin for the Block Battles game mode on the Hectus Network
+
+### All People that helped ###
+# You can add yourself here if you want #
+authors: [
+  MarcPG1905,
+  _GamingSkill_,
+  Xaron11,
+  IBart,
+  Chimkenu
+]
+
+### Our Website ###
+# Doesn't exist yet, but still cool #
 website: https://hectus.net/blockbattles
+
+### Plugin Prefix ###
+# This is the prefix that will be shown in the server logs #
+prefix: HBB
+
+### All Commands ###
+# Register all existing commands here #
 commands:
+  ### Start a BlockBattles™ match ###
   match:
-    description: Puts two players in a Block Battles™ match.
-    usage: /match <player> <player>
+    usage: /<command> <player> <player>
+    permission: HBB.match.start
+    aliases:
+      - start
+      - fight
+      - battle
+
+  ### Save a structure ###
   structure:
-    description: Manages the structures of the Block Battles™ game mode. Currently only saves structures.
-    usage: /structure x1 y1 z1 x2 y2 z2 <name>
+    usage: /<command> <x1> <y1> <z1> <x2> <y2> <z2> <name>
+    permission: HBB.structure.save
+
+  ### Give Up ###
   giveup:
-    description: Let you lose the match.
-    usage: /giveup
+    usage: /<command>
+    permission: HBB.match.give_up
+
+  ### Just for testing purposes ###
   test:
-    description: Test command
-    usage: /test
+    usage: /<command> <???>
+    permission: HBB.testing
+
+####################################
+# Credits for making this readable #
+############ MarcPG1905 ############
