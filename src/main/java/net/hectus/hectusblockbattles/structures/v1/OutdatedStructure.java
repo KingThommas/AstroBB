@@ -1,4 +1,4 @@
-package net.hectus.hectusblockbattles.structures;
+package net.hectus.hectusblockbattles.structures.v1;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -8,14 +8,14 @@ import org.bukkit.util.BoundingBox;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Structure {
+public class OutdatedStructure {
     public final String name;
     public final HashSet<Material> materials;
     public transient Set<Block> blocks; // Represents the blocks in a world for manipulation
     public final HashSet<PlacedBlock> placedBlocks; // Set of blocks used for comparisons
     public final Boundary boundary;
 
-    public Structure(String name, HashSet<Material> materials, HashSet<PlacedBlock> placedBlocks, Set<Block> blocks, Boundary boundary) {
+    public OutdatedStructure(String name, HashSet<Material> materials, HashSet<PlacedBlock> placedBlocks, Set<Block> blocks, Boundary boundary) {
         this.name = name;
         this.materials = materials;
         this.placedBlocks = placedBlocks;
@@ -23,7 +23,7 @@ public class Structure {
         this.boundary = boundary;
     }
 
-    public Structure(World world, String name, int x1, int y1, int z1, int x2, int y2, int z2) {
+    public OutdatedStructure(World world, String name, int x1, int y1, int z1, int x2, int y2, int z2) {
         this(name, new HashSet<>(), new HashSet<>(), new HashSet<>(), new Boundary());
 
         BoundingBox tempBox = new BoundingBox(x1, y1, z1, x2, y2, z2);
@@ -47,7 +47,7 @@ public class Structure {
         boundary.setMaxZ((int) (tempBox.getMaxZ() - tempBox.getMinZ()));
     }
 
-    public Structure(String name, Set<Block> blocks) {
+    public OutdatedStructure(String name, Set<Block> blocks) {
         this(name, new HashSet<>(), new HashSet<>(), blocks, new Boundary());
         int minX, minY, minZ, maxX, maxY, maxZ;
         minX = maxX = blocks.iterator().next().getX();
@@ -83,26 +83,26 @@ public class Structure {
      * @param toCompare The structure to compare
      * @return          Whether the structure contains the structure toCompare
      */
-    public boolean hasSubset(Structure toCompare) {
+    public boolean hasSubset(OutdatedStructure toCompare) {
         // Material comparison
         if (!materials.containsAll(toCompare.materials)) {
             return false;
         }
 
         // Compare for all 4 rotations
-        Set<Structure> rotations = new HashSet<>();
+        Set<OutdatedStructure> rotations = new HashSet<>();
         rotations.add(toCompare);
         for (int i = 0; i < 3; i++) {
-            Structure rotated = toCompare.rotateBy90();
+            OutdatedStructure rotated = toCompare.rotateBy90();
             rotations.add(rotated);
             toCompare = rotated;
         }
 
-        for (Structure structure : rotations) {
+        for (OutdatedStructure outdatedStructure : rotations) {
             // Comparison of offsets in all 3 dimensions
-            int dx = getBoundary().getMaxX() - structure.getBoundary().getMaxX();
-            int dz = getBoundary().getMaxZ() - structure.getBoundary().getMaxZ();
-            int dy = getBoundary().getMaxY() - structure.getBoundary().getMaxY();
+            int dx = getBoundary().getMaxX() - outdatedStructure.getBoundary().getMaxX();
+            int dz = getBoundary().getMaxZ() - outdatedStructure.getBoundary().getMaxZ();
+            int dy = getBoundary().getMaxY() - outdatedStructure.getBoundary().getMaxY();
             if (dx < 0 || dy < 0 || dz < 0) {
                 continue;
             }
@@ -111,7 +111,7 @@ public class Structure {
             for (int x = 0; x <= dx; x++) {
                 for (int z = 0; z <= dz; z++) {
                     for (int y = 0; y <= dy; y++) {
-                        if (compareWithOffset(getPlacedBlocks(), structure.getPlacedBlocks(), x, y, z)) {
+                        if (compareWithOffset(getPlacedBlocks(), outdatedStructure.getPlacedBlocks(), x, y, z)) {
                             return true;
                         }
                     }
@@ -194,7 +194,7 @@ public class Structure {
         return true;
     }
 
-    private Structure rotateBy90() {
+    private OutdatedStructure rotateBy90() {
         int xOffset = getBoundary().getMaxZ();
 
         HashSet<PlacedBlock> newPlacedBlocks = new HashSet<>();
@@ -203,6 +203,6 @@ public class Structure {
             newPlacedBlocks.add(newBlock);
         }
 
-        return new Structure(getName(), getMaterials(), newPlacedBlocks, getBlocks(),  new Boundary(getBoundary().getMaxZ(), getBoundary().getMaxY(), getBoundary().getMaxX()));
+        return new OutdatedStructure(getName(), getMaterials(), newPlacedBlocks, getBlocks(),  new Boundary(getBoundary().getMaxZ(), getBoundary().getMaxY(), getBoundary().getMaxX()));
     }
 }

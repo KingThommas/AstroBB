@@ -1,4 +1,4 @@
-package net.hectus.hectusblockbattles.structures;
+package net.hectus.hectusblockbattles.structures.v1;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
@@ -12,14 +12,14 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.logging.Level;
 
-public final class Structures {
+public final class OutdatedStructures {
 
-    private static final HashSet<Structure> structures = new HashSet<>();
+    private static final HashSet<OutdatedStructure> OUTDATED_STRUCTURES = new HashSet<>();
 
     public static void loadStructure(File file, Gson gson) {
-        Structure deserialized;
+        OutdatedStructure deserialized;
         try (FileReader fileReader = new FileReader(file)) {
-            deserialized = gson.fromJson(fileReader, Structure.class);
+            deserialized = gson.fromJson(fileReader, OutdatedStructure.class);
         } catch (IOException | JsonIOException | JsonSyntaxException e) {
             Bukkit.getLogger().log(Level.WARNING, "Encountered an exception.");
             e.printStackTrace();
@@ -28,7 +28,7 @@ public final class Structures {
 
         if (deserialized == null) return;
 
-        structures.add(deserialized);
+        OUTDATED_STRUCTURES.add(deserialized);
     }
 
     public static void loadAllStructures(File structuresFolder) {
@@ -40,7 +40,7 @@ public final class Structures {
         }
     }
 
-    public static HashSet<Structure> getAllStructures() {
-        return structures;
+    public static HashSet<OutdatedStructure> getAllStructures() {
+        return OUTDATED_STRUCTURES;
     }
 }

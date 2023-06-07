@@ -2,13 +2,17 @@
 
 This is not affiliated with Austin's Block Battles in any way.
 
+## Important Note!
+
+### You will have to use `gradle shadowJar` instead of `gradle build` to build the structure from now on!
+
 ## Developing
 
 ### Important
 - Use correct spacing:  
   ```java
   public class TextClass() {
-    public static void test(stuff) {
+    public static void test(Stuff stuff) {
         if (stuff) {
             // Do stuff
         } else {
@@ -27,13 +31,9 @@ This is not affiliated with Austin's Block Battles in any way.
 
 ### Dependencies
 
-You will need to change the HectaLib dependency to use your HectaLib-VERSION.jar path and then don't commit the path, everyone has his own path.
-
 If you add Dependencies, please add a comment what the dependency does, if it's not commonly used.  
 
-The HectaLib dependency is currently local, so to develop, you have to request a local copy of the HectaLib from MarcPG. MarcPG will soon upload the Dependency to the Maven Central, but that will take a while.
-
-### Changes
+### Committing
 
 If you make any changes or add things, then please use the schema:  
 
