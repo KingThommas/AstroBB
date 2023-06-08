@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("ResultOfMethodCallIgnored") // For "Result of '*' is ignored."
 public final class HBB extends JavaPlugin {
     public static Logger LOGGER;
-    public static final World WORLD = Bukkit.getWorld("world");
+    public static World WORLD;
     public static File dataFolder;
 
     @Override
@@ -46,11 +46,9 @@ public final class HBB extends JavaPlugin {
 
         StructureManager.loadAll(true);
 
-        // TODO: REMOVE
-        // Objects.requireNonNull(getCommand("test")).setExecutor(new TestCommand(this));
-        //=============
-        // Objects.requireNonNull(getCommand("match")).setExecutor(new MatchCommand(this));
         Objects.requireNonNull(getCommand("structure")).setExecutor(new StructureCommand());
+
+        WORLD = Bukkit.getWorld("world");
     }
 
     @Override

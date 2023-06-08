@@ -1,80 +1,94 @@
 package net.hectus.hectusblockbattles.structures.v2;
 
 import net.hectus.hectusblockbattles.HBB;
+import net.hectus.hectusblockbattles.events.BlockBattleEvents;
+import net.hectus.hectusblockbattles.events.StructurePlaceEvent;
+import net.hectus.util.Formatter;
 import net.hectus.util.color.McColor;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import net.kyori.adventure.title.Title;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 public class Algorithm {
     public static boolean running = false;
     private static final HashSet<Structure.BlockData> placed = new HashSet<>(); // All placed blocks
-    private static final HashMap<Material, Integer> materialMap = new HashMap<>(); // All materials that were already placed
-    private static HashMap<Structure, Double> possible = new HashMap<>(); // OutdatedStructures and their chances
-    private static String placer; // The player who's currently placing blocks
+    private static final HashMap<Structure, Double> possible = new HashMap<>(); // Structures and their chances
+    private static Player placer; // The player who's currently placing blocks
+    private static Structure.Cord relative; // The 0 0 0 relative, used to compare with the structure relatives
 
-    public static void start(Structure.BlockData block, String player) {
+    public static void start(Player player) {
         HBB.LOGGER.info("The algorithm was started!");
-
         running = true;
-        placed.add(block);
-        materialMap.put(block.material(), 1);
-
-        calculateChances();
-
+        for (Structure structure : StructureManager.loadedStructures) {
+            possible.put(structure, 0.0);
+        }
         placer = player;
+        calculateChances();
     }
 
     public static void addBlock(Structure.BlockData blockData) {
+        if (placed.isEmpty()) {
+            relative = new Structure.Cord(blockData.x(), blockData.y(), blockData.z());
+        } else {
+            if (relative.x() > blockData.x()) relative = new Structure.Cord(blockData.x(), relative.y(), relative.z());
+            if (relative.y() > blockData.y()) relative = new Structure.Cord(relative.x(), blockData.y(), relative.z());
+            if (relative.z() > blockData.z()) relative = new Structure.Cord(relative.x(), relative.y(), blockData.z());
+        }
         placed.add(blockData);
-        Material material = blockData.material();
-
-        materialMap.put(material, materialMap.getOrDefault(material, 0) + 1);
-
-        run();
-    }
-
-    public static void run() {
-        // Store the updated chances
-        HashMap<Structure, Double> updatedChances = new HashMap<>();
 
         calculateChances();
-
-        // Update the possible map with the updated chances
-        possible = updatedChances;
-
-        sendStructureChances(Bukkit.getPlayerExact(placer));
     }
 
     private static void calculateChances() {
+        for (Structure structure : new HashSet<>(possible.keySet())) {
+            int matchingBlocks = 0;
+
+            for (Structure.BlockData data : placed) {
+                int rx = data.x() - relative.x();
+                int ry = data.y() - relative.y();
+                int rz = data.z() - relative.z();
+
+                Structure.BlockData tmpData = new Structure.BlockData(data.material(), rx, ry, rz);
+
+                // TODO: Add misplaces
+
+                if (structure.blockData.contains(tmpData)) matchingBlocks++;
+            }
+
+            double chance = (double) matchingBlocks / structure.blockData.size();
+            possible.put(structure, chance);
+        }
+        chanceOutput();
+    }
+
+    private static void chanceOutput() {
+        for (int i = 0; i < 32; i++) placer.sendMessage(Component.empty());
+
+        placer.sendMessage(Component.text("===== Structure Chances ====="));
+
         for (Map.Entry<Structure, Double> entry : possible.entrySet()) {
-            // Not done yet, I just committed now, so gradle is working for everyone
+            if (entry.getValue() > .0){
+                double pct = entry.getValue() * 100.0;
+                placer.sendMessage(Component.text(Formatter.toPascalCase(entry.getKey().name) + " : " + pct + "%"));
+            }
+
+            if (entry.getValue() >= 100.0) { // If the player placed a whole structure
+                BlockBattleEvents.onStructurePlace(new StructurePlaceEvent(entry.getKey(), relative, placer, placer, possible));
+                clear();
+            }
         }
     }
 
-    private static Map<Material, Integer> getMaterialCounts() {
-        Map<Material, Integer> materialCounts = new HashMap<>();
-
-        for (Structure.BlockData blockData : Algorithm.placed) {
-            Material material = blockData.material();
-            materialCounts.put(material, materialCounts.getOrDefault(material, 0) + 1);
-        }
-
-        return materialCounts;
-    }
-
-    public static void sendStructureChances(Player player) {
-        for (Map.Entry<Structure, Double> entry : possible.entrySet()) {
-            Structure structure = entry.getKey();
-            double chance = entry.getValue() * 100;
-
-            String message = structure.name + ": " + String.format("%.2f%%", chance);
-
-            player.sendMessage(Component.text(McColor.GRAY + message));
-            System.out.println(message);
-        }
+    public static void clear() {
+        running = false;
+        placed.clear();
+        possible.clear();
+        placer = null;
+        relative = null;
     }
 }

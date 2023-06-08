@@ -66,7 +66,7 @@ public class StructureCommand implements CommandExecutor, TabExecutor {
 
                 for (Structure.BlockData data : structure.blockData) { // Loop through all the block data
                     // Set the block at the relative position to the corresponding material
-                    new Location(world, loc.getBlockX() + data.relativeX(), loc.getBlockY() + data.relativeY(), loc.getBlockZ() + data.relativeZ()).getBlock().setType(data.material());
+                    new Location(world, loc.getBlockX() + data.x(), loc.getBlockY() + data.y(), loc.getBlockZ() + data.z()).getBlock().setType(data.material());
                 }
 
                 player.sendMessage(Component.text(McColor.GREEN + "Successfully loaded the structure! Time elapsed : " + (System.currentTimeMillis() - start) + "ms"));

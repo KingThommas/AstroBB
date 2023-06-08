@@ -3,20 +3,15 @@ package net.hectus.hectusblockbattles.structures.v2;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.HashSet;
 
 public class Structure {
-    public final String name; // The OutdatedStructure's name
+    public final String name; // TheStructure's name
     public final HashMap<Material, Integer> materials; // For Stage 1 filtering the StructureManager
     public final HashSet<BlockData> blockData; // Data of all blocks that are in the structure and where they are
-
-    public Structure(String name, HashMap<Material, Integer> materials, HashSet<BlockData> blockData) {
-        this.name = name;
-        this.materials = materials;
-        this.blockData = blockData;
-    }
 
     public Structure(String name) {
         this.name = name;
@@ -26,9 +21,9 @@ public class Structure {
 
     public record Cord(int x, int y, int z) {}
 
-    public record BlockData(Material material, int relativeX, int relativeY, int relativeZ) {}
+    public record BlockData(Material material, int x, int y, int z) {}
 
-    public static Structure save(Cord c1, Cord c2, String name, World world) {
+    public static @NotNull Structure save(@NotNull Cord c1, @NotNull Cord c2, String name, World world) {
         int hX, lX, hY, lY, hZ, lZ;
 
         hX = Math.max(c1.x, c2.x);
