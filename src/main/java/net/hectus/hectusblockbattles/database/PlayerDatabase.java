@@ -1,5 +1,8 @@
 package net.hectus.hectusblockbattles.database;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.sql.*;
 
 public class PlayerDatabase {
@@ -29,7 +32,7 @@ public class PlayerDatabase {
      * @param field What field of the row you want to modify
      * @param value What you want the field to be set/changed to
      */
-    public static void setField(String player, Field field, Object value) {
+    public static void setField(String player, @NotNull Field field, Object value) {
         String sql = "UPDATE players SET " + field.field + " = ? WHERE username = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -48,7 +51,7 @@ public class PlayerDatabase {
      * @param field What field to get the value from
      * @return Returns the fields value. May be null!
      */
-    public static Object getField(String player, Field field) {
+    public static @Nullable Object getField(String player, @NotNull Field field) {
         String sql = "SELECT " + field.field + " FROM players WHERE username = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {

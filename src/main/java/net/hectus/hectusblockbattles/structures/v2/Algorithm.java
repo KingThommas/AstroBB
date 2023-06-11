@@ -1,37 +1,36 @@
 package net.hectus.hectusblockbattles.structures.v2;
 
+import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.HBB;
 import net.hectus.hectusblockbattles.events.BlockBattleEvents;
 import net.hectus.hectusblockbattles.events.StructurePlaceEvent;
-import net.hectus.util.Formatter;
-import net.hectus.util.color.McColor;
+import net.hectus.hectusblockbattles.match.NormalMatch;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.title.Title;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 public class Algorithm {
-    public static boolean running = false;
-    private static final HashSet<Structure.BlockData> placed = new HashSet<>(); // All placed blocks
-    private static final HashMap<Structure, Double> possible = new HashMap<>(); // Structures and their chances
-    private static Player placer; // The player who's currently placing blocks
-    private static Structure.Cord relative; // The 0 0 0 relative, used to compare with the structure relatives
+    public boolean running = false; // If the algorithm is already running
+    public AlgorithmTimer timer = new AlgorithmTimer(this); // The timer for block placement detection
+    public Player placer; // The player who's currently placing blocks
+    private final HashSet<Structure.BlockData> placed = new HashSet<>(); // All placed blocks
+    private final HashMap<Structure, Double> possible = new HashMap<>(); // Structures and their chances
+    private Structure.Cord relative; // The 0 0 0 relative, used to compare with the structure relatives
 
-    public static void start(Player player) {
+    public void start(Player player) {
         HBB.LOGGER.info("The algorithm was started!");
+
         running = true;
-        for (Structure structure : StructureManager.loadedStructures) {
-            possible.put(structure, 0.0);
-        }
         placer = player;
-        calculateChances();
+        timer.instance(this);
+
+        StructureManager.loadedStructures.forEach(struct -> possible.put(struct, 0.0));
     }
 
-    public static void addBlock(Structure.BlockData blockData) {
+    public void addBlock(Structure.BlockData blockData) {
         if (placed.isEmpty()) {
             relative = new Structure.Cord(blockData.x(), blockData.y(), blockData.z());
         } else {
@@ -41,54 +40,69 @@ public class Algorithm {
         }
         placed.add(blockData);
 
-        calculateChances();
+        timer.lap(this);
     }
 
-    private static void calculateChances() {
+    public void calculateChances() {
+        Player opponent;
+        if (isPlacer(NormalMatch.p1))
+            opponent = NormalMatch.p2;
+        else opponent = NormalMatch.p1;
+
         for (Structure structure : new HashSet<>(possible.keySet())) {
             int matchingBlocks = 0;
+            int misplacedBlocks = 0;
 
             for (Structure.BlockData data : placed) {
                 int rx = data.x() - relative.x();
                 int ry = data.y() - relative.y();
                 int rz = data.z() - relative.z();
 
-                Structure.BlockData tmpData = new Structure.BlockData(data.material(), rx, ry, rz);
+                Structure.BlockData tmpData = new Structure.BlockData(data.material(), rx, ry, rz, data.direction(), data.blockBound(), data.open());
 
                 // TODO: Add misplaces
 
-                if (structure.blockData.contains(tmpData)) matchingBlocks++;
+                if (structure.blockData.contains(tmpData)) {
+                    matchingBlocks++;
+                } else {
+                    misplacedBlocks++;
+                }
             }
 
-            double chance = (double) matchingBlocks / structure.blockData.size();
+            double chanceWithoutMisplaces = (double) matchingBlocks / structure.blockData.size();
+
+            double chance = (double) (matchingBlocks - misplacedBlocks) / structure.blockData.size();
             possible.put(structure, chance);
-        }
-        chanceOutput();
-    }
 
-    private static void chanceOutput() {
-        for (int i = 0; i < 32; i++) placer.sendMessage(Component.empty());
+            if (chanceWithoutMisplaces >= 1.0) {
+                if (chance >= 1.0) {
+                    BlockBattleEvents.onStructurePlace(new StructurePlaceEvent(structure, relative, placer, opponent, possible));
+                } else {
+                    placer.showTitle(BlockBattleEvents.subtitle(McColor.RED + "Structure was misplaced!"));
+                    opponent.sendActionBar(Component.text(placer.getName() + " misplaced his structure!"));
+                }
 
-        placer.sendMessage(Component.text("===== Structure Chances ====="));
+                timer.stop();
 
-        for (Map.Entry<Structure, Double> entry : possible.entrySet()) {
-            if (entry.getValue() > .0){
-                double pct = entry.getValue() * 100.0;
-                placer.sendMessage(Component.text(Formatter.toPascalCase(entry.getKey().name) + " : " + pct + "%"));
-            }
-
-            if (entry.getValue() >= 100.0) { // If the player placed a whole structure
-                BlockBattleEvents.onStructurePlace(new StructurePlaceEvent(entry.getKey(), relative, placer, placer, possible));
                 clear();
+                start(opponent);
             }
         }
     }
 
-    public static void clear() {
+    public void clear() {
         running = false;
         placed.clear();
         possible.clear();
         placer = null;
         relative = null;
+    }
+
+    public boolean isPlacer(@NotNull Player player) {
+        if (running) {
+            return player.getName().equals(placer.getName());
+        } else {
+            return false;
+        }
     }
 }

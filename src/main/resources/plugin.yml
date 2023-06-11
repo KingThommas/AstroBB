@@ -39,26 +39,18 @@ prefix: HBB
 commands:
   ### Start a BlockBattles™ match ###
   match:
-    usage: /<command> <player> <player>
+    usage: /<command> start <p1> <p2>
     permission: HBB.match.start
-    aliases:
-      - start
-      - fight
-      - battle
+    aliases: battle
 
-  ### Save a structure ###
+  ### Do Structure things ###
   structure:
-    permission: HBB.structure.save
+    permission: HBB.structure
 
   ### Give Up ###
   giveup:
     usage: /<command>
     permission: HBB.match.give_up
-
-  ### Just for testing purposes ###
-  test:
-    usage: /<command> <???>
-    permission: HBB.testing
 
 ####################################
 # Credits for making this readable #

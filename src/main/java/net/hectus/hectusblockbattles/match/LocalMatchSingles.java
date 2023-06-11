@@ -4,10 +4,11 @@ import net.hectus.hectusblockbattles.InGameShop;
 import net.hectus.hectusblockbattles.maps.GameMap;
 import net.hectus.hectusblockbattles.playermode.PlayerMode;
 import net.hectus.hectusblockbattles.playermode.PlayerModeManager;
+import net.hectus.hectusblockbattles.structures.v2.Structure;
 import net.hectus.hectusblockbattles.warps.Warp;
 import net.hectus.hectusblockbattles.warps.WarpSettings;
-import net.hectus.util.color.McColor;
-import net.hectus.util.var.Time;
+import net.hectus.color.McColor;
+import net.hectus.time.Time;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
@@ -29,6 +30,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 
 
 import java.time.Duration;
@@ -56,7 +58,7 @@ public class LocalMatchSingles implements Match, Listener {
     private int turnTimeLeft;
     private final Location location;
 
-    public LocalMatchSingles(JavaPlugin plugin, GameMap gameMap, Player p1, Player p2) {
+    public LocalMatchSingles(JavaPlugin plugin, @NotNull GameMap gameMap, Player p1, Player p2) {
         this.plugin = plugin;
         this.gameMap = gameMap;
         this.location = new Location(gameMap.getWorld(), 0, 1, 0);
@@ -305,16 +307,12 @@ public class LocalMatchSingles implements Match, Listener {
     }
 
     public boolean outOfBounds(double x, double z) {
+        Structure.Cord m = this.warp.middle;
 
-        Location corner1 = this.warp.getCorner1();
-        Location corner2 = this.warp.getCorner2();
+        Structure.Cord lc = new Structure.Cord(m.x() - 4, m.y(), m.z() - 4);
+        Structure.Cord hc = new Structure.Cord(m.x() + 4, m.y(), m.z() + 4);
 
-        double minX = Math.min(corner1.getX(), corner2.getX());
-        double minZ = Math.min(corner1.getZ(), corner2.getZ());
-        double maxX = Math.max(corner1.getX(), corner2.getX());
-        double maxZ = Math.max(corner1.getZ(), corner2.getZ());
-
-        return x < minX || x > maxX || z < minZ || z > maxZ;
+        return x<lc.x() || x>hc.x() || z<lc.z() || z>hc.z();
     }
 
     @Override
@@ -323,7 +321,7 @@ public class LocalMatchSingles implements Match, Listener {
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent e) {
+    public void onQuit(@NotNull PlayerQuitEvent e) {
         if (!players.remove(e.getPlayer())) {
             return;
         }
@@ -334,7 +332,7 @@ public class LocalMatchSingles implements Match, Listener {
     }
 
     @EventHandler
-    public void onEntitySpawn(EntitySpawnEvent event){
+    public void onEntitySpawn(@NotNull EntitySpawnEvent event){
 
         LivingEntity entity = (LivingEntity) event.getEntity();
 
@@ -345,7 +343,7 @@ public class LocalMatchSingles implements Match, Listener {
     }
 
     @EventHandler
-    public void onEntityRename(PlayerInteractEntityEvent event) {
+    public void onEntityRename(@NotNull PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
         Entity entity = event.getRightClicked();
         ItemStack item = player.getInventory().getItemInMainHand();
@@ -360,7 +358,7 @@ public class LocalMatchSingles implements Match, Listener {
 
     private boolean disallowsClass(WarpSettings.Class allow){
 
-        for (WarpSettings.Class aClass : warp.getAllow()) {
+        for (WarpSettings.Class aClass : warp.allow) {
             if (aClass.equals(allow)) {
                 return false;
             }

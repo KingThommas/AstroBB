@@ -10,6 +10,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 public final class InGameShop implements Listener {
     private static final ItemStack GLASS_WALL = new ItemStack(Material.GLASS, 1);
@@ -38,7 +39,7 @@ public final class InGameShop implements Listener {
         player.openInventory(shop);
     }
 
-    public static void onItemClicked(Player player, ItemStack item) {
+    public static void onItemClicked(Player player, @NotNull ItemStack item) {
         if ((item).equals(GLASS_WALL) && (money >= 2)) {
             money -= 2;
             player.getInventory().addItem(new ItemStack(Material.GLASS, 6));

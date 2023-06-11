@@ -135,7 +135,7 @@ public class LocalGameMap implements GameMap {
 
     @Override
     public void setNight(boolean isNight) {
-        if (!currentWarp.isNight()) {
+        if (!currentWarp.night) {
             world.setTime(6000);
         } else {
             world.setTime(isNight? 18000 : 6000); // 18000 is midnight, 6000 is noon

@@ -7,11 +7,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.jetbrains.annotations.NotNull;
 
 public class InGameShopEvents implements Listener {
 
     @EventHandler
-    public static void onShopClick(InventoryClickEvent event) {
+    public static void onShopClick(@NotNull InventoryClickEvent event) {
         if (event.getView().title().equals(Component.text("SHOP"))) {
             if (event.getCurrentItem() != null) {
                 InGameShop.onItemClicked((Player) event.getWhoClicked(), event.getCurrentItem());
@@ -21,7 +22,7 @@ public class InGameShopEvents implements Listener {
     }
 
     @EventHandler
-    public static void onShopClose(InventoryCloseEvent event) {
+    public static void onShopClose(@NotNull InventoryCloseEvent event) {
         if ((event.getView().title().equals(Component.text("SHOP")))) {
             InGameShop.onShopClose();
         }

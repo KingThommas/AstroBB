@@ -1,5 +1,6 @@
 package net.hectus.hectusblockbattles;
 
+import net.hectus.hectusblockbattles.commands.MatchCommand;
 import net.hectus.hectusblockbattles.commands.StructureCommand;
 import net.hectus.hectusblockbattles.events.BlockBattleEvents;
 import net.hectus.hectusblockbattles.structures.v2.StructureManager;
@@ -47,6 +48,7 @@ public final class HBB extends JavaPlugin {
         StructureManager.loadAll(true);
 
         Objects.requireNonNull(getCommand("structure")).setExecutor(new StructureCommand());
+        Objects.requireNonNull(getCommand("match")).setExecutor(new MatchCommand());
 
         WORLD = Bukkit.getWorld("world");
     }
