@@ -140,6 +140,7 @@ public class StructureCommand implements CommandExecutor, TabExecutor {
             }
         } else if (args.length == 8) {
             if (args[0].equals("save")) return Completer.startComplete(args[7], List.of("true", "false"));
+
         }
 
         return Collections.emptyList();

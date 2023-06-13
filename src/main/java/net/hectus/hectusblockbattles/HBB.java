@@ -3,6 +3,7 @@ package net.hectus.hectusblockbattles;
 import net.hectus.hectusblockbattles.commands.MatchCommand;
 import net.hectus.hectusblockbattles.commands.StructureCommand;
 import net.hectus.hectusblockbattles.events.BlockBattleEvents;
+import net.hectus.hectusblockbattles.events.InGameShopEvents;
 import net.hectus.hectusblockbattles.structures.v2.StructureManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -32,7 +33,7 @@ public final class HBB extends JavaPlugin {
         // //=================================================================
 
         getServer().getPluginManager().registerEvents(new BlockBattleEvents(), this);
-        // getServer().getPluginManager().registerEvents(new InGameShopEvents(), this);
+        getServer().getPluginManager().registerEvents(new InGameShopEvents(), this);
 
         // LOGGER.info("Hectus BlockBattles started.");
 

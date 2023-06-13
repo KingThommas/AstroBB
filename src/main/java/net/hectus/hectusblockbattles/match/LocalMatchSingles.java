@@ -146,8 +146,6 @@ public class LocalMatchSingles implements Match, Listener {
         // Enter shop phase (45-second buy time)
         for (Player player : players) {
             PlayerModeManager.setPlayerMode(PlayerMode.SHOP_PHASE, player);
-            // TODO: OPEN SHOP INVENTORY
-            InGameShop.displayShop(player);
         }
 
         final int BUY_TIME = 45;

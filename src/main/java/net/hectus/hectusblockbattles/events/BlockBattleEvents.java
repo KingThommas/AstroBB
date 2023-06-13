@@ -1,12 +1,12 @@
 package net.hectus.hectusblockbattles.events;
 
+import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.HBB;
 import net.hectus.hectusblockbattles.match.NormalMatch;
 import net.hectus.hectusblockbattles.structures.v2.Structure;
 import net.hectus.hectusblockbattles.warps.Warp;
 import net.hectus.hectusblockbattles.warps.WarpManager;
 import net.hectus.util.Formatter;
-import net.hectus.color.McColor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.World;
@@ -23,11 +23,23 @@ import java.time.Duration;
 public class BlockBattleEvents implements Listener {
     @EventHandler
     public void onBlockPlace(@NotNull BlockPlaceEvent event) {
-        Block b = event.getBlock();
-        Structure.BlockData blockData = new Structure.BlockData(b.getType(), b.getX(), b.getY(), b.getZ(), Structure.blockFace(b), Structure.blockBound(b), Structure.isOpen(b));
+        Player player = event.getPlayer();
 
-        if (!NormalMatch.addBlock(blockData, event.getPlayer())) {
+        if (!NormalMatch.algorithm.isPlacer(player)) {
+            player.sendMessage(Component.text(McColor.RED + "It isn't your turn right now!"));
             event.setCancelled(true);
+            return;
+        }
+
+        Player opponent = NormalMatch.getOpponent();
+
+        Block b = event.getBlock();
+
+        switch (b.getType().name()) {
+            default -> {
+                Structure.BlockData blockData = new Structure.BlockData(b.getType(), b.getX(), b.getY(), b.getZ(), Structure.blockFace(b), Structure.blockBound(b), Structure.isOpen(b));
+                NormalMatch.algorithm.addBlock(blockData);
+            }
         }
     }
 

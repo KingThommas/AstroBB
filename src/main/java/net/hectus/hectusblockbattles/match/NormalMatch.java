@@ -1,30 +1,40 @@
 package net.hectus.hectusblockbattles.match;
 
 import net.hectus.color.McColor;
+import net.hectus.hectusblockbattles.InGameShop;
+import net.hectus.hectusblockbattles.events.BlockBattleEvents;
 import net.hectus.hectusblockbattles.structures.v2.Algorithm;
-import net.hectus.hectusblockbattles.structures.v2.Structure;
-import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
 public class NormalMatch {
     public static Player p1;
     public static Player p2;
+    public static boolean shopPhase;
     public static Algorithm algorithm = new Algorithm();
 
     public static void start(Player p1, Player p2) {
         NormalMatch.p1 = p1;
         NormalMatch.p2 = p2;
 
-        algorithm.start(p1);
+        InGameShop.displayShop(p1, InGameShop.HotBar.NORMAL);
+        InGameShop.displayShop(p2, InGameShop.HotBar.NORMAL);
     }
 
-    public static boolean addBlock(Structure.BlockData blockData, Player player) {
-        if (algorithm.isPlacer(player)) {
-            algorithm.addBlock(blockData);
-            return true;
-        } else {
-            player.sendMessage(Component.text(McColor.RED + "It isn't your turn right now!"));
-            return false;
-        }
+    public static Player getOpponent() {
+        if (algorithm.isPlacer(p1)) return p2;
+        else return p1;
+    }
+
+    public static void lose() {
+        getOpponent().setHealth(-1.0);
+        getOpponent().showTitle(BlockBattleEvents.subtitle(McColor.RED + "You lost!"));
+
+        algorithm.placer.setHealth(20.0);
+        algorithm.placer.showTitle(BlockBattleEvents.subtitle(McColor.GREEN + "You won!"));
+    }
+
+    public static void shopDone() {
+        shopPhase = false;
+        algorithm.start(p1);
     }
 }
