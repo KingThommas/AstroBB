@@ -1,23 +1,25 @@
 package net.hectus.hectusblockbattles;
 
 import net.hectus.color.McColor;
-import net.hectus.util.Formatter;
+import net.hectus.hectusblockbattles.match.NormalMatch;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.IntStream;
 
 import static net.hectus.hectusblockbattles.InGameShop.HotBar.BOTH;
 import static net.hectus.hectusblockbattles.InGameShop.HotBar.OVERTIME;
@@ -60,6 +62,21 @@ public final class InGameShop implements Listener {
     private static final ItemStack BACKGROUND_FRAME = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
 
     public static void displayShop(Player player, @NotNull HotBar hotBar) {
+        if (hotBar == OVERTIME) {
+            PlayerInventory inv = player.getInventory();
+
+            int i = 0;
+            while (i < 9) {
+                ItemStack itemStack = inv.getItem(i);
+                inv.clear(i);
+                if (itemStack != null) {
+                    itemStack.lore(List.of(Component.text("Normal Hotbar")));
+                    inv.setItem(27 + i, itemStack);
+                }
+                i++;
+            }
+        }
+
         Inventory shop = Bukkit.createInventory(player, 9*6, Component.text("Pre-Round Shop, " + hotBar.name().toLowerCase() + " phase"));
 
         for (int i : BACKGROUND_SLOTS) shop.setItem(i, BACKGROUND_FRAME);
@@ -78,27 +95,52 @@ public final class InGameShop implements Listener {
 
     public static void onItemClicked(Player player, @NotNull ItemStack item, @NotNull Inventory shopInv) {
         ShopItem shopItem = Objects.requireNonNull(getItem(item.getType()));
-        int money = Objects.requireNonNull(shopInv.getItem(4)).getAmount();
 
-        if (money >= shopItem.price) {
-            player.getInventory().addItem(new ItemStack(shopItem.item));
+        ItemStack coinItem = shopInv.getItem(4);
+        if (coinItem != null && coinItem.getType() == Material.GOLD_INGOT){
+            int money = coinItem.getAmount();
 
-            shopInv.remove(Material.GOLD_INGOT);
-            shopInv.addItem(new ItemStack(Material.GOLD_INGOT, money - shopItem.price));
+            if (money >= shopItem.price) {
+                player.getInventory().addItem(new ItemStack(shopItem.item));
 
-            shopInv.remove(item.getType());
+                shopInv.remove(Material.GOLD_INGOT);
+                if (money - shopItem.price <= 0) {
+                    player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
 
-            ItemMeta meta = item.getItemMeta();
-            meta.addEnchant(Enchantment.LUCK, 1, false);
-            item.setItemMeta(meta);
+                    NormalMatch.algorithm.start(player);
 
-            shopInv.addItem(item);
+                    NormalMatch.p1.sendActionBar(McColor.RED + "The game starts! Good luck!");
+                    NormalMatch.p2.sendActionBar(McColor.RED + "The game starts! Good luck!");
+                } else {
+                    shopInv.addItem(new ItemStack(Material.GOLD_INGOT, money - shopItem.price));
+                }
 
-            ItemStack lastInvSlot = player.getInventory().getItem(44);
+                shopInv.remove(item.getType());
 
-            if (lastInvSlot != null && lastInvSlot.getType() == item.getType()) {
-                shopInv.close();
-                displayShop(player, OVERTIME);
+                ItemMeta meta = item.getItemMeta();
+                meta.addEnchant(Enchantment.MENDING, 1, false);
+                item.setItemMeta(meta);
+
+                shopInv.addItem(item);
+
+                boolean fullHotbar = IntStream.range(0, 9)
+                        .mapToObj(s -> player.getInventory().getItem(s))
+                        .noneMatch(i -> i == null || i.getType().isAir());
+                if (fullHotbar) {
+                    String title = PlainTextComponentSerializer.plainText().serialize(player.getOpenInventory().title()).toLowerCase();
+
+                    if (title.contains("normal")) {
+                        player.closeInventory(InventoryCloseEvent.Reason.OPEN_NEW);
+                        displayShop(player, OVERTIME);
+                    } else if (title.contains("overtime")) {
+                        player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+
+                        NormalMatch.algorithm.start(player);
+
+                        NormalMatch.p1.sendActionBar(McColor.RED + "The game starts! Good luck!");
+                        NormalMatch.p2.sendActionBar(McColor.RED + "The game starts! Good luck!");
+                    }
+                }
             }
         }
     }

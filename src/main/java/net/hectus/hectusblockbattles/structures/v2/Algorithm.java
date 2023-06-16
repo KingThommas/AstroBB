@@ -6,6 +6,7 @@ import net.hectus.hectusblockbattles.events.BlockBattleEvents;
 import net.hectus.hectusblockbattles.events.StructurePlaceEvent;
 import net.hectus.hectusblockbattles.match.NormalMatch;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,47 +46,75 @@ public class Algorithm {
 
     public void calculateChances() {
         Player opponent;
-        if (isPlacer(NormalMatch.p1))
-            opponent = NormalMatch.p2;
-        else opponent = NormalMatch.p1;
+        if (isPlacer(NormalMatch.p1.player))
+            opponent = NormalMatch.p2.player;
+        else opponent = NormalMatch.p1.player;
 
         for (Structure structure : new HashSet<>(possible.keySet())) {
+
+            HashMap<Material, Integer> materials = new HashMap<>();
+            for (Structure.BlockData structureData : structure.blockData) {
+                Material mat = structureData.material();
+
+                int oldCount = 0;
+                if (materials.containsKey(mat)) oldCount = materials.get(mat);
+
+                materials.put(mat, oldCount + 1);
+            }
+
             int matchingBlocks = 0;
             int misplacedBlocks = 0;
 
+            int misplacedMaterials = 0;
+
             for (Structure.BlockData data : placed) {
+                Material mat = data.material();
+
                 int rx = data.x() - relative.x();
                 int ry = data.y() - relative.y();
                 int rz = data.z() - relative.z();
 
-                Structure.BlockData tmpData = new Structure.BlockData(data.material(), rx, ry, rz, data.direction(), data.blockBound(), data.open());
-
-                // TODO: Add misplaces
+                Structure.BlockData tmpData = new Structure.BlockData(mat, rx, ry, rz, data.direction(), data.blockBound(), data.open());
 
                 if (structure.blockData.contains(tmpData)) {
                     matchingBlocks++;
                 } else {
                     misplacedBlocks++;
                 }
+
+                if (materials.containsKey(mat)) {
+                    int count = materials.get(mat);
+
+                    if (count <= 1) {
+                        materials.remove(mat);
+                    } else {
+                        materials.put(mat, count - 1);
+                    }
+                } else {
+                    misplacedMaterials--;
+                }
             }
 
-            double chanceWithoutMisplaces = (double) matchingBlocks / structure.blockData.size();
+            double noMisChance = (double) matchingBlocks / structure.blockData.size();
 
-            double chance = (double) (matchingBlocks - misplacedBlocks) / structure.blockData.size();
-            possible.put(structure, chance);
+            if (noMisChance >= 1.0) {
+                double chance = (double) (matchingBlocks - misplacedBlocks) / structure.blockData.size();
+                possible.put(structure, chance);
 
-            if (chanceWithoutMisplaces >= 1.0) {
                 if (chance >= 1.0) {
                     BlockBattleEvents.onStructurePlace(new StructurePlaceEvent(structure, relative, placer, opponent, possible));
                 } else {
                     placer.showTitle(BlockBattleEvents.subtitle(McColor.RED + "Structure was misplaced!"));
                     opponent.sendActionBar(Component.text(placer.getName() + " misplaced his structure!"));
                 }
-
                 timer.stop();
-
                 clear();
                 start(opponent);
+            } else {
+                if (misplacedMaterials > 0) {
+                    placer.showTitle(BlockBattleEvents.subtitle(McColor.RED + "Misplace!"));
+                    opponent.sendActionBar(Component.text(placer.getName() + " misplaced!"));
+                }
             }
         }
     }

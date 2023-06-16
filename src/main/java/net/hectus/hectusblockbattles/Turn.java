@@ -3,6 +3,7 @@ package net.hectus.hectusblockbattles;
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.warps.Warp;
 import org.bukkit.Material;
+import org.jetbrains.annotations.Contract;
 
 import javax.annotation.Nullable;
 
@@ -32,6 +33,7 @@ public enum Turn {
     public final McColor color;
     public final Material material;
 
+    @Contract(pure = true)
     Turn(Type t, McColor c, Material m, @Nullable Warp warp) {
         type = t;
         color = c;

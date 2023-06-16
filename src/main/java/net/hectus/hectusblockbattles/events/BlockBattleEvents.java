@@ -1,6 +1,7 @@
 package net.hectus.hectusblockbattles.events;
 
 import net.hectus.color.McColor;
+import net.hectus.hectusblockbattles.BBPlayer;
 import net.hectus.hectusblockbattles.HBB;
 import net.hectus.hectusblockbattles.match.NormalMatch;
 import net.hectus.hectusblockbattles.structures.v2.Structure;
@@ -31,11 +32,12 @@ public class BlockBattleEvents implements Listener {
             return;
         }
 
-        Player opponent = NormalMatch.getOpponent();
-
+        BBPlayer opponent = NormalMatch.getOpponent();
         Block b = event.getBlock();
 
         switch (b.getType().name()) {
+            case "PURPLE_WOOL" -> NormalMatch.win();
+
             default -> {
                 Structure.BlockData blockData = new Structure.BlockData(b.getType(), b.getX(), b.getY(), b.getZ(), Structure.blockFace(b), Structure.blockBound(b), Structure.isOpen(b));
                 NormalMatch.algorithm.addBlock(blockData);

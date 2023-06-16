@@ -8,6 +8,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Contract;
 
 public class AlgorithmTimer {
     public int ticks = 10;
@@ -15,6 +16,7 @@ public class AlgorithmTimer {
     public BukkitTask task;
     public Algorithm algorithm;
 
+    @Contract(pure = true)
     public AlgorithmTimer(Algorithm algorithm) {
         this.algorithm = algorithm;
     }
@@ -34,9 +36,9 @@ public class AlgorithmTimer {
             }
             if (laps >= 20) {
                 Player opponent;
-                if (NormalMatch.algorithm.isPlacer(NormalMatch.p1))
-                    opponent = NormalMatch.p2;
-                else opponent = NormalMatch.p1;
+                if (NormalMatch.algorithm.isPlacer(NormalMatch.p1.player))
+                    opponent = NormalMatch.p2.player;
+                else opponent = NormalMatch.p1.player;
 
                 NormalMatch.algorithm.timer.stop();
 
