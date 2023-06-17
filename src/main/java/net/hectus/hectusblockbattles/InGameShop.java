@@ -145,6 +145,11 @@ public final class InGameShop implements Listener {
         }
     }
 
+    public static void end() {
+        NormalMatch.p1.player.closeInventory();
+        NormalMatch.p2.player.closeInventory();
+    }
+
     @Contract(pure = true)
     public static @Nullable ShopItem getItem(Material material) {
         for (ShopItem item : SHOP_ITEMS) {

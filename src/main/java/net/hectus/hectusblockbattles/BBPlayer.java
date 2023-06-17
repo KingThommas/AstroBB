@@ -64,9 +64,10 @@ public class BBPlayer {
         this.state = state;
     }
 
-    //============================================================================//
-    // The next code is basically just from the Player object but simpler to use  //
-    //============================================================================//
+    //==========================================//
+    // The next code is basically just from the //
+    // Bukkit Player but so it's easier to use. //
+    //==========================================//
 
     public void sendMessage(@NotNull String msg) {
         player.sendMessage(Component.text(msg));

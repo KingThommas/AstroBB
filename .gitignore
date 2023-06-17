@@ -1,40 +1,24 @@
-# User-specific stuff
+### User-specific ###
 .idea/
 
 *.iml
 *.ipr
 *.iws
 
-# IntelliJ
-out/
-
-# mpeltonen/sbt-idea plugin
-.idea_modules/
-
-# Compiled class file
+### Compiled ###
 *.class
 
-# Log file
+### Logs ###
 *.log
 
-# Windows thumbnail cache files
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-
-# Gradle
+### Gradle ###
 .gradle
 build/
+**/build/
 gradle-app.setting
 
-# Cache of project
+### Cache ###
 .gradletasknamecache
 
-**/build/
-
-# Common working directory
-run/
-
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
+### MarcPG ###
+tasks.md

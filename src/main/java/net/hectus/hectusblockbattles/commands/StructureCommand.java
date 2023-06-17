@@ -24,27 +24,32 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * <b>/structure command</b>
+ * <p>
+ * <b>Usage:</b> <br>
+ * /structure save {@link Integer x1} {@link Integer y1} {@link Integer z1} {@link Integer x2} {@link Integer y2} {@link Integer z2} {@link String NAME} <br>
+ * /structure load {@link String NAME} <br>
+ * /structure remove {@link String NAME} <br>
+ * /structure reload
+ * </p>
+ */
 public class StructureCommand implements CommandExecutor, TabExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
         Player player = (Player) sender;
 
         if (args.length == 9) {
-            if (args[0].equals("save")) { //===== Save a OutdatedStructure =====
-
+            if (args[0].equals("save")) {
                 player.sendMessage(Component.text(McColor.GRAY + "Saving structure named " + args[7] + "..."));
                 long start = System.currentTimeMillis();
 
-                // The structure's corners / boundaries
+                // The Structure's corners / boundaries
                 Structure.Cord c1 = new Structure.Cord(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
                 Structure.Cord c2 = new Structure.Cord(Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]));
 
-                // Save / Load the OutdatedStructure
                 Structure structure = Structure.save(c1, c2, args[8], Boolean.parseBoolean(args[7]), player.getWorld());
-
-                // Try to save the OutdatedStructure into the files and get a response if it worked
                 boolean worked = StructureManager.save(structure);
-
                 StructureManager.loadAll(false);
 
                 player.sendMessage(Component.text(
@@ -55,11 +60,11 @@ public class StructureCommand implements CommandExecutor, TabExecutor {
 
                 return true;
             }
-        } else if (args.length == 2) { //====== Load a OutdatedStructure ======
+        } else if (args.length == 2) {
             if (args[0].equals("load")) {
                 Structure structure = StructureManager.get(args[1]);
 
-                if (structure == null) { // If the structure wasn't found / doesn't exist
+                if (structure == null) {
                     player.sendMessage(Component.text(McColor.RED + "Found no structure named " + args[1] + "!"));
                     return false;
                 }
@@ -67,17 +72,18 @@ public class StructureCommand implements CommandExecutor, TabExecutor {
                 player.sendMessage(Component.text(McColor.GRAY + "Loading structure named " + structure.name + "..."));
                 long start = System.currentTimeMillis();
 
-                // The base location on which the relatives are based on
+                // The base location on which all relatives are based on
                 Location loc = player.getLocation();
                 World world = loc.getWorld();
 
-                for (Structure.BlockData data : structure.blockData) {
+                for (Structure.BlockData data : structure.blockData) { // Looping through all the structure's data
+
                     Location relativeLocation = new Location(world, loc.getBlockX() + data.x(), loc.getBlockY() + data.y(), loc.getBlockZ() + data.z());
                     Block block = relativeLocation.getBlock();
 
                     block.setType(data.material());
 
-                    if (structure.useExactBlockData) {
+                    if (structure.useExactBlockData) { // If some more advanced metadata should be used
                         setBlockDirection(block, data.direction());
                         setBlockBound(block, data.blockBound());
                         setOpen(block, data.open());
@@ -126,7 +132,7 @@ public class StructureCommand implements CommandExecutor, TabExecutor {
         return true;
     }
 
-    final String[] tabComplete1 = {"save", "load", "remove", "reload"};
+    final String[] tabComplete1 = { "save", "load", "remove", "reload" };
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
         if (args.length == 1) {
