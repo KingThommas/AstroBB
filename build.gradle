@@ -28,7 +28,7 @@ repositories {
 
 dependencies {
     implementation 'io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT'
-    implementation files('libs/HectaLib-0.0.2-PRE-ALPHA.jar')
+    implementation files('libs/HectaLib-0.0.4-PRE-ALPHA.jar')
     implementation 'mysql:mysql-connector-java:8.0.32'
 }
 
