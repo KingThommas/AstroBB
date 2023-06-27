@@ -1,5 +1,6 @@
 package net.hectus.hectusblockbattles.structures.v2;
 
+import net.hectus.hectusblockbattles.util.Cord;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -28,20 +29,18 @@ public class Structure {
         useExactBlockData = exactBlockData;
     }
 
-    public record Cord(int x, int y, int z) {}
-
     public record BlockData(Material material, int x, int y, int z, BlockFace direction, BlockBound blockBound, boolean open) {}
     public enum BlockBound {NONE, TOP, BOTTOM, DOUBLE_SLAB, STALACTITE, STALAGMITE}
 
     public static @NotNull Structure save(@NotNull Cord c1, @NotNull Cord c2, String name, boolean useExactBlockData, World world) {
         int hX, lX, hY, lY, hZ, lZ;
 
-        hX = Math.max(c1.x, c2.x);
-        lX = Math.min(c1.x, c2.x);
-        hY = Math.max(c1.y, c2.y);
-        lY = Math.min(c1.y, c2.y);
-        hZ = Math.max(c1.z, c2.z);
-        lZ = Math.min(c1.z, c2.z);
+        hX = Math.max(c1.x(), c2.x());
+        lX = Math.min(c1.x(), c2.x());
+        hY = Math.max(c1.y(), c2.y());
+        lY = Math.min(c1.y(), c2.y());
+        hZ = Math.max(c1.z(), c2.z());
+        lZ = Math.min(c1.z(), c2.z());
 
         Structure structure = new Structure(name, useExactBlockData);
 
@@ -56,7 +55,7 @@ public class Structure {
                         BlockBound bound = blockBound(block);
                         boolean open = isOpen(block);
 
-                        structure.blockData.add(new BlockData(block.getType(), x - startCord.x, y - startCord.y, z - startCord.z, direction, bound, open));
+                        structure.blockData.add(new BlockData(block.getType(), x - startCord.x(), y - startCord.y(), z - startCord.z(), direction, bound, open));
 
                         if (structure.materials.containsKey(block.getType())) {
                             structure.materials.put(block.getType(), structure.materials.get(block.getType()) + 1);

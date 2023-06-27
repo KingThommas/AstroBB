@@ -4,7 +4,9 @@ import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.HBB;
 import net.hectus.hectusblockbattles.events.BlockBattleEvents;
 import net.hectus.hectusblockbattles.events.StructurePlaceEvent;
-import net.hectus.hectusblockbattles.match.NormalMatch;
+import net.hectus.hectusblockbattles.match.Match;
+import net.hectus.hectusblockbattles.util.Cord;
+import net.hectus.storing.pair.Pair;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 public class Algorithm {
     public boolean running = false; // If the algorithm is already running
@@ -19,7 +22,7 @@ public class Algorithm {
     public Player placer; // The player who's currently placing blocks
     private final HashSet<Structure.BlockData> placed = new HashSet<>(); // All placed blocks
     private final HashMap<Structure, Double> possible = new HashMap<>(); // Structures and their chances
-    private Structure.Cord relative; // The 0 0 0 relative, used to compare with the structure relatives
+    private Cord relative; // The 0 0 0 relative, used to compare with the structure relatives
 
     public void start(Player player) {
         HBB.LOGGER.info("The algorithm was started!");
@@ -33,11 +36,11 @@ public class Algorithm {
 
     public void addBlock(Structure.BlockData blockData) {
         if (placed.isEmpty()) {
-            relative = new Structure.Cord(blockData.x(), blockData.y(), blockData.z());
+            relative = new Cord(blockData.x(), blockData.y(), blockData.z());
         } else {
-            if (relative.x() > blockData.x()) relative = new Structure.Cord(blockData.x(), relative.y(), relative.z());
-            if (relative.y() > blockData.y()) relative = new Structure.Cord(relative.x(), blockData.y(), relative.z());
-            if (relative.z() > blockData.z()) relative = new Structure.Cord(relative.x(), relative.y(), blockData.z());
+            if (relative.x() > blockData.x()) relative = new Cord(blockData.x(), relative.y(), relative.z());
+            if (relative.y() > blockData.y()) relative = new Cord(relative.x(), blockData.y(), relative.z());
+            if (relative.z() > blockData.z()) relative = new Cord(relative.x(), relative.y(), blockData.z());
         }
         placed.add(blockData);
 
@@ -46,9 +49,9 @@ public class Algorithm {
 
     public void calculateChances() {
         Player opponent;
-        if (isPlacer(NormalMatch.p1.player))
-            opponent = NormalMatch.p2.player;
-        else opponent = NormalMatch.p1.player;
+        if (isPlacer(Match.p1.player))
+            opponent = Match.p2.player;
+        else opponent = Match.p1.player;
 
         for (Structure structure : new HashSet<>(possible.keySet())) {
 
@@ -133,5 +136,17 @@ public class Algorithm {
         } else {
             return false;
         }
+    }
+
+    public Pair<Structure, Double> getHighestChance() {
+        Pair<Structure, Double> pair = new Pair<>();
+        for (Map.Entry<Structure, Double> entry : possible.entrySet()) {
+            if (pair.isEmpty()) {
+                pair.set(entry.getValue(), entry.getKey());
+            } else if (entry.getValue() > pair.right()) {
+                pair.set(entry.getValue(), entry.getKey());
+            }
+        }
+        return pair;
     }
 }

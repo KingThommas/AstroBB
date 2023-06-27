@@ -1,7 +1,7 @@
 package net.hectus.hectusblockbattles.commands;
 
-import net.hectus.hectusblockbattles.match.LocalMatchSingles;
-import net.hectus.hectusblockbattles.match.MatchManager;
+import net.hectus.hectusblockbattles.match.old.LocalMatchSingles;
+import net.hectus.hectusblockbattles.match.old.MatchManager;
 import net.hectus.color.McColor;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;

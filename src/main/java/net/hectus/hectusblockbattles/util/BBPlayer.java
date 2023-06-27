@@ -1,6 +1,6 @@
-package net.hectus.hectusblockbattles;
+package net.hectus.hectusblockbattles.util;
 
-import net.hectus.hectusblockbattles.match.NormalMatch;
+import net.hectus.hectusblockbattles.match.Match;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
@@ -16,7 +16,10 @@ public class BBPlayer {
     private boolean highGround = false;
     private boolean defended = false;
     private boolean movement = false;
-    private NormalMatch.PlayerState state;
+    private boolean attacked = false;
+    private Match.PlayerState state;
+    private int dieCounter = -3;
+    private int extraTurns = 0;
 
     @Contract(pure = true)
     public BBPlayer(Player player) {
@@ -46,8 +49,8 @@ public class BBPlayer {
     public boolean isDefended() {
         return defended;
     }
-    public void setDefended() {
-        defended = true;
+    public void setDefended(boolean defended) {
+        this.defended = defended;
     }
 
     public boolean canMove() {
@@ -57,11 +60,46 @@ public class BBPlayer {
         this.movement = movement;
     }
 
-    public NormalMatch.PlayerState getState() {
+    public Match.PlayerState getState() {
         return state;
     }
-    public void setState(NormalMatch.PlayerState state) {
+    public void setState(Match.PlayerState state) {
         this.state = state;
+    }
+
+    public boolean isAttacked() {
+        return attacked;
+    }
+    public boolean hasToCounter() {
+        return attacked;
+    }
+    public void setAttacked(boolean attacked) {
+        this.attacked = attacked;
+    }
+
+    public void startDieCounter(int turns) {
+        dieCounter = turns;
+    }
+
+    public void addExtraTurns(int turns) {
+        extraTurns += turns;
+    }
+    public void removeExtraTurns(int turns) {
+        extraTurns -= turns;
+    }
+    public int getExtraTurns() {
+        return extraTurns;
+    }
+
+    public void count() {
+        dieCounter--;
+        if (dieCounter == 0) {
+            if (this == Match.getPlacer()) {
+                Match.lose();
+            } else {
+                Match.win();
+            }
+        }
     }
 
     //==========================================//

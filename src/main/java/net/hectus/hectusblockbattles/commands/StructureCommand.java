@@ -1,41 +1,45 @@
 package net.hectus.hectusblockbattles.commands;
 
+<<<<<<< Updated upstream
+import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import net.hectus.hectusblockbattles.structures.Structure;
+=======
+import net.hectus.hectusblockbattles.util.Cord;
 import net.hectus.hectusblockbattles.structures.v2.Structure;
 import net.hectus.hectusblockbattles.structures.v2.StructureManager;
 import net.hectus.text.Completer;
 import net.hectus.color.McColor;
+>>>>>>> Stashed changes
 import net.kyori.adventure.text.Component;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.*;
-import org.bukkit.block.data.type.PointedDripstone;
-import org.bukkit.block.data.type.Slab;
-import org.bukkit.block.data.type.TrapDoor;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.logging.Level;
 
-/**
- * <b>/structure command</b>
- * <p>
- * <b>Usage:</b> <br>
- * /structure save {@link Integer x1} {@link Integer y1} {@link Integer z1} {@link Integer x2} {@link Integer y2} {@link Integer z2} {@link String NAME} <br>
- * /structure load {@link String NAME} <br>
- * /structure remove {@link String NAME} <br>
- * /structure reload
- * </p>
- */
-public class StructureCommand implements CommandExecutor, TabExecutor {
+public class StructureCommand implements CommandExecutor {
+    private final JavaPlugin plugin;
+
+    public StructureCommand(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
+<<<<<<< Updated upstream
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Component.text("Only players may execute this command.",  NamedTextColor.RED));
+            return true;
+=======
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
         Player player = (Player) sender;
 
@@ -45,8 +49,8 @@ public class StructureCommand implements CommandExecutor, TabExecutor {
                 long start = System.currentTimeMillis();
 
                 // The Structure's corners / boundaries
-                Structure.Cord c1 = new Structure.Cord(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
-                Structure.Cord c2 = new Structure.Cord(Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]));
+                Cord c1 = new Cord(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+                Cord c2 = new Cord(Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]));
 
                 Structure structure = Structure.save(c1, c2, args[8], Boolean.parseBoolean(args[7]), player.getWorld());
                 boolean worked = StructureManager.save(structure);
@@ -121,79 +125,51 @@ public class StructureCommand implements CommandExecutor, TabExecutor {
 
                 return true;
             }
+>>>>>>> Stashed changes
         }
 
-        player.sendMessage(Component.text(McColor.RED + "Wrong usage! Possible usages:"));
-        player.sendMessage(Component.text(McColor.YELLOW + "- /structure save <x1> <y1> <z1> <x2> <y2> <z2> <use_exact_block_data> <name>"));
-        player.sendMessage(Component.text(McColor.YELLOW + "- /structure load <name>"));
-        player.sendMessage(Component.text(McColor.YELLOW + "- /structure remove <name>"));
-        player.sendMessage(Component.text(McColor.YELLOW + "- /structure reload"));
+        String structureName = args[6];
+
+        if (args.length == 7) {
+            Structure toSerialize;
+            try {
+                toSerialize = new Structure(player.getWorld(), structureName, Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
+            } catch (NumberFormatException exception) {
+                sender.sendMessage(Component.text("Wrong args!", NamedTextColor.RED));
+                return false;
+            }
+
+            Bukkit.getLogger().log(Level.INFO, "DEBUG: Received structure '" + toSerialize.getName() + "', details:");
+            Bukkit.getLogger().log(Level.INFO, toSerialize.getName());
+            Bukkit.getLogger().log(Level.INFO, toSerialize.getBlocks().toString());
+            Bukkit.getLogger().log(Level.INFO, toSerialize.getMaterials().toString());
+            Bukkit.getLogger().log(Level.INFO, toSerialize.getPlacedBlocks().toString());
+            Bukkit.getLogger().log(Level.INFO, toSerialize.getBoundary().toString());
+            Bukkit.getLogger().log(Level.INFO, "DEBUG: Attempting to serialize...");
+
+            Gson gson = new Gson();
+            File structuresFolder = new File(plugin.getDataFolder(), "structures");
+            if (!structuresFolder.exists()) {
+                if (!structuresFolder.mkdir()) {
+                    Bukkit.getLogger().log(Level.WARNING, "Failed to create structures folder.");
+                    return true;
+                }
+            }
+            File structureFile = new File(structuresFolder, structureName + ".json");
+            try (FileWriter fileWriter = new FileWriter(structureFile)) {
+                gson.toJson(toSerialize, fileWriter);
+            } catch (IOException | JsonIOException e) {
+                Bukkit.getLogger().log(Level.WARNING, "Encountered an exception.");
+                e.printStackTrace();
+                return true;
+            }
+
+            Bukkit.getLogger().log(Level.INFO, "DEBUG: Serialized.");
+
+            sender.sendMessage(Component.text("You did it! Check logs for info.", NamedTextColor.GREEN));
+            return true;
+        }
 
         return true;
-    }
-
-    final String[] tabComplete1 = { "save", "load", "remove", "reload" };
-    @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-        if (args.length == 1) {
-            return Completer.startComplete(args[0], tabComplete1);
-        } else if (args.length == 2) {
-            if (args[0].equals("load") || args[0].equals("remove")) {
-                LinkedList<String> availableStructures = new LinkedList<>();
-                StructureManager.loadedStructures.forEach(structure -> availableStructures.add(structure.name));
-
-                return Completer.containComplete(args[1], availableStructures);
-            }
-        } else if (args.length == 8) {
-            if (args[0].equals("save")) return Completer.startComplete(args[7], List.of("true", "false"));
-
-        }
-
-        return Collections.emptyList();
-    }
-
-    private void setBlockDirection(@NotNull Block block, BlockFace direction) {
-        BlockData blockData = block.getBlockData();
-
-        if (blockData instanceof Directional directionalData) {
-            directionalData.setFacing(direction);
-            block.setBlockData(directionalData);
-        } else if (blockData instanceof Rotatable rotatableData) {
-            rotatableData.setRotation(direction);
-            block.setBlockData(rotatableData);
-        }
-    }
-
-    private void setBlockBound(@NotNull Block block, Structure.BlockBound bound) {
-        BlockData blockData = block.getBlockData();
-
-        if (blockData instanceof Slab slabData) {
-            if (bound == Structure.BlockBound.TOP) slabData.setType(Slab.Type.TOP);
-            else if (bound == Structure.BlockBound.BOTTOM) slabData.setType(Slab.Type.BOTTOM);
-            else slabData.setType(Slab.Type.DOUBLE);
-
-            block.setBlockData(slabData);
-
-        } else if (blockData instanceof PointedDripstone dripstoneData) {
-            if (bound == Structure.BlockBound.STALAGMITE) dripstoneData.setVerticalDirection(BlockFace.UP);
-            else dripstoneData.setVerticalDirection(BlockFace.DOWN);
-
-            block.setBlockData(dripstoneData);
-
-        } else if (blockData instanceof TrapDoor trapDoorData) {
-            if (bound == Structure.BlockBound.TOP) trapDoorData.setHalf(Bisected.Half.TOP);
-            else trapDoorData.setHalf(Bisected.Half.BOTTOM);
-
-            block.setBlockData(trapDoorData);
-        }
-    }
-
-    private void setOpen(@NotNull Block block, boolean open) {
-        BlockData blockData = block.getBlockData();
-
-        if (blockData instanceof Openable data) {
-            data.setOpen(open);
-            block.setBlockData(data);
-        }
     }
 }

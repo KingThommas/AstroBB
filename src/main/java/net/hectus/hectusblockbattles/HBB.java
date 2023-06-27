@@ -2,8 +2,8 @@ package net.hectus.hectusblockbattles;
 
 import net.hectus.hectusblockbattles.commands.MatchCommand;
 import net.hectus.hectusblockbattles.commands.StructureCommand;
-import net.hectus.hectusblockbattles.events.BlockBattleEvents;
 import net.hectus.hectusblockbattles.events.InGameShopEvents;
+import net.hectus.hectusblockbattles.events.PlayerEvents;
 import net.hectus.hectusblockbattles.structures.v2.StructureManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -23,22 +23,15 @@ public final class HBB extends JavaPlugin {
     public void onEnable() {
         LOGGER = this.getLogger();
 
-        // this.saveDefaultConfig();
-
-        // InGameShop.initialize();
-
         // // Don't remove this, this is very important to not break anything!
         // try { PlayerDatabase.connect(); }
         // catch (SQLException e) { throw new RuntimeException(e); }
         // //=================================================================
 
-        getServer().getPluginManager().registerEvents(new BlockBattleEvents(), this);
         getServer().getPluginManager().registerEvents(new InGameShopEvents(), this);
+        getServer().getPluginManager().registerEvents(new PlayerEvents(), this);
 
-        // LOGGER.info("Hectus BlockBattles started.");
-
-        // I removed the map thingy, since it's not important
-        // I will later on have the right setup in every instance anyways
+        LOGGER.info("Hectus BlockBattles started.");
 
         dataFolder = getDataFolder();
         if (!dataFolder.exists()) dataFolder.mkdirs();

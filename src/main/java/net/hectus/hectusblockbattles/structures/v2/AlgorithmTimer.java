@@ -3,7 +3,7 @@ package net.hectus.hectusblockbattles.structures.v2;
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.HBB;
 import net.hectus.hectusblockbattles.events.BlockBattleEvents;
-import net.hectus.hectusblockbattles.match.NormalMatch;
+import net.hectus.hectusblockbattles.match.Match;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -36,16 +36,16 @@ public class AlgorithmTimer {
             }
             if (laps >= 20) {
                 Player opponent;
-                if (NormalMatch.algorithm.isPlacer(NormalMatch.p1.player))
-                    opponent = NormalMatch.p2.player;
-                else opponent = NormalMatch.p1.player;
+                if (Match.algorithm.isPlacer(Match.p1.player))
+                    opponent = Match.p2.player;
+                else opponent = Match.p1.player;
 
-                NormalMatch.algorithm.timer.stop();
+                Match.algorithm.timer.stop();
 
-                NormalMatch.algorithm.clear();
-                NormalMatch.algorithm.start(opponent);
+                Match.algorithm.clear();
+                Match.algorithm.start(opponent);
 
-                HBB.WORLD.showTitle(BlockBattleEvents.subtitle(McColor.GOLD + NormalMatch.algorithm.placer.getName() + " was too slow!"));
+                HBB.WORLD.showTitle(BlockBattleEvents.subtitle(McColor.GOLD + Match.getOpponent().player.getName() + " was too slow!"));
             }
         }, 0L, 1);
     }

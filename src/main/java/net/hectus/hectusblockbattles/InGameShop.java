@@ -1,7 +1,7 @@
 package net.hectus.hectusblockbattles;
 
 import net.hectus.color.McColor;
-import net.hectus.hectusblockbattles.match.NormalMatch;
+import net.hectus.hectusblockbattles.match.Match;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
@@ -26,7 +26,19 @@ import static net.hectus.hectusblockbattles.InGameShop.HotBar.OVERTIME;
 
 public final class InGameShop implements Listener {
     private static final ArrayList<ShopItem> SHOP_ITEMS = new ArrayList<>(List.of(
+            i(Material.PURPLE_WOOL, 25, OVERTIME, McColor.PURPLE),
+            i(Material.SPRUCE_TRAPDOOR, 4, BOTH, McColor.GOLD),
+            i(Material.IRON_TRAPDOOR, 5, BOTH, McColor.GRAY),
+            i(Material.CAULDRON, 9, BOTH, McColor.DARK_GRAY),
+            i(Material.GOLD_BLOCK, 8, BOTH, McColor.GOLD),
+            i(Material.BLACK_WOOL, 7, BOTH, McColor.BLACK),
+            i(Material.SCULK, 7, BOTH, McColor.DARK_AQUA),
+            i(Material.GREEN_CARPET, 7, BOTH, McColor.GREEN),
+
+            //==================== Structures ====================
             i(Material.GLASS, 1, BOTH, McColor.GRAY),
+
+            //====================== Warps ======================
             i(Material.NETHERRACK, 2, BOTH, McColor.DARK_RED),
             i(Material.MAGMA_BLOCK, 4, BOTH, McColor.RED),
             i(Material.OAK_LOG, 3, BOTH, McColor.GOLD),
@@ -35,7 +47,6 @@ public final class InGameShop implements Listener {
             i(Material.CAMPFIRE, 4, BOTH, McColor.RED),
             i(Material.END_STONE_BRICKS, 4, BOTH, McColor.YELLOW),
             i(Material.NETHER_BRICKS, 4, BOTH, McColor.DARK_RED),
-            i(Material.PURPLE_WOOL, 25, OVERTIME, McColor.PURPLE),
             i(Material.REDSTONE_BLOCK, 4, BOTH, McColor.DARK_RED),
             i(Material.REDSTONE_TORCH, 3, BOTH, McColor.DARK_RED),
             i(Material.POWDER_SNOW_BUCKET, 7, BOTH, McColor.WHITE),
@@ -46,7 +57,7 @@ public final class InGameShop implements Listener {
             i(Material.YELLOW_STAINED_GLASS, 1, BOTH, McColor.YELLOW),
             i(Material.SHROOMLIGHT, 4, BOTH, McColor.GOLD),
             i(Material.PRISMARINE, 2, BOTH, McColor.DARK_AQUA),
-            i(Material.SEA_PICKLE, 3, BOTH, McColor.GREEN),
+            i(Material.SEA_PICKLE, 2, BOTH, McColor.GREEN),
             i(Material.AMETHYST_BLOCK, 2, BOTH, McColor.PINK),
             i(Material.AMETHYST_CLUSTER, 4, BOTH, McColor.PINK),
             i(Material.MYCELIUM, 2, BOTH, McColor.GOLD),
@@ -61,7 +72,7 @@ public final class InGameShop implements Listener {
     private static final int[] BACKGROUND_SLOTS = { 0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 };
     private static final ItemStack BACKGROUND_FRAME = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
 
-    public static void displayShop(Player player, @NotNull HotBar hotBar) {
+    public static void  displayShop(Player player, @NotNull HotBar hotBar) {
         if (hotBar == OVERTIME) {
             PlayerInventory inv = player.getInventory();
 
@@ -107,10 +118,10 @@ public final class InGameShop implements Listener {
                 if (money - shopItem.price <= 0) {
                     player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
 
-                    NormalMatch.algorithm.start(player);
+                    Match.algorithm.start(player);
 
-                    NormalMatch.p1.sendActionBar(McColor.RED + "The game starts! Good luck!");
-                    NormalMatch.p2.sendActionBar(McColor.RED + "The game starts! Good luck!");
+                    Match.p1.sendActionBar(McColor.RED + "The game starts! Good luck!");
+                    Match.p2.sendActionBar(McColor.RED + "The game starts! Good luck!");
                 } else {
                     shopInv.addItem(new ItemStack(Material.GOLD_INGOT, money - shopItem.price));
                 }
@@ -135,10 +146,10 @@ public final class InGameShop implements Listener {
                     } else if (title.contains("overtime")) {
                         player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
 
-                        NormalMatch.algorithm.start(player);
+                        Match.algorithm.start(player);
 
-                        NormalMatch.p1.sendActionBar(McColor.RED + "The game starts! Good luck!");
-                        NormalMatch.p2.sendActionBar(McColor.RED + "The game starts! Good luck!");
+                        Match.p1.sendActionBar(McColor.RED + "The game starts! Good luck!");
+                        Match.p2.sendActionBar(McColor.RED + "The game starts! Good luck!");
                     }
                 }
             }
@@ -146,8 +157,8 @@ public final class InGameShop implements Listener {
     }
 
     public static void end() {
-        NormalMatch.p1.player.closeInventory();
-        NormalMatch.p2.player.closeInventory();
+        Match.p1.player.closeInventory();
+        Match.p2.player.closeInventory();
     }
 
     @Contract(pure = true)

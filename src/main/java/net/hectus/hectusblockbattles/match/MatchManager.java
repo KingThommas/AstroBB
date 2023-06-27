@@ -1,16 +1,16 @@
 package net.hectus.hectusblockbattles.match;
 
 import org.bukkit.World;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public final class MatchManager {
     private static final Set<Match> matches = new HashSet<>();
 
-    public static @Nullable Match getMatch(World world) {
+    public static Match getMatch(World world) {
         for (Match match : matches) {
-            if (match.getGameMap().getWorld() == world) return match;
+            if (match.getGameMap().getWorld() == world)
+                return match;
         }
         return null;
     }

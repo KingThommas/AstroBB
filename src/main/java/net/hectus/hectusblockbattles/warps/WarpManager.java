@@ -1,19 +1,25 @@
 package net.hectus.hectusblockbattles.warps;
 
-import net.hectus.hectusblockbattles.structures.v2.Structure;
+import net.hectus.color.McColor;
+import net.hectus.hectusblockbattles.events.BlockBattleEvents;
+import net.hectus.hectusblockbattles.util.Cord;
 import net.hectus.util.Randomizer;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class WarpManager {
-    public static boolean warp(Warp warp, Player activator, Player otherPlayer) {
+    public static void warp(Warp warp, Player activator, Player otherPlayer) {
         if (Randomizer.boolByChance(warp.chance * 100)) {
-            Structure.Cord cord = warp.middle;
+            Cord cord = warp.middle;
+
             activator.teleport(new Location(activator.getWorld(), cord.x() - 2, cord.y(), cord.z()));
             otherPlayer.teleport(new Location(activator.getWorld(), cord.x() + 2, cord.y(), cord.z()));
-            return true;
+
+            activator.showTitle(BlockBattleEvents.subtitle(McColor.GREEN + "Success!"));
+            otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + activator.getName() + "'s Warp succeeded!"));
         } else {
-            return false;
+            activator.showTitle(BlockBattleEvents.subtitle(McColor.RED + "Fail!"));
+            otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + activator.getName() + "'s Warp failed!"));
         }
     }
 }

@@ -1,6 +1,6 @@
 package net.hectus.hectusblockbattles;
 
-import net.hectus.hectusblockbattles.match.NormalMatch;
+import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.time.Time;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
@@ -37,8 +37,8 @@ public class Watch {
             gameLeft.decrement();
 
             if (gameLeft.getAs(Time.Unit.S) == 0) {
-                NormalMatch.lose();
-                NormalMatch.win();
+                Match.lose();
+                Match.win();
             }
         }, 0L, 20L);
     }

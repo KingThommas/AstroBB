@@ -1,83 +1,71 @@
-package net.hectus.hectusblockbattles.match;
+package net.hectus.hectusblockbattles.match.old;
 
-import net.hectus.hectusblockbattles.InGameShop;
+<<<<<<< Updated upstream:src/main/java/net/hectus/hectusblockbattles/match/LocalMatchSingles.java
+import net.hectus.hectusblockbattles.IngameShop;
 import net.hectus.hectusblockbattles.maps.GameMap;
 import net.hectus.hectusblockbattles.playermode.PlayerMode;
 import net.hectus.hectusblockbattles.playermode.PlayerModeManager;
-import net.hectus.hectusblockbattles.structures.v2.Structure;
+import net.hectus.hectusblockbattles.structures.Structure;
+import net.hectus.hectusblockbattles.structures.Structures;
+=======
+import net.hectus.hectusblockbattles.util.Cord;
+import net.hectus.hectusblockbattles.maps.GameMap;
+import net.hectus.hectusblockbattles.playermode.PlayerMode;
+import net.hectus.hectusblockbattles.playermode.PlayerModeManager;
 import net.hectus.hectusblockbattles.warps.Warp;
 import net.hectus.hectusblockbattles.warps.WarpSettings;
 import net.hectus.color.McColor;
 import net.hectus.time.Time;
+>>>>>>> Stashed changes:src/main/java/net/hectus/hectusblockbattles/match/old/LocalMatchSingles.java
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntitySpawnEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
-import org.bukkit.Bukkit;
-import org.jetbrains.annotations.NotNull;
-
 
 import java.time.Duration;
 import java.util.*;
+import java.util.logging.Level;
 
-@SuppressWarnings("deprecation")
+<<<<<<< Updated upstream:src/main/java/net/hectus/hectusblockbattles/match/LocalMatchSingles.java
 public class LocalMatchSingles implements Match, Listener {
+=======
+@SuppressWarnings("deprecation")
+public class LocalMatchSingles implements OldMatch, Listener {
+>>>>>>> Stashed changes:src/main/java/net/hectus/hectusblockbattles/match/old/LocalMatchSingles.java
     private final JavaPlugin plugin;
     private final GameMap gameMap;
-
-    private Warp warp;
-
     private final List<Player> players;
-    private final HashMap<Player, Integer> playerLuckHashmap;
     private final HashMap<Player, Set<Block>> playerPlacedBlocks;
-    private final List<PotionEffectType> potionsToRemoveAtWarp;
-    //todo: on warp -> remove potion effects.
-
-    private boolean RISK;
-    private String END_RISK;
-    private String RISK_TYPE;
 
     private BukkitTask main;
     private int turnIndex;
     private int turnTimeLeft;
-    private final Location location;
+    private Location location;
 
-    public LocalMatchSingles(JavaPlugin plugin, @NotNull GameMap gameMap, Player p1, Player p2) {
+    private Block lastBlock;
+
+    public LocalMatchSingles(JavaPlugin plugin, GameMap gameMap, Player p1, Player p2) {
         this.plugin = plugin;
         this.gameMap = gameMap;
         this.location = new Location(gameMap.getWorld(), 0, 1, 0);
 
-        this.warp = Warp.DEFAULT;
-
-        players = new LinkedList<>();
+        players = new ArrayList<>();
         players.add(p1);
         players.add(p2);
 
         playerPlacedBlocks = new HashMap<>();
-        playerLuckHashmap = new HashMap<>();
-
-        potionsToRemoveAtWarp = new ArrayList<>();
-
-        RISK = false;
-        END_RISK = "NONE";
-        RISK_TYPE = "NONE";
-
 
         turnIndex = -1;
         turnTimeLeft = -1;
@@ -107,31 +95,21 @@ public class LocalMatchSingles implements Match, Listener {
     public void end(Player won, Player lost, Player causeSubject, String cause) {
         PlayerModeManager.initializePlayerMode(won);
         PlayerModeManager.initializePlayerMode(lost);
-        for (PotionEffect effect : won.getActivePotionEffects()) {
-            won.removePotionEffect(effect.getType());
-        }
-        for (PotionEffect effect : lost.getActivePotionEffects()) {
-            lost.removePotionEffect(effect.getType());
-        }
         if (causeSubject != null) {
-            StringBuilder causeBuilder = new StringBuilder();
             if (causeSubject == won) {
-                causeBuilder.append("you ");
+                cause = "you " + cause;
             } else {
-                causeBuilder.append("your opponent ");
+                cause = "your opponent " + cause;
             }
-            causeBuilder.append(cause);
-            cause = causeBuilder.toString();
         }
-        won.sendMessage(Component.text(McColor.GREEN + "You won the match because " + cause));
-        lost.sendMessage(Component.text(McColor.RED + "You lost the match because " + cause));
-        stop(false);
+        won.sendMessage("You won the match because " + cause);
+        lost.sendMessage("You lost the match because " + cause);
     }
 
     @Override
-    public void start() {
+    public boolean start() {
         if (isRunning()) {
-            return;
+            return true;
         }
 
         Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
@@ -146,9 +124,11 @@ public class LocalMatchSingles implements Match, Listener {
         // Enter shop phase (45-second buy time)
         for (Player player : players) {
             PlayerModeManager.setPlayerMode(PlayerMode.SHOP_PHASE, player);
+            // TODO: OPEN SHOP INVENTORY
+            IngameShop.displayShop(player);
         }
 
-        final int BUY_TIME = 45;
+        final int BUY_TIME = 45 * 20;
         new BukkitRunnable() {
             int t = BUY_TIME;
             @Override
@@ -157,8 +137,10 @@ public class LocalMatchSingles implements Match, Listener {
                     this.cancel();
                 }
 
-                for (Player player : players) {
-                    player.sendActionBar(Component.text(McColor.GRAY + Time.format(t)));
+                if (t % 20 == 0) {
+                    for (Player player : players) {
+                        player.sendActionBar(Component.text(t, NamedTextColor.GRAY));
+                    }
                 }
 
                 if (t <= 0) {
@@ -172,7 +154,7 @@ public class LocalMatchSingles implements Match, Listener {
 
                 t--;
             }
-        }.runTaskTimer(plugin, 100L, 20L);
+        }.runTaskTimer(plugin, 100, 1);
 
         // Run main match
         main = new BukkitRunnable() {
@@ -182,24 +164,25 @@ public class LocalMatchSingles implements Match, Listener {
                     this.cancel();
                 }
 
-                String currentPlayer = players.get(turnIndex).getName();
-
                 for (Player player : players) {
-                    player.sendActionBar(Component.text(McColor.YELLOW + currentPlayer + "'s turn." + McColor.GRAY + " Time left: " + McColor.YELLOW + Time.format(turnTimeLeft)));
+                    player.sendActionBar(players.get(turnIndex).displayName().color(NamedTextColor.YELLOW)
+                            .append(Component.text("'s turn. Time left: ", NamedTextColor.GRAY))
+                            .append(Component.text(turnTimeLeft / 20d, NamedTextColor.YELLOW)));
                 }
 
                 turnTimeLeft--;
 
                 if (turnTimeLeft <= 0) {
                     for (Player player : players) {
-                        player.sendMessage(Component.text(McColor.YELLOW + currentPlayer + McColor.RED + " didn't play in time!"));
+                        player.sendMessage(players.get(turnIndex).displayName().color(NamedTextColor.YELLOW)
+                                .append(Component.text(" did not play in time!", NamedTextColor.RED)));
                     }
                     nextTurn(true);
                 }
             }
-        }.runTaskTimer(plugin, 105L + BUY_TIME, 20L);
+        }.runTaskTimer(plugin, 101 + BUY_TIME, 1);
 
-        isRunning();
+        return isRunning();
     }
 
     @Override
@@ -225,11 +208,13 @@ public class LocalMatchSingles implements Match, Listener {
         }
 
         new BukkitRunnable() {
-            int i = 10;
+            int i = 10 * 20;
             @Override
             public void run() {
                 for (Player player : getGameMap().getWorld().getPlayers()) {
-                    player.sendActionBar(Component.text(McColor.YELLOW + "Returning to lobby in" + Time.format(i) + "..."));
+                    player.sendActionBar(Component.text("Returning to lobby in ", NamedTextColor.YELLOW)
+                            .append(Component.text(i / 20, NamedTextColor.RED))
+                            .append(Component.text("...", NamedTextColor.YELLOW)));
                 }
 
                 if (getGameMap().getWorld().getPlayers().size() < 1) {
@@ -246,12 +231,13 @@ public class LocalMatchSingles implements Match, Listener {
 
                 i--;
             }
-        }.runTaskTimer(plugin, 0L, 20L);
+        }.runTaskTimer(plugin, 0, 1);
     }
 
     private void sendPlayerToLobby(Player player) {
         PlayerModeManager.setPlayerMode(PlayerMode.DEFAULT, player);
-        player.kick();
+        // TODO: SEND TO LOBBY
+        player.teleport(getGameMap().getSourceWorld().getSpawnLocation());
     }
 
     @Override
@@ -262,34 +248,6 @@ public class LocalMatchSingles implements Match, Listener {
     @Override
     public double getGameScore() {
         return 0;
-    }
-
-    @Override
-    public void setLuck(Player player, int amount) {
-        playerLuckHashmap.put(player, amount);
-    }
-
-    @Override
-    public void addLuck(Player player, int amount) {
-        playerLuckHashmap.put(player, playerLuckHashmap.get(player) + amount);
-    }
-
-    @Override
-    public void removeLuck(Player player, int amount) {
-        playerLuckHashmap.put(player, playerLuckHashmap.get(player) - amount);
-    }
-
-    @Override
-    public int getLuck(Player player) {
-        return playerLuckHashmap.get(player);
-    }
-
-    @Override
-    public boolean luckCheck(Player player, double chance) {
-        int random = (int) Math.round(Math.random()) * 100;
-        double reverseChange = 100 - chance;
-        int luck = playerLuckHashmap.get(player);
-        return random + luck >= reverseChange;
     }
 
     public Player getPlayer(boolean turn) {
@@ -304,13 +262,24 @@ public class LocalMatchSingles implements Match, Listener {
         return getPlayer(!getTurn());
     }
 
+<<<<<<< Updated upstream:src/main/java/net/hectus/hectusblockbattles/match/LocalMatchSingles.java
+    public Block getLastBlock() {
+        return lastBlock;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+=======
     public boolean outOfBounds(double x, double z) {
-        Structure.Cord m = this.warp.middle;
+        Cord m = this.warp.middle;
 
-        Structure.Cord lc = new Structure.Cord(m.x() - 4, m.y(), m.z() - 4);
-        Structure.Cord hc = new Structure.Cord(m.x() + 4, m.y(), m.z() + 4);
+        Cord lc = new Cord(m.x() - 4, m.y(), m.z() - 4);
+        Cord hc = new Cord(m.x() + 4, m.y(), m.z() + 4);
+>>>>>>> Stashed changes:src/main/java/net/hectus/hectusblockbattles/match/old/LocalMatchSingles.java
 
-        return x<lc.x() || x>hc.x() || z<lc.z() || z>hc.z();
+    public boolean checkBounds(int x, int z) {
+        return x >= location.x() && x < location.x() + 9 && z >= location.z() && z < location.z() + 9;
     }
 
     @Override
@@ -319,7 +288,7 @@ public class LocalMatchSingles implements Match, Listener {
     }
 
     @EventHandler
-    public void onQuit(@NotNull PlayerQuitEvent e) {
+    public void onQuit(PlayerQuitEvent e) {
         if (!players.remove(e.getPlayer())) {
             return;
         }
@@ -329,44 +298,62 @@ public class LocalMatchSingles implements Match, Listener {
         }
     }
 
-    @EventHandler
-    public void onEntitySpawn(@NotNull EntitySpawnEvent event){
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlace(BlockPlaceEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
 
-        LivingEntity entity = (LivingEntity) event.getEntity();
+        Player player = e.getPlayer();
+        int index = players.indexOf(player);
+        if (index < 0) {
+            return;
+        }
 
-        entity.setAI(false);
-        entity.setInvulnerable(true);
-        entity.setSilent(true);
+        if (turnIndex < 0 || player != (players.get(turnIndex))) {
+            e.setCancelled(true);
+            return;
+        }
 
-    }
+        playerPlacedBlocks.putIfAbsent(player, new HashSet<>());
+        Set<Block> blocks = playerPlacedBlocks.get(player);
+        blocks.add(e.getBlockPlaced());
+        lastBlock = e.getBlockPlaced();
 
-    @EventHandler
-    public void onEntityRename(@NotNull PlayerInteractEntityEvent event) {
-        Player player = event.getPlayer();
-        Entity entity = event.getRightClicked();
-        ItemStack item = player.getInventory().getItemInMainHand();
+        Structure build = new Structure("Build", playerPlacedBlocks.get(e.getPlayer()));
+        for (Structure structure : Structures.getAllStructures()) {
+            Bukkit.getLogger().log(Level.INFO, "TESTING: " + structure.getName());
+            if (structure.hasSubset(build)) {
+                if (structure.getPlacedBlocks().size() == blocks.size()) {
+                    // Perfect match
+                    Bukkit.broadcast(player.displayName()
+                            .append(Component.text(" played ", NamedTextColor.YELLOW))
+                            .append(Component.text(structure.getName())));
+                    blocks.clear();
+                }
 
-        if (item.getType().isItem() && item.getItemMeta() != null && item.getItemMeta().hasDisplayName()) {
-            if (item.getItemMeta().getDisplayName().equalsIgnoreCase("dinnerbone") || item.getItemMeta().getDisplayName().equalsIgnoreCase("grumm")) {
-                entity.remove();
-                //todo: remove effect from mob.
+                return;
             }
         }
-    }
 
-    private boolean disallowsClass(WarpSettings.Class allow){
+        // No such structure exists: Misplace!
+        player.showTitle(Title.title(Component.text(""), Component.text("Misplace!", NamedTextColor.RED), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
 
-        for (WarpSettings.Class aClass : warp.allow) {
-            if (aClass.equals(allow)) {
-                return false;
-            }
+        for (Block block : blocks) {
+            player.getWorld().spawnParticle(Particle.BLOCK_CRACK, block.getLocation().add(0.5d, 0.5d, 0.5d), 10, 0.5d, 0.5d, 0.5d, block.getBlockData());
+            block.setType(Material.AIR);
         }
-        return true;
 
+        blocks.clear();
+
+        nextTurn(true);
     }
+<<<<<<< Updated upstream:src/main/java/net/hectus/hectusblockbattles/match/LocalMatchSingles.java
+=======
     
     public void failed() {
         getOppositeTurnPlayer().showTitle(Title.title(Component.empty(), Component.text(McColor.RED + "Failed!"), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
         getCurrentTurnPlayer().showTitle(Title.title(Component.empty(), Component.text(McColor.RED + "Failed!"), Title.Times.times(Duration.ofMillis(250), Duration.ofMillis(500), Duration.ofMillis(250))));
     }
+>>>>>>> Stashed changes:src/main/java/net/hectus/hectusblockbattles/match/old/LocalMatchSingles.java
 }
