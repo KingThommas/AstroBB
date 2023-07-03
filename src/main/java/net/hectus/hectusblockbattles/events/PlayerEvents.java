@@ -20,6 +20,8 @@ import org.jetbrains.annotations.NotNull;
 public class PlayerEvents implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPlace(@NotNull BlockPlaceEvent event) {
+        if (!Match.hasStarted) return;
+
         Player p = event.getPlayer();
 
         if (!Match.algorithm.isPlacer(p) && !Match.netherPortalAwaitIgnite) {
@@ -50,16 +52,20 @@ public class PlayerEvents implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerMove(@NotNull PlayerMoveEvent event) {
+        if (!Match.hasStarted) return;
+
         Player player = event.getPlayer();
 
-        if (event.hasChangedPosition() && System.currentTimeMillis() % 50 == 0) {
+        if (event.hasChangedPosition() && !player.isOp()) {
             if (!Match.algorithm.isPlacer(player)) {
                 event.setCancelled(true);
+                player.sendMessage(Component.text("\n\n\n\n\n\n\n\n\n\n"));
                 player.sendMessage(Component.text("//==================Nah!==================\\\\"));
                 player.sendMessage(Component.text("|| It isn't your turn, so you can't move. ||"));
                 player.sendMessage(Component.text("\\\\========================================//"));
             } else if (!Match.getPlayer(player).canMove()) {
                 event.setCancelled(true);
+                player.sendMessage(Component.text("\n\n\n\n\n\n\n\n\n\n"));
                 player.sendMessage(Component.text("//==================Nah!=============\\\\"));
                 player.sendMessage(Component.text("|| You're frozen, so you can't move! ||"));
                 player.sendMessage(Component.text("\\\\===================================//"));

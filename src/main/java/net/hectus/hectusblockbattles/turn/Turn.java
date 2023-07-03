@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import static net.hectus.hectusblockbattles.warps.WarpSettings.Class;
 
 public enum Turn {
+    NONE(Type.CUSTOM, McColor.RESET, "Nothing, this is an error!", Material.BARRIER, null, Class.NEUTRAL, false),
     PURPLE_WOOL(Type.ATTACK, McColor.PURPLE, "Purple Wool", Material.PURPLE_WOOL, null, Class.NEUTRAL, false),
     DINNERBONE(Type.COUNTER, McColor.GREEN, "Dinnerbone/Grumm Name Tag", Material.NAME_TAG, null, Class.NEUTRAL, false),
     NETHER_PORTAL_FRAME(Type.AWAIT, McColor.BLACK, "Nether Portal Frame", Material.OBSIDIAN, null, Class.HOT, false),

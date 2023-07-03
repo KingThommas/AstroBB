@@ -2,6 +2,7 @@ package net.hectus.hectusblockbattles;
 
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.match.Match;
+import net.hectus.hectusblockbattles.util.BBPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
@@ -25,7 +26,7 @@ import static net.hectus.hectusblockbattles.InGameShop.HotBar.BOTH;
 import static net.hectus.hectusblockbattles.InGameShop.HotBar.OVERTIME;
 
 public final class InGameShop implements Listener {
-    private static final ArrayList<ShopItem> SHOP_ITEMS = new ArrayList<>(List.of(
+    public static final HashSet<ShopItem> SHOP_ITEMS_1 = new HashSet<>(Set.of(
             i(Material.PURPLE_WOOL, 25, OVERTIME, McColor.PURPLE),
             i(Material.SPRUCE_TRAPDOOR, 4, BOTH, McColor.GOLD),
             i(Material.IRON_TRAPDOOR, 5, BOTH, McColor.GRAY),
@@ -34,11 +35,9 @@ public final class InGameShop implements Listener {
             i(Material.BLACK_WOOL, 7, BOTH, McColor.BLACK),
             i(Material.SCULK, 7, BOTH, McColor.DARK_AQUA),
             i(Material.GREEN_CARPET, 7, BOTH, McColor.GREEN),
-
-            //==================== Structures ====================
-            i(Material.GLASS, 1, BOTH, McColor.GRAY),
-
-            //====================== Warps ======================
+            i(Material.GLASS, 1, BOTH, McColor.GRAY)
+    ));
+    public static final HashSet<ShopItem> SHOP_ITEMS_2 = new HashSet<>(Set.of(
             i(Material.NETHERRACK, 2, BOTH, McColor.DARK_RED),
             i(Material.MAGMA_BLOCK, 4, BOTH, McColor.RED),
             i(Material.OAK_LOG, 3, BOTH, McColor.GOLD),
@@ -69,11 +68,36 @@ public final class InGameShop implements Listener {
             i(Material.CHORUS_PLANT, 3, BOTH, McColor.PURPLE),
             i(Material.END_STONE, 1, BOTH, McColor.YELLOW)
     ));
-    private static final int[] BACKGROUND_SLOTS = { 0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 };
+    private static final int[] BACKGROUND_SLOTS = { 1, 2, 3, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17 };
     private static final ItemStack BACKGROUND_FRAME = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
+    private static final ItemStack NOT_IN_CURRENT_HOTBAR_FRAME = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+    private static final ItemStack LAST_PAGE_ITEM = new ItemStack(Material.WHITE_CONCRETE);
+    private static final ItemStack NEXT_PAGE_ITEM = new ItemStack(Material.WHITE_CONCRETE);
 
-    public static void  displayShop(Player player, @NotNull HotBar hotBar) {
+    public static void displayShop(Player player, @NotNull HotBar hotBar) {
+        displayShop(player, hotBar, 64, 1);
+    }
+
+    public static void displayShop(Player player, @NotNull HotBar hotBar, int coins, int page) {
+        player.closeInventory(InventoryCloseEvent.Reason.OPEN_NEW);
+
+        if (!NOT_IN_CURRENT_HOTBAR_FRAME.displayName().toString().contains("Not available!")){
+            ItemMeta meta = NOT_IN_CURRENT_HOTBAR_FRAME.getItemMeta();
+            meta.displayName(Component.text(McColor.RED + "Not available!"));
+            meta.displayName(Component.text(McColor.GRAY + "You can't buy this item in the current shop phase!"));
+            NOT_IN_CURRENT_HOTBAR_FRAME.setItemMeta(meta);
+
+            meta = LAST_PAGE_ITEM.getItemMeta();
+            meta.displayName(Component.text("Last Page"));
+            LAST_PAGE_ITEM.setItemMeta(meta);
+
+            meta = NEXT_PAGE_ITEM.getItemMeta();
+            meta.displayName(Component.text("Next Page"));
+            NEXT_PAGE_ITEM.setItemMeta(meta);
+        }
+
         if (hotBar == OVERTIME) {
+            Match.getPlayer(player).setState(Match.PlayerState.SHOP_OVERTIME);
             PlayerInventory inv = player.getInventory();
 
             int i = 0;
@@ -86,18 +110,24 @@ public final class InGameShop implements Listener {
                 }
                 i++;
             }
+        } else {
+            Match.getPlayer(player).setState(Match.PlayerState.SHOP_NORMAL);
         }
 
         Inventory shop = Bukkit.createInventory(player, 9*6, Component.text("Pre-Round Shop, " + hotBar.name().toLowerCase() + " phase"));
 
         for (int i : BACKGROUND_SLOTS) shop.setItem(i, BACKGROUND_FRAME);
 
-        shop.addItem(new ItemStack(Material.GOLD_INGOT, 64));
+        shop.addItem(LAST_PAGE_ITEM);
+        shop.addItem(new ItemStack(Material.GOLD_INGOT, coins));
+        shop.addItem(NEXT_PAGE_ITEM);
 
-        for (ShopItem shopItem : SHOP_ITEMS) {
+        for (ShopItem shopItem : (page == 1 ? SHOP_ITEMS_1 : SHOP_ITEMS_2)) {
             if (shopItem.hotBar == BOTH || shopItem.hotBar == hotBar) {
                 ItemStack item = new ItemStack(shopItem.item, shopItem.price);
                 shop.addItem(item);
+            } else {
+                shop.addItem(NOT_IN_CURRENT_HOTBAR_FRAME);
             }
         }
 
@@ -141,29 +171,34 @@ public final class InGameShop implements Listener {
                     String title = PlainTextComponentSerializer.plainText().serialize(player.getOpenInventory().title()).toLowerCase();
 
                     if (title.contains("normal")) {
-                        player.closeInventory(InventoryCloseEvent.Reason.OPEN_NEW);
-                        displayShop(player, OVERTIME);
+                        displayShop(player, OVERTIME, Objects.requireNonNull(shopInv.getItem(4)).getAmount(), 1);
                     } else if (title.contains("overtime")) {
                         player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
 
-                        Match.algorithm.start(player);
+                        BBPlayer bbPlayer = Match.getPlayer(player);
 
-                        Match.p1.sendActionBar(McColor.RED + "The game starts! Good luck!");
-                        Match.p2.sendActionBar(McColor.RED + "The game starts! Good luck!");
+                        bbPlayer.setState(Match.PlayerState.SHOP_OVERTIME_FINISHED);
+
+                        if (bbPlayer.getState() == Match.PlayerState.SHOP_OVERTIME_FINISHED && Match.getOpposite(bbPlayer).getState() == Match.PlayerState.SHOP_OVERTIME_FINISHED) {
+                            Match.p1.sendActionBar(McColor.RED + "The game starts! Good luck!");
+                            Match.p2.sendActionBar(McColor.RED + "The game starts! Good luck!");
+
+                            Match.algorithm.start(player);
+                        } else {
+
+                        }
                     }
                 }
             }
         }
     }
 
-    public static void end() {
-        Match.p1.player.closeInventory();
-        Match.p2.player.closeInventory();
-    }
-
     @Contract(pure = true)
     public static @Nullable ShopItem getItem(Material material) {
-        for (ShopItem item : SHOP_ITEMS) {
+        for (ShopItem item : SHOP_ITEMS_1) {
+            if (item.item == material) return item;
+        }
+        for (ShopItem item : SHOP_ITEMS_2) {
             if (item.item == material) return item;
         }
         return null;

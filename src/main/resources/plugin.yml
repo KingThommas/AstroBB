@@ -14,7 +14,7 @@ main: net.hectus.hectusblockbattles.HBB
 
 ### PaperAPI version ###
 # Which major Minecraft version the plugin uses #
-api-version: 1.19
+api-version: '1.20'
 
 ### All People that helped ###
 # You can add yourself here if you want #

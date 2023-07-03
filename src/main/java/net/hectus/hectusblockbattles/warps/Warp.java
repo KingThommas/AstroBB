@@ -1,8 +1,8 @@
 package net.hectus.hectusblockbattles.warps;
 
+import net.hectus.hectusblockbattles.util.Cord;
 import org.jetbrains.annotations.Contract;
 
-import static net.hectus.hectusblockbattles.structures.v2.Structure.Cord;
 import static net.hectus.hectusblockbattles.warps.WarpSettings.Class;
 import static net.hectus.hectusblockbattles.warps.WarpSettings.*;
 
@@ -120,14 +120,14 @@ public enum Warp {
             new Class[] { Class.COLD, Class.WATER, Class.REDSTONE, Class.DREAM },
             new Class[] { Class.NEUTRAL, Class.HOT, Class.NATURE }
     ), HEAVEN(
-            0.50,
+            0.55,
             false, true,
             new Cord(248,-27,80),
             Temperature.MEDIUM, Dimension.OVERWORLD, Layer.SKY,
             new Class[] { Class.NEUTRAL, Class.COLD, Class.NATURE, Class.DREAM },
             new Class[] { Class.HOT, Class.WATER, Class.REDSTONE }
     ), HELL(
-            0.50,
+            0.55,
             true, false,
             new Cord(-199,19,146),
             Temperature.WARM, Dimension.NONE, Layer.UNDERGROUND,

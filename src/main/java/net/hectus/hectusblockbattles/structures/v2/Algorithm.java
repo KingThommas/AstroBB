@@ -8,10 +8,12 @@ import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.hectusblockbattles.util.Cord;
 import net.hectus.storing.pair.Pair;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -26,6 +28,12 @@ public class Algorithm {
 
     public void start(Player player) {
         HBB.LOGGER.info("The algorithm was started!");
+
+        HBB.WORLD.showTitle(Title.title(
+                Component.text(placer.getName() + " starts!"),
+                Component.empty(),
+                Title.Times.times(Duration.ofMillis(100), Duration.ofSeconds(1), Duration.ofMillis(200))
+        ));
 
         running = true;
         placer = player;

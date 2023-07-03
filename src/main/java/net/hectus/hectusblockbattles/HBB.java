@@ -13,7 +13,6 @@ import java.io.File;
 import java.util.Objects;
 import java.util.logging.Logger;
 
-@SuppressWarnings("ResultOfMethodCallIgnored") // For "Result of '*' is ignored."
 public final class HBB extends JavaPlugin {
     public static Logger LOGGER;
     public static World WORLD;
@@ -53,7 +52,6 @@ public final class HBB extends JavaPlugin {
         // try { PlayerDatabase.disconnect(); }
         // catch (SQLException e) { throw new RuntimeException(e); }
         // //=================================================================
-
         LOGGER.info("Hectus BlockBattles stopped.");
     }
 }

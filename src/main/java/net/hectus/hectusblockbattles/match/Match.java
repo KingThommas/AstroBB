@@ -3,6 +3,7 @@ package net.hectus.hectusblockbattles.match;
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.HBB;
 import net.hectus.hectusblockbattles.InGameShop;
+import net.hectus.hectusblockbattles.ScoreBoard;
 import net.hectus.hectusblockbattles.structures.v2.Algorithm;
 import net.hectus.hectusblockbattles.turn.Turn;
 import net.hectus.hectusblockbattles.turn.TurnInfo;
@@ -10,6 +11,7 @@ import net.hectus.hectusblockbattles.util.BBPlayer;
 import net.hectus.hectusblockbattles.util.Cord;
 import net.hectus.hectusblockbattles.warps.Warp;
 import net.hectus.hectusblockbattles.warps.WarpSettings;
+import net.hectus.hectusblockbattles.watch.TurnWatch;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -19,29 +21,22 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-<<<<<<< Updated upstream
-public interface Match {
-    boolean start();
-    void stop(boolean isAbrupt);
-    Player getCurrentTurnPlayer();
-    void nextTurn(boolean wasSkipped);
-    GameMap getGameMap();
-    List<Player> getPlayers();
-    boolean isRunning();
-    double getGameScore();
-=======
 @SuppressWarnings("unused")
 public class Match {
+    public static boolean hasStarted;
     public static BBPlayer p1;
     public static BBPlayer p2;
     public static boolean shopPhase;
     public static Warp currentWarp;
     public static List<TurnInfo> turnHistory = new ArrayList<>();
     public static Algorithm algorithm = new Algorithm();
+    public static TurnWatch turnWatch = new TurnWatch();
 
     public static boolean netherPortalAwaitIgnite, blackWoolDebuff = false;
 
     public static void start(Player p1, Player p2) {
+        hasStarted = true;
+
         Match.p1 = new BBPlayer(p1);
         Match.p2 = new BBPlayer(p2);
 
@@ -128,6 +123,7 @@ public class Match {
     public static void shopDone() {
         shopPhase = false;
         algorithm.start(p1.player);
+        turnWatch.start();
     }
 
     public static void addTurn(TurnInfo turn) {
@@ -167,5 +163,4 @@ public class Match {
         SHOP_OVERTIME_FINISHED,
         GAME
     }
->>>>>>> Stashed changes
 }

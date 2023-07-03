@@ -30,7 +30,7 @@ public class Structure {
     }
 
     public record BlockData(Material material, int x, int y, int z, BlockFace direction, BlockBound blockBound, boolean open) {}
-    public enum BlockBound {NONE, TOP, BOTTOM, DOUBLE_SLAB, STALACTITE, STALAGMITE}
+    public enum BlockBound { NONE, TOP, BOTTOM, DOUBLE_SLAB, STALACTITE, STALAGMITE }
 
     public static @NotNull Structure save(@NotNull Cord c1, @NotNull Cord c2, String name, boolean useExactBlockData, World world) {
         int hX, lX, hY, lY, hZ, lZ;

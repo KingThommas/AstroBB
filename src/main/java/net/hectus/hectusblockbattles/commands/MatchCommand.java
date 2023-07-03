@@ -1,6 +1,6 @@
 package net.hectus.hectusblockbattles.commands;
 
-import net.hectus.hectusblockbattles.match.NormalMatch;
+import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.text.Completer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -21,7 +21,7 @@ public class MatchCommand implements CommandExecutor, TabExecutor {
         if (args.length != 3) return false;
         if (!args[0].equals("start")) return false;
 
-        NormalMatch.start(Bukkit.getPlayer(args[1]), Bukkit.getPlayer(args[2]));
+        Match.start(Bukkit.getPlayer(args[1]), Bukkit.getPlayer(args[2]));
 
         return true;
     }

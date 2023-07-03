@@ -34,19 +34,6 @@ public class AlgorithmTimer {
                 laps += 1;
                 algorithm.calculateChances();
             }
-            if (laps >= 20) {
-                Player opponent;
-                if (Match.algorithm.isPlacer(Match.p1.player))
-                    opponent = Match.p2.player;
-                else opponent = Match.p1.player;
-
-                Match.algorithm.timer.stop();
-
-                Match.algorithm.clear();
-                Match.algorithm.start(opponent);
-
-                HBB.WORLD.showTitle(BlockBattleEvents.subtitle(McColor.GOLD + Match.getOpponent().player.getName() + " was too slow!"));
-            }
         }, 0L, 1);
     }
 
