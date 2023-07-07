@@ -107,6 +107,12 @@ public class WarpManager {
             activator.showTitle(BlockBattleEvents.subtitle(McColor.GREEN + "Success!"));
             otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + activator.getName() + "'s Warp succeeded!"));
 
+            Match.getPlacer().startJailCounter(-3);
+            Match.getPlacer().startBurnCounter(-3);
+
+            Match.getOpponent().startJailCounter(-3);
+            Match.getOpponent().startBurnCounter(-3);
+
             Match.next();
         } else {
             activator.showTitle(BlockBattleEvents.subtitle(McColor.RED + "Fail!"));

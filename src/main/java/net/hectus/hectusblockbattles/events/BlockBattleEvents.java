@@ -8,8 +8,10 @@ import net.hectus.hectusblockbattles.player.BBPlayer;
 import net.hectus.hectusblockbattles.Cord;
 import net.hectus.hectusblockbattles.warps.Warp;
 import net.hectus.hectusblockbattles.warps.WarpManager;
+import net.hectus.hectusblockbattles.warps.WarpSettings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -28,12 +30,14 @@ public class BlockBattleEvents {
         Turn turn = switch (structure.name) {
             case "NETHER_PORTAL"   -> Turn.NETHER_PORTAL_FRAME;
             case "OAK_DOOR_TURTLE" -> Turn.OAK_DOORS;
+            case "JAIL_METHOD"     -> Turn.JAIL_METHOD;
             default                -> Turn.NONE;
         };
 
         if (structure.name.contains("WARP")) {
             String warp = structure.name.replace("_WARP", "");
             WarpManager.warp(Warp.valueOf(warp), event.placer(), event.opponent());
+            return;
         }
 
         if (turn != Turn.NONE) {
@@ -42,6 +46,16 @@ public class BlockBattleEvents {
     }
     public static void onTurn(TurnInfo turn) {
         Match.addTurn(turn);
+
+        if (Match.blazeDebuff && (turn.turn().clazz == COLD || turn.turn().clazz == WATER)) {
+            Match.next();
+            return;
+        }
+        if (Match.getPlayer(turn.player()).isJailed() && turn.turn().type == Turn.Type.ATTACK) {
+            Match.getPlayer(turn.player()).showTitle("", "You are jailed, so you can't attack!", null);
+            Match.next();
+            return;
+        }
 
         if (turn.turn().type == Turn.Type.ATTACK || turn.turn().type == Turn.Type.WARP) {
             Match.lose();
@@ -55,16 +69,30 @@ public class BlockBattleEvents {
         Cord cord = turn.cord();
 
         boolean initialAttacked = player.isAttacked();
+        boolean doNext = true;
+
+        Turn last = Match.getLatestTurn().turn();
 
         switch (turn.turn()) {
+            case CAULDRON, MAGMA_BLOCK, PACKED_ICE, LIGHT_BLUE_WOOL -> opponent.setAttacked(true);
             case PURPLE_WOOL -> Match.win();
             case DINNERBONE -> {
                 if (player.isAttacked()) {
-                    if (Match.getLatestTurn().turn().mob) {
+                    if (last.mob) {
                         player.setAttacked(false);
                     } else {
                         Match.lose();
                     }
+                }
+            }
+            case JAIL_METHOD -> {
+                int sx = cord.x();
+                int sz = cord.z();
+                double px = opponent.player.getLocation().x();
+                double pz = opponent.player.getLocation().x();
+
+                if ((px == sx || px == sx + 1) && (pz == sz || pz == sz + 1)) {
+                    opponent.startJailCounter(3);
                 }
             }
             case NETHER_PORTAL_FRAME -> Match.netherPortalAwaitIgnite = true;
@@ -79,7 +107,7 @@ public class BlockBattleEvents {
                 opponent.startDieCounter(2);
             }
             case LIGHTNING_TRIDENT -> {
-                if (Match.getLatestTurn().turn() == Turn.LIGHTNING_ROD) {
+                if (last == Turn.LIGHTNING_ROD) {
                     turn.player().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
                     opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
                 }
@@ -110,7 +138,6 @@ public class BlockBattleEvents {
                     player.setAttacked(false);
                 }
             }
-            case CAULDRON -> opponent.setAttacked(true);
             case GOLD_BLOCK -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, HOT, NATURE) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
@@ -139,7 +166,7 @@ public class BlockBattleEvents {
                 if (player.isAttacked() && Match.latestTurnIsClass(REDSTONE, DREAM) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
                 } else if (!player.isAttacked()) {
-                    player.addExtraTurns(1);
+                    doNext = false;
                 }
             }
             case LIGHTNING_ROD -> {
@@ -156,7 +183,91 @@ public class BlockBattleEvents {
                 // TODO: Make it counter only traps or levitation
                 if (player.isAttacked()) {
                     player.setAttacked(false);
+                    doNext = false;
+                }
+            }
+            case CHORUS_FRUIT_EAT -> {
+                if (player.isAttacked()) {
+                    player.setAttacked(false);
+                }
+            }
+            case IRON_SHOVEL -> {
+                // TODO: Add also countering Dirt
+                if (player.isAttacked() && last == Turn.CAULDRON && last.clazz == HOT) {
+                    player.setAttacked(false);
+                    doNext = false;
+                }
+            }
+            case STONECUTTER -> {
+                if (player.isAttacked() && (last.name().contains("TRAP") || last.name().contains("WALL"))) {
+                    player.setAttacked(false);
+                    doNext = false;
+                }
+            }
+            case MAGENTA_GLAZED_TERRACOTTA -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, HOT, COLD, WATER, NATURE) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
                     opponent.setAttacked(true);
+                }
+            }
+            case NETHERRACK -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(HOT, COLD, WATER) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                }
+            }
+            case LAVA_BUCKET -> {
+                if (Match.currentWarp.temperature == WarpSettings.Temperature.WARM) {
+                    opponent.startBurnCounter(3);
+                }
+            }
+            case FLINT_N_STEEL -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(COLD, REDSTONE, NATURE) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+
+                    player.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
+                    player.player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
+                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
+                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
+                }
+            }
+            case ORANGE_WOOL -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(REDSTONE, DREAM) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                }
+            }
+            case CAMPFIRE -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, HOT, COLD) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                    // TODO: Add beehive +1 Turn & +10 Luck
+                }
+            }
+            case BLAZE -> {
+                Match.blazeDebuff = true;
+                opponent.setAttacked(true);
+            }
+            case RESPAWN_ANCHOR -> {
+                player.player.teleport(cord.toLocation());
+                doNext = new Random().nextBoolean();
+            }
+            case BLUE_ICE -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(COLD, WATER, DREAM) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                }
+            }
+            case SPRUCE_LEAVES -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, NATURE) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                }
+            }
+            case WHITE_WOOL -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, WATER, REDSTONE, DREAM) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    player.player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, -1, 125));
+                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, -1, 125));
                 }
             }
         }
@@ -174,12 +285,19 @@ public class BlockBattleEvents {
             if (turn.turn().clazz == REDSTONE) Match.getPlacer().addLuck(5);
         }
 
+        if (turn.turn().type == Turn.Type.COUNTER) {
+            player.startJailCounter(-3);
+            player.startBurnCounter(-3);
+        }
+
         if (player.isAttacked()) Match.lose();
 
+        // Updating the players with the new temporary players from here
         Match.p1 = Match.p1.player == player.player ? player : opponent;
         Match.p2 = Match.p1.player == player.player ? opponent : player;
 
-        Match.next();
+        if (doNext) Match.next();
+        else Match.getPlacer().sendActionBar("You have an extra turn!");
     }
 
     @Contract("_ -> new")

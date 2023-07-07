@@ -22,15 +22,14 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class Match {
-    public static boolean hasStarted;
+    public static boolean hasStarted, shopPhase;
     public static BBPlayer p1;
     public static BBPlayer p2;
-    public static boolean shopPhase;
     public static Warp currentWarp;
     public static List<TurnInfo> turnHistory = new ArrayList<>();
     public static Algorithm algorithm = new Algorithm();
 
-    public static boolean netherPortalAwaitIgnite, blackWoolDebuff = false;
+    public static boolean netherPortalAwaitIgnite, blackWoolDebuff, blazeDebuff;
 
     public static void start(Player p1, Player p2) {
         hasStarted = true;
