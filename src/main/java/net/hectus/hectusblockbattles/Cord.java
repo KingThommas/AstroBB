@@ -9,4 +9,9 @@ public record Cord(int x, int y, int z) {
     public static @NotNull Cord of(@NotNull Location loc) {
         return new Cord((int) loc.x(), (int) loc.y(), (int) loc.z());
     }
+
+    @Contract(value = " -> new", pure = true)
+    public @NotNull Location toLocation() {
+        return new Location(HBB.WORLD, x, y, z);
+    }
 }

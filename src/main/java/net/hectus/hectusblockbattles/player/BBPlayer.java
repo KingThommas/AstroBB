@@ -15,6 +15,8 @@ public class BBPlayer {
     public final Player player;
     private int luck = 10;
     private int dieCounter = -3;
+    private int burningCounter = -3;
+    private int jailCounter = -3;
     private int extraTurns = 0;
     private boolean defended, movement, attacked, doubleCounterAttack ;
     private Match.PlayerState state;
@@ -72,6 +74,15 @@ public class BBPlayer {
     public void startDieCounter(int turns) {
         dieCounter = turns;
     }
+    public void startBurnCounter(int turns) {
+        burningCounter = turns;
+    }
+    public void startJailCounter(int turns) {
+        jailCounter = turns;
+    }
+    public boolean isJailed() {
+        return jailCounter >= 0;
+    }
 
     public void addExtraTurns(int turns) {
         extraTurns += turns;
@@ -82,12 +93,8 @@ public class BBPlayer {
 
     public void count() {
         dieCounter--;
-        if (dieCounter == 0) {
-            if (this == Match.getPlacer()) {
-                Match.lose();
-            } else {
-                Match.win();
-            }
+        if (dieCounter == 0 || burningCounter == 0) {
+            Match.win(Match.getOpposite(this));
         }
     }
 
