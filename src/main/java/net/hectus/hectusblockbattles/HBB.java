@@ -5,11 +5,18 @@ import net.hectus.hectusblockbattles.commands.StructureCommand;
 import net.hectus.hectusblockbattles.events.InGameShopEvents;
 import net.hectus.hectusblockbattles.events.PlayerEvents;
 import net.hectus.hectusblockbattles.structures.v2.StructureManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -20,7 +27,7 @@ public final class HBB extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        LOGGER = this.getLogger();
+        LOGGER = getLogger();
 
         // // Don't remove this, this is very important to not break anything!
         // try { PlayerDatabase.connect(); }

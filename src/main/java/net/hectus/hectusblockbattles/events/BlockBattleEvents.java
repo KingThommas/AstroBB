@@ -2,9 +2,10 @@ package net.hectus.hectusblockbattles.events;
 
 import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.hectusblockbattles.structures.v2.Structure;
+import net.hectus.hectusblockbattles.turn.Turn;
 import net.hectus.hectusblockbattles.turn.TurnInfo;
-import net.hectus.hectusblockbattles.util.BBPlayer;
-import net.hectus.hectusblockbattles.util.Cord;
+import net.hectus.hectusblockbattles.player.BBPlayer;
+import net.hectus.hectusblockbattles.Cord;
 import net.hectus.hectusblockbattles.warps.Warp;
 import net.hectus.hectusblockbattles.warps.WarpManager;
 import net.kyori.adventure.text.Component;
@@ -23,19 +24,37 @@ import static net.hectus.hectusblockbattles.warps.WarpSettings.Class.*;
 public class BlockBattleEvents {
     public static void onStructurePlace(@NotNull StructurePlaceEvent event) {
         Structure structure = event.structure();
-        String name = structure.name;
 
-        if (name.contains("WARP")) {
-            String warp = name.replace("_WARP", "");
+        Turn turn = switch (structure.name) {
+            case "NETHER_PORTAL"   -> Turn.NETHER_PORTAL_FRAME;
+            case "OAK_DOOR_TURTLE" -> Turn.OAK_DOORS;
+            default                -> Turn.NONE;
+        };
+
+        if (structure.name.contains("WARP")) {
+            String warp = structure.name.replace("_WARP", "");
             WarpManager.warp(Warp.valueOf(warp), event.placer(), event.opponent());
+        }
+
+        if (turn != Turn.NONE) {
+            onTurn(new TurnInfo(turn, event.placer(), event.relative()));
         }
     }
     public static void onTurn(TurnInfo turn) {
         Match.addTurn(turn);
 
+        if (turn.turn().type == Turn.Type.ATTACK || turn.turn().type == Turn.Type.WARP) {
+            Match.lose();
+            Match.getPlacer().showTitle("", "You can't use warps or attacks as your first move!", null);
+            Match.getOpponent().showTitle("", "Your opponent used a warp or attack as his first move💀", null);
+            return;
+        }
+
         BBPlayer player = Match.getPlayer(turn.player());
         BBPlayer opponent = Match.getOpponent();
         Cord cord = turn.cord();
+
+        boolean initialAttacked = player.isAttacked();
 
         switch (turn.turn()) {
             case PURPLE_WOOL -> Match.win();
@@ -47,27 +66,28 @@ public class BlockBattleEvents {
                         Match.lose();
                     }
                 }
-                Match.next();
             }
             case NETHER_PORTAL_FRAME -> Match.netherPortalAwaitIgnite = true;
             case NETHER_PORTAL_IGNITE -> {
                 if (Match.netherPortalAwaitIgnite) {
-                    Match.getOpponent().setAttacked(true);
+                    opponent.setAttacked(true);
                     Match.netherPortalAwaitIgnite = false;
                 }
-                Match.next();
             }
             case POWDER_SNOW -> {
-                Match.getOpponent().setMovement(false);
-                Match.getOpponent().startDieCounter(2);
+                opponent.setMovement(false);
+                opponent.startDieCounter(2);
             }
             case LIGHTNING_TRIDENT -> {
-                // Requires the LIGHTNING_ROD turn first
-                // TODO: Add if the last move was a lighting rod
-                turn.player().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
-                Match.getOpponent().player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
+                if (Match.getLatestTurn().turn() == Turn.LIGHTNING_ROD) {
+                    turn.player().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
+                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
+                }
             }
-            case SEA_PICKLE_STACK -> Match.getOpponent().addExtraTurns(2);
+            case SEA_PICKLE_STACK -> {
+                opponent.setAttacked(true);
+                opponent.setDoubleCounterAttack(true);
+            }
             case TNT -> {
                 if (player.isDefended() && !opponent.isDefended()) Match.win();
                 else if (!player.isDefended() && opponent.isDefended()) Match.lose();
@@ -122,6 +142,32 @@ public class BlockBattleEvents {
                     player.addExtraTurns(1);
                 }
             }
+            case LIGHTNING_ROD -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, HOT, REDSTONE, DREAM) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                }
+            }
+            case OAK_DOORS -> {
+                player.setDefended(true);
+                opponent.setAttacked(true);
+            }
+            case ENDER_PEARL_TP -> {
+                // TODO: Make it counter only traps or levitation
+                if (player.isAttacked()) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                }
+            }
+        }
+
+        if (initialAttacked) {
+            Turn lt = Match.getLatestTurn().turn();
+            if (lt == Turn.OAK_DOORS) {
+                if (turn.turn().clazz != REDSTONE && turn.turn().clazz != HOT) {
+                    player.setAttacked(true);
+                }
+            }
         }
 
         if (Match.currentWarp == Warp.REDSTONE) {
@@ -130,9 +176,11 @@ public class BlockBattleEvents {
 
         if (player.isAttacked()) Match.lose();
 
+        Match.p1 = Match.p1.player == player.player ? player : opponent;
+        Match.p2 = Match.p1.player == player.player ? opponent : player;
+
         Match.next();
     }
-
 
     @Contract("_ -> new")
     public static @NotNull Title subtitle(String content) {

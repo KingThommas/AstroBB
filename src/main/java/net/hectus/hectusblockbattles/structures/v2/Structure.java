@@ -1,6 +1,6 @@
 package net.hectus.hectusblockbattles.structures.v2;
 
-import net.hectus.hectusblockbattles.util.Cord;
+import net.hectus.hectusblockbattles.Cord;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;

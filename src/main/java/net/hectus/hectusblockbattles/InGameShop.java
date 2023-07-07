@@ -2,7 +2,7 @@ package net.hectus.hectusblockbattles;
 
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.match.Match;
-import net.hectus.hectusblockbattles.util.BBPlayer;
+import net.hectus.hectusblockbattles.player.BBPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
@@ -13,7 +13,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -98,18 +97,6 @@ public final class InGameShop implements Listener {
 
         if (hotBar == OVERTIME) {
             Match.getPlayer(player).setState(Match.PlayerState.SHOP_OVERTIME);
-            PlayerInventory inv = player.getInventory();
-
-            int i = 0;
-            while (i < 9) {
-                ItemStack itemStack = inv.getItem(i);
-                inv.clear(i);
-                if (itemStack != null) {
-                    itemStack.lore(List.of(Component.text("Normal Hotbar")));
-                    inv.setItem(27 + i, itemStack);
-                }
-                i++;
-            }
         } else {
             Match.getPlayer(player).setState(Match.PlayerState.SHOP_NORMAL);
         }
@@ -164,29 +151,31 @@ public final class InGameShop implements Listener {
 
                 shopInv.addItem(item);
 
-                boolean fullHotbar = IntStream.range(0, 9)
+                if (IntStream.range(0, 9)
                         .mapToObj(s -> player.getInventory().getItem(s))
-                        .noneMatch(i -> i == null || i.getType().isAir());
-                if (fullHotbar) {
-                    String title = PlainTextComponentSerializer.plainText().serialize(player.getOpenInventory().title()).toLowerCase();
+                        .anyMatch(i -> i == null || i.getType().isAir())
+                ) return;
 
-                    if (title.contains("normal")) {
-                        displayShop(player, OVERTIME, Objects.requireNonNull(shopInv.getItem(4)).getAmount(), 1);
-                    } else if (title.contains("overtime")) {
-                        player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                String title = PlainTextComponentSerializer.plainText().serialize(player.getOpenInventory().title()).toLowerCase();
 
-                        BBPlayer bbPlayer = Match.getPlayer(player);
+                if (title.contains("normal")) {
+                    Match.getPlayer(player).swapHotbars();
+                    displayShop(player, OVERTIME, 64, 1);
+                } else if (title.contains("overtime")) {
+                    player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
 
-                        bbPlayer.setState(Match.PlayerState.SHOP_OVERTIME_FINISHED);
+                    BBPlayer bbPlayer = Match.getPlayer(player);
 
-                        if (bbPlayer.getState() == Match.PlayerState.SHOP_OVERTIME_FINISHED && Match.getOpposite(bbPlayer).getState() == Match.PlayerState.SHOP_OVERTIME_FINISHED) {
-                            Match.p1.sendActionBar(McColor.RED + "The game starts! Good luck!");
-                            Match.p2.sendActionBar(McColor.RED + "The game starts! Good luck!");
+                    bbPlayer.setState(Match.PlayerState.SHOP_OVERTIME_FINISHED);
 
-                            Match.algorithm.start(player);
-                        } else {
+                    if (bbPlayer.getState() == Match.PlayerState.SHOP_OVERTIME_FINISHED && Match.getOpposite(bbPlayer).getState() == Match.PlayerState.SHOP_OVERTIME_FINISHED) {
+                        Match.p1.sendActionBar(McColor.RED + "The game starts! Good luck!");
+                        Match.p2.sendActionBar(McColor.RED + "The game starts! Good luck!");
 
-                        }
+                        Match.algorithm.start(player);
+                    } else {
+                        bbPlayer.sendActionBar(McColor.GREEN + "You finished early!");
+                        bbPlayer.sendMessage(McColor.GOLD + "You finished early! You have to wait for your opponent to finish too now!");
                     }
                 }
             }

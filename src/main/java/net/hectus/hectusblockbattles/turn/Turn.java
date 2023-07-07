@@ -52,7 +52,8 @@ public enum Turn {
     AMETHYST_WARP(Type.WARP, McColor.PINK, "Amethyst Warp", Material.AMETHYST_BLOCK, Warp.AMETHYST, null, false),
     HEAVEN_WARP(Type.WARP, McColor.WHITE, "Heaven Warp", Material.WHITE_WOOL, Warp.HEAVEN, null, false),
     HELL_WARP(Type.WARP, McColor.DARK_RED, "Hell Warp", Material.NETHER_BRICKS, Warp.HELL, null, false),
-    INDUSTRIAL_WARP(Type.WARP, McColor.DARK_GRAY, "Industrial Warp", Material.IRON_BLOCK, Warp.INDUSTRIAL, null, false);
+    INDUSTRIAL_WARP(Type.WARP, McColor.DARK_GRAY, "Industrial Warp", Material.IRON_BLOCK, Warp.INDUSTRIAL, null, false),
+    LIGHTNING_ROD(Type.COUNTERATTACK, McColor.GOLD, "Lightning Rod", Material.LIGHTNING_ROD, null, Class.REDSTONE, false);
 
     public final Type type;
     public final McColor color;

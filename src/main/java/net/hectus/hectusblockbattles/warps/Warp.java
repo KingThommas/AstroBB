@@ -1,6 +1,6 @@
 package net.hectus.hectusblockbattles.warps;
 
-import net.hectus.hectusblockbattles.util.Cord;
+import net.hectus.hectusblockbattles.Cord;
 import org.jetbrains.annotations.Contract;
 
 import static net.hectus.hectusblockbattles.warps.WarpSettings.Class;

@@ -1,25 +1,23 @@
-package net.hectus.hectusblockbattles.util;
+package net.hectus.hectusblockbattles.player;
 
 import net.hectus.hectusblockbattles.match.Match;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings("unused")
 public class BBPlayer {
     public final Player player;
     private int luck = 10;
-    private boolean highGround = false;
-    private boolean defended = false;
-    private boolean movement = false;
-    private boolean attacked = false;
-    private Match.PlayerState state;
     private int dieCounter = -3;
     private int extraTurns = 0;
+    private boolean defended, movement, attacked, doubleCounterAttack ;
+    private Match.PlayerState state;
 
     @Contract(pure = true)
     public BBPlayer(Player player) {
@@ -29,9 +27,6 @@ public class BBPlayer {
     public int luck() {
         return luck;
     }
-    public void resetLuck() {
-        luck = 10;
-    }
     public void addLuck(int luck) {
         this.luck += luck;
     }
@@ -39,18 +34,18 @@ public class BBPlayer {
         this.luck -= luck;
     }
 
-    public boolean hasHighGround() {
-        return highGround;
-    }
-    public void setHighGround(boolean highGround) {
-        this.highGround = highGround;
-    }
-
     public boolean isDefended() {
         return defended;
     }
     public void setDefended(boolean defended) {
         this.defended = defended;
+    }
+
+    public boolean hasToDoubleCounterAttack() {
+        return doubleCounterAttack;
+    }
+    public void setDoubleCounterAttack(boolean doubleCounterAttack) {
+        this.doubleCounterAttack = doubleCounterAttack;
     }
 
     public boolean canMove() {
@@ -70,9 +65,6 @@ public class BBPlayer {
     public boolean isAttacked() {
         return attacked;
     }
-    public boolean hasToCounter() {
-        return attacked;
-    }
     public void setAttacked(boolean attacked) {
         this.attacked = attacked;
     }
@@ -83,9 +75,6 @@ public class BBPlayer {
 
     public void addExtraTurns(int turns) {
         extraTurns += turns;
-    }
-    public void removeExtraTurns(int turns) {
-        extraTurns -= turns;
     }
     public int getExtraTurns() {
         return extraTurns;
@@ -99,6 +88,17 @@ public class BBPlayer {
             } else {
                 Match.win();
             }
+        }
+    }
+
+    public void swapHotbars() {
+        PlayerInventory inv = player.getInventory();
+        int i = 0;
+        while (i < 9) {
+            ItemStack item1 = inv.getItem(i);
+            inv.setItem(i, inv.getItem(i + 27));
+            inv.setItem(i + 27, item1);
+            i++;
         }
     }
 

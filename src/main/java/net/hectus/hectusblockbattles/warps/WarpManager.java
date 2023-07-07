@@ -5,7 +5,7 @@ import net.hectus.hectusblockbattles.InGameShop;
 import net.hectus.hectusblockbattles.events.BlockBattleEvents;
 import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.hectusblockbattles.turn.Turn;
-import net.hectus.hectusblockbattles.util.Cord;
+import net.hectus.hectusblockbattles.Cord;
 import net.hectus.util.Randomizer;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Clock;
 import java.time.DayOfWeek;
@@ -21,7 +22,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 
 public class WarpManager {
-    public static void warp(Warp warp, Player activator, Player otherPlayer) {
+    public static void warp(@NotNull Warp warp, Player activator, Player otherPlayer) {
         boolean doWarp = Randomizer.boolByChance(warp.chance * 100);
 
         if (!doWarp) {

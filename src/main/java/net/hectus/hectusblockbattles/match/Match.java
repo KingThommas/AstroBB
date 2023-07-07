@@ -1,17 +1,16 @@
 package net.hectus.hectusblockbattles.match;
 
 import net.hectus.color.McColor;
+import net.hectus.hectusblockbattles.Cord;
 import net.hectus.hectusblockbattles.HBB;
 import net.hectus.hectusblockbattles.InGameShop;
 import net.hectus.hectusblockbattles.ScoreBoard;
+import net.hectus.hectusblockbattles.player.BBPlayer;
 import net.hectus.hectusblockbattles.structures.v2.Algorithm;
 import net.hectus.hectusblockbattles.turn.Turn;
 import net.hectus.hectusblockbattles.turn.TurnInfo;
-import net.hectus.hectusblockbattles.util.BBPlayer;
-import net.hectus.hectusblockbattles.util.Cord;
 import net.hectus.hectusblockbattles.warps.Warp;
 import net.hectus.hectusblockbattles.warps.WarpSettings;
-import net.hectus.hectusblockbattles.watch.TurnWatch;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -20,8 +19,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
-@SuppressWarnings("unused")
 public class Match {
     public static boolean hasStarted;
     public static BBPlayer p1;
@@ -30,7 +29,6 @@ public class Match {
     public static Warp currentWarp;
     public static List<TurnInfo> turnHistory = new ArrayList<>();
     public static Algorithm algorithm = new Algorithm();
-    public static TurnWatch turnWatch = new TurnWatch();
 
     public static boolean netherPortalAwaitIgnite, blackWoolDebuff = false;
 
@@ -123,7 +121,10 @@ public class Match {
     public static void shopDone() {
         shopPhase = false;
         algorithm.start(p1.player);
-        turnWatch.start();
+        ScoreBoard.start();
+
+        p1.swapHotbars();
+        p2.swapHotbars();
     }
 
     public static void addTurn(TurnInfo turn) {
@@ -131,11 +132,31 @@ public class Match {
     }
 
     public static void next() {
-        algorithm.timer.stop();
-        algorithm.clear();
-        algorithm.start(getOpponent().player);
+        if (!getPlacer().hasToDoubleCounterAttack()){
+            algorithm.timer.stop();
+            algorithm.clear();
+            algorithm.start(getOpponent().player);
+        } else {
+            getPlacer().setDoubleCounterAttack(false);
+        }
+
         p1.count();
         p2.count();
+
+        Player player = getPlacer().player;
+        boolean emptyHotbar = IntStream.range(0, 9)
+                .mapToObj(s -> player.getInventory().getItem(s))
+                .allMatch(i -> i == null || i.getType().isAir());
+        boolean emptySecondary = IntStream.range(27, 36)
+                .mapToObj(s -> player.getInventory().getItem(s))
+                .allMatch(i -> i == null || i.getType().isAir());
+        if (emptyHotbar) {
+            if (emptySecondary) {
+                Match.lose();
+            } else {
+                getPlayer(player).swapHotbars();
+            }
+        }
     }
 
     public static TurnInfo getLatestTurn() {

@@ -81,10 +81,9 @@ public class PlayerDatabase {
     }
 
     /**
-     *
      * @param player Which player's row you want to remove the value from
      * @param field What field you want to remove the value from
-     * @param target What you wanna remove
+     * @param target What you want to remove
      */
     public static void removeFromField(String player, Field field, String target) {
         String current = (String) getField(player, field);

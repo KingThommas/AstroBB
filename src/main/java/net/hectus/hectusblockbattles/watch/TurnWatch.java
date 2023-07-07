@@ -18,13 +18,8 @@ public class TurnWatch implements Timer {
         timer = Bukkit.getScheduler().runTaskTimer(HBB.getPlugin(HBB.class), () -> {
             if (!paused) {
                 time.decrement();
-                if (time.getAs(Time.Unit.SECONDS) == 0) {
-                    time.increment(15);
-                    Match.getPlacer().showTitle("", McColor.RED + "You were too slow. -10 Luck!", null);
-                    Match.getOpponent().showTitle("", McColor.GREEN + "Your opponent was too slow, it's your turn now!", null);
-                    Match.getPlacer().removeLuck(10);
-                    Match.next();
-                }
+                Match.getPlacer().sendActionBar(time.getOneUnitFormatted());
+                if (time.getAs(Time.Unit.SECONDS) == 0) Match.lose();
             }
         }, 0L, 20L);
     }
@@ -60,5 +55,9 @@ public class TurnWatch implements Timer {
             return true;
         } else
             return false;
+    }
+
+    public void lap() {
+        time = new Time(15);
     }
 }

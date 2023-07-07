@@ -5,7 +5,7 @@ import net.hectus.hectusblockbattles.HBB;
 import net.hectus.hectusblockbattles.events.BlockBattleEvents;
 import net.hectus.hectusblockbattles.events.StructurePlaceEvent;
 import net.hectus.hectusblockbattles.match.Match;
-import net.hectus.hectusblockbattles.util.Cord;
+import net.hectus.hectusblockbattles.Cord;
 import net.hectus.storing.pair.Pair;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;

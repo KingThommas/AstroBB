@@ -2,7 +2,7 @@ package net.hectus.hectusblockbattles.events;
 
 import net.hectus.hectusblockbattles.InGameShop;
 import net.hectus.hectusblockbattles.match.Match;
-import net.hectus.hectusblockbattles.util.BBPlayer;
+import net.hectus.hectusblockbattles.player.BBPlayer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -35,6 +36,8 @@ public class InGameShopEvents implements Listener {
                     InGameShop.displayShop(player, hotBar, Objects.requireNonNull(Objects.requireNonNull(event.getClickedInventory()).getItem(4)).getAmount(), name.toLowerCase().contains("last") ? 1 : 2);
                 }
             }
+        } else if (event.getClickedInventory() instanceof PlayerInventory) {
+            if (Match.hasStarted) event.setCancelled(true);
         }
     }
 
@@ -46,16 +49,18 @@ public class InGameShopEvents implements Listener {
         if (event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) {
             return;
         }
-        if (Match.getPlayer((Player) event.getPlayer()).getState() != Match.PlayerState.SHOP_OVERTIME) {
-            return;
-        }
 
         BBPlayer player = Match.getPlayer((Player) event.getPlayer());
         BBPlayer opponent = Match.getOpposite(player);
         if (player == null || opponent == null) return;
 
         if (player.getState() == Match.PlayerState.SHOP_NORMAL) {
-            InGameShop.displayShop(player.player, InGameShop.HotBar.OVERTIME);
+            if (opponent.getState() == Match.PlayerState.SHOP_NORMAL_FINISHED) {
+                InGameShop.displayShop(player.player, InGameShop.HotBar.OVERTIME);
+                InGameShop.displayShop(opponent.player, InGameShop.HotBar.OVERTIME);
+            } else {
+                player.setState(Match.PlayerState.SHOP_NORMAL_FINISHED);
+            }
         } else if (player.getState() == Match.PlayerState.SHOP_OVERTIME) {
             if (opponent.getState() == Match.PlayerState.SHOP_OVERTIME_FINISHED) {
                 Match.shopDone();

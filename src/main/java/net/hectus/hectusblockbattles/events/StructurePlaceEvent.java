@@ -1,6 +1,6 @@
 package net.hectus.hectusblockbattles.events;
 
-import net.hectus.hectusblockbattles.util.Cord;
+import net.hectus.hectusblockbattles.Cord;
 import net.hectus.hectusblockbattles.structures.v2.Structure;
 import org.bukkit.entity.Player;
 
