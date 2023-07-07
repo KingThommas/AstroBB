@@ -63,7 +63,7 @@ public class Match {
 
     @Contract(pure = true)
     public static BBPlayer getOpposite(BBPlayer player) {
-        if (player == p1) {
+        if (p1.player.getUniqueId().toString().equalsIgnoreCase(player.player.getUniqueId().toString())) {
             return p2;
         } else {
             return p1;
@@ -72,7 +72,7 @@ public class Match {
 
     @Contract(pure = true)
     public static BBPlayer getPlayer(Player player) {
-        if (p1.player == player) {
+        if (p1.player.getUniqueId().toString().equalsIgnoreCase(player.getUniqueId().toString())) {
             return p1;
         } else {
             return p2;
@@ -118,14 +118,15 @@ public class Match {
         getOpponent().showTitle("", McColor.GOLD + "Draw!", null);
     }
 
-    public static void shopDone() {
-        shopPhase = false;
-        algorithm.start(p1.player);
-        ScoreBoard.start();
+        public static void shopDone() {
+            p1.player.sendMessage("Shop done triggerd");
+            shopPhase = false;
+            ScoreBoard.start();
+            algorithm.start(p1.player);
 
-        p1.swapHotbars();
-        p2.swapHotbars();
-    }
+            p1.swapHotbars();
+            p2.swapHotbars();
+        }
 
     public static void addTurn(TurnInfo turn) {
         turnHistory.add(turn);
