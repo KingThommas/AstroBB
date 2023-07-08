@@ -30,16 +30,15 @@ public class Algorithm {
         HBB.LOGGER.info("The algorithm was started!");
 
         HBB.WORLD.showTitle(Title.title(
-                Component.text(placer.getName() + " starts!"),
+                     Component.text(player.getName() + " starts!"),
                 Component.empty(),
                 Title.Times.times(Duration.ofMillis(100), Duration.ofSeconds(1), Duration.ofMillis(200))
         ));
 
         running = true;
         placer = player;
-        timer.instance(this);
-
         StructureManager.loadedStructures.forEach(struct -> possible.put(struct, 0.0));
+        timer.instance(this);
     }
 
     public void addBlock(Structure.BlockData blockData) {

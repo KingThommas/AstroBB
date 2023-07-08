@@ -11,6 +11,8 @@ import net.hectus.hectusblockbattles.turn.Turn;
 import net.hectus.hectusblockbattles.turn.TurnInfo;
 import net.hectus.hectusblockbattles.warps.Warp;
 import net.hectus.hectusblockbattles.warps.WarpSettings;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -45,7 +47,7 @@ public class Match {
     }
 
     public static BBPlayer getOpponent() {
-        if (algorithm.isPlacer(p1.player)) {
+        if (getPlacer().player.getUniqueId().toString().equalsIgnoreCase(p1.player.getUniqueId().toString())) {
             return p2;
         } else {
             return p1;
@@ -135,7 +137,7 @@ public class Match {
         if (!getPlacer().hasToDoubleCounterAttack()){
             algorithm.timer.stop();
             algorithm.clear();
-            algorithm.start(getOpponent().player);
+            algorithm.start(getPlacer().player);
         } else {
             getPlacer().setDoubleCounterAttack(false);
         }

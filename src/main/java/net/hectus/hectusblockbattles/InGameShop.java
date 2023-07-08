@@ -133,7 +133,7 @@ public final class InGameShop implements Listener {
 
                 shopInv.remove(Material.GOLD_INGOT);
                 if (money - shopItem.price <= 0) {
-                    player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                    player.closeInventory(InventoryCloseEvent.Reason.PLAYER);
 
                     Match.algorithm.start(player);
 
@@ -162,7 +162,7 @@ public final class InGameShop implements Listener {
                     Match.getPlayer(player).swapHotbars();
                     displayShop(player, OVERTIME, 64, 1);
                 } else if (title.contains("overtime")) {
-                    player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                    player.closeInventory(InventoryCloseEvent.Reason.PLAYER);
 
                     BBPlayer bbPlayer = Match.getPlayer(player);
 
@@ -173,7 +173,7 @@ public final class InGameShop implements Listener {
                         Match.p2.sendActionBar(McColor.RED + "The game starts! Good luck!");
 
                         Match.algorithm.start(player);
-                    } else {
+                    } else {    
                         bbPlayer.sendActionBar(McColor.GREEN + "You finished early!");
                         bbPlayer.sendMessage(McColor.GOLD + "You finished early! You have to wait for your opponent to finish too now!");
                     }
