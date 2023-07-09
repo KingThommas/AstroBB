@@ -11,8 +11,6 @@ import net.hectus.hectusblockbattles.turn.Turn;
 import net.hectus.hectusblockbattles.turn.TurnInfo;
 import net.hectus.hectusblockbattles.warps.Warp;
 import net.hectus.hectusblockbattles.warps.WarpSettings;
-import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -52,7 +50,7 @@ public class Match {
     }
 
     public static BBPlayer getOpponent() {
-        if (getPlacer().player.getUniqueId().toString().equalsIgnoreCase(p1.player.getUniqueId().toString())) {
+        if (algorithm.isPlacer(p1.player)) {
             return p2;
         } else {
             return p1;
@@ -68,7 +66,7 @@ public class Match {
     }
 
     @Contract(pure = true)
-    public static BBPlayer getOpposite(BBPlayer player) {
+    public static BBPlayer getOpposite(@NotNull BBPlayer player) {
         if (p1.player.getUniqueId().toString().equalsIgnoreCase(player.player.getUniqueId().toString())) {
             return p2;
         } else {
@@ -77,7 +75,7 @@ public class Match {
     }
 
     @Contract(pure = true)
-    public static BBPlayer getPlayer(Player player) {
+    public static BBPlayer getPlayer(@NotNull Player player) {
         if (p1.player.getUniqueId().toString().equalsIgnoreCase(player.getUniqueId().toString())) {
             return p1;
         } else {

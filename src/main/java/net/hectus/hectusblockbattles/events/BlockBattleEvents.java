@@ -1,17 +1,18 @@
 package net.hectus.hectusblockbattles.events;
 
+import net.hectus.color.McColor;
+import net.hectus.hectusblockbattles.Cord;
 import net.hectus.hectusblockbattles.match.Match;
+import net.hectus.hectusblockbattles.player.BBPlayer;
 import net.hectus.hectusblockbattles.structures.v2.Structure;
 import net.hectus.hectusblockbattles.turn.Turn;
 import net.hectus.hectusblockbattles.turn.TurnInfo;
-import net.hectus.hectusblockbattles.player.BBPlayer;
-import net.hectus.hectusblockbattles.Cord;
 import net.hectus.hectusblockbattles.warps.Warp;
 import net.hectus.hectusblockbattles.warps.WarpManager;
 import net.hectus.hectusblockbattles.warps.WarpSettings;
+import net.hectus.util.Randomizer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -72,6 +73,7 @@ public class BlockBattleEvents {
 
         boolean initialAttacked = player.isAttacked();
         boolean doNext = true;
+        boolean ignoreOpponentDefense = false;
 
         Turn last = Match.getLatestTurn().turn();
 
@@ -272,7 +274,7 @@ public class BlockBattleEvents {
                     opponent.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, -1, 125));
                 }
             }
-            //nature items
+            // NATURE ITEMS //
             case BEE_NEST -> opponent.setAttacked(true);
             case HONEY_BLOCK -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(NATURE, WATER, REDSTONE) && Match.latestTurnIsUnder(cord)) {
@@ -295,7 +297,7 @@ public class BlockBattleEvents {
                     opponent.setAttacked(true);
                 }
             }
-            //redstone items
+            // REDSTONE ITEMS //
             case LEVER -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, REDSTONE) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
@@ -333,7 +335,8 @@ public class BlockBattleEvents {
                 }
                 Match.setIsNight(false);
             }
-            //dream items
+
+            // DREAM ITEMS //
             case RED_BED -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, COLD, DREAM) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
@@ -367,11 +370,89 @@ public class BlockBattleEvents {
             }
             case PHANTOM -> {
                 opponent.setAttacked(true);
+                ignoreOpponentDefense = true;
             }
             case DRAGON_HEAD -> {
                 opponent.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
                 opponent.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, -1, 1));
                 opponent.removeLuck(20);
+            }
+            case SNOWBALL -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(HOT)) {
+                    player.setAttacked(false);
+                } else {
+                    doNext = false;
+                    player.addLuck(15);
+                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
+                }
+            }
+            case POLAR_BEAR -> {
+                opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, -1, 3));
+                opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, -1, 128));
+            }
+            case BRAIN_CORAL_BLOCK -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(REDSTONE) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                }
+            }
+            case HORN_CORAL -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, NATURE, WATER) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                }
+            }
+            case FIRE_CORAL -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(HOT, REDSTONE) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                }
+            }
+            case FIRE_CORAL_FAN -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(HOT, REDSTONE) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+
+                    doNext = Randomizer.boolByChance(20);
+                }
+            }
+            case SEA_LANTERN -> {
+                // TODO: Add code for this
+                // I have no idea what "Procs a revive when activated"
+                // And if it's just reviving, it makes no sense in 1v1s
+            }
+            case WATER_BUCKET -> {
+                if (player.isAttacked() && (Match.getLatestTurn().cord() == cord || last == Turn.LAVA_BUCKET)) {
+                    player.setAttacked(false);
+                }
+            }
+            case DRIED_KELP_BLOCK -> {
+                if (last.clazz == NATURE) {
+                    opponent.setAttacked(true);
+                    player.player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, -1, 1));
+                }
+            }
+            case VERDANT_FROGLIGHT -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(DREAM) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                }
+            }
+            case PUFFERFISH_BUCKET -> {
+                opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.POISON, -1, 1));
+                opponent.startDieCounter(2);
+            }
+            case SPLASH_WATER_BOTTLE -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(HOT, REDSTONE)) {
+                    player.addLuck(20);
+                } else {
+                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, -1, 3));
+                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 3));
+                }
+            }
+
+            default -> {
+                player.sendActionBar(McColor.RED + "You just wasted an item!");
+                opponent.sendActionBar(McColor.YELLOW + "Your opponent just wasted an item!");
             }
         }
 
@@ -384,16 +465,14 @@ public class BlockBattleEvents {
             }
         }
 
-        if (Match.currentWarp == Warp.REDSTONE) {
-            if (turn.turn().clazz == REDSTONE) Match.getPlacer().addLuck(5);
-        }
+        if (player.isAttacked()) Match.lose();
+        if (opponent.isDefended() && !ignoreOpponentDefense) opponent.setAttacked(false);
+        if (Match.currentWarp == Warp.REDSTONE && turn.turn().clazz == REDSTONE) Match.getPlacer().addLuck(5);
 
         if (turn.turn().type == Turn.Type.COUNTER) {
             player.startJailCounter(-3);
             player.startBurnCounter(-3);
         }
-
-        if (player.isAttacked()) Match.lose();
 
         // Updating the players with the new temporary players from here
         Match.p1 = Match.p1.player == player.player ? player : opponent;

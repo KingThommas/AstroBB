@@ -24,6 +24,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.TNTPrimeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -73,6 +74,17 @@ public class PlayerEvents implements Listener {
             if (((Trident) event.getProjectile()).hasGlint()) {
                 turn(Turn.LIGHTNING_TRIDENT, event.getPlayer(), Cord.of(event.getPlayer().getLocation()));
             }
+        } else if (event.getProjectile().getType() == EntityType.SNOWBALL) {
+            turn(Turn.SNOWBALL, event.getPlayer(), Cord.of(event.getPlayer().getLocation()));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPotionSplash(@NotNull PotionSplashEvent event) {
+        Player p = (Player) event.getPotion().getShooter();
+        Cord c = Cord.of(event.getPotion().getLocation());
+        if (event.getPotion().getEffects().size() == 0) {
+            turn(Turn.SPLASH_WATER_BOTTLE, p, c);
         }
     }
 
@@ -128,6 +140,20 @@ public class PlayerEvents implements Listener {
             case "WOODEN_BUTTON" -> turn(Turn.WOODEN_BUTTON, p, c);
             case "STONE_BUTTON" -> turn(Turn.STONE_BUTTON, p, c);
             case "DAYLIGHT_SENSOR" -> turn(Turn.DAYLIGHT_SENSOR, p, c);
+            case "BRAIN_CORAL_BLOCK" -> turn(Turn.BRAIN_CORAL_BLOCK, p, c);
+            case "HORN_CORAL" -> turn(Turn.HORN_CORAL, p, c);
+            case "FIRE_CORAL" -> turn(Turn.FIRE_CORAL, p, c);
+            case "FIRE_CORAL_FAN" -> turn(Turn.FIRE_CORAL_FAN, p, c);
+            case "SEA_LANTERN" -> turn(Turn.SEA_LANTERN, p, c);
+            case "WATER" -> {
+                if (c.toLocation().getNearbyEntitiesByType(PufferFish.class, 4).size() != 0) {
+                    turn(Turn.PUFFERFISH_BUCKET, p, c);
+                } else {
+                    turn(Turn.WATER_BUCKET, p, c);
+                }
+            }
+            case "DRIED_KELP_BLOCK" -> turn(Turn.DRIED_KELP_BLOCK, p, c);
+            case "VERDANT_FROGLIGHT" -> turn(Turn.VERDANT_FROGLIGHT, p, c);
 
             default -> {
                 Structure.BlockData blockData = new Structure.BlockData(b.getType(), b.getX(), b.getY(), b.getZ(), Structure.blockFace(b), Structure.blockBound(b), Structure.isOpen(b));
@@ -171,7 +197,7 @@ public class PlayerEvents implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onEntitySpawn(EntitySpawnEvent event) {
+    public void onEntitySpawn(@NotNull EntitySpawnEvent event) {
         Player p = Match.getPlacer().player;
         Cord c = Cord.of(event.getLocation());
         switch (event.getEntity().getType()) {
@@ -188,18 +214,28 @@ public class PlayerEvents implements Listener {
                 if(axolotl.getVariant().equals(Axolotl.Variant.LUCY)) turn(Turn.PINK_AXOLOTL, p, c);
             }
             case SHEEP -> {
-                BBPlayer player = Match.getPlayer(p);
                 Sheep sheep = (Sheep) event.getEntity();
-                sheep.setColor(player.randomSheepColor());
-                if(sheep.getColor().equals(DyeColor.PINK)) turn(Turn.PINK_SHEEP, p, c);
-                if(sheep.getColor().equals(DyeColor.WHITE)) turn(Turn.WHITE_SHEEP, p, c);
-                if(sheep.getColor().equals(DyeColor.LIGHT_GRAY)) turn(Turn.LIGHT_GRAY_SHEEP, p, c);
-                if(sheep.getColor().equals(DyeColor.GRAY)) turn(Turn.GRAY_SHEEP, p, c);
-                if(sheep.getColor().equals(DyeColor.BLACK)) turn(Turn.BLACK_SHEEP, p, c);
-                if(sheep.getColor().equals(DyeColor.BROWN)) turn(Turn.BROWN_SHEEP, p, c);
-                if(sheep.getColor().equals(DyeColor.BLUE)) turn(Turn.BLUE_SHEEP, p, c);
+
+                DyeColor color = Match.getPlayer(p).randomSheepColor();
+                sheep.setColor(color);
+
+                if(color == DyeColor.PINK) turn(Turn.PINK_SHEEP, p, c);
+                if(color == DyeColor.WHITE) turn(Turn.WHITE_SHEEP, p, c);
+                if(color == DyeColor.LIGHT_GRAY) turn(Turn.LIGHT_GRAY_SHEEP, p, c);
+                if(color == DyeColor.GRAY) turn(Turn.GRAY_SHEEP, p, c);
+                if(color == DyeColor.BLACK) turn(Turn.BLACK_SHEEP, p, c);
+                if(color == DyeColor.BROWN) turn(Turn.BROWN_SHEEP, p, c);
+                if(color == DyeColor.BLUE) turn(Turn.BLUE_SHEEP, p, c);
             }
             case PHANTOM -> turn(Turn.PHANTOM, p, c);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerDropItem(@NotNull PlayerDropItemEvent event) {
+        if (event.getItemDrop().getItemStack().getType() == Material.IRON_SHOVEL) {
+            turn(Turn.IRON_SHOVEL, event.getPlayer(), Cord.of(event.getPlayer().getLocation()));
+            event.getItemDrop().setHealth(-1);
         }
     }
 
@@ -220,14 +256,6 @@ public class PlayerEvents implements Listener {
             if (!Match.algorithm.isPlacer(player) || !Match.getPlayer(player).canMove() || outOfBounds(event.getTo())) {
                 Match.win(Match.getOpposite(Match.getPlayer(player)));
             }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerDropItem(@NotNull PlayerDropItemEvent event) {
-        if (event.getItemDrop().getItemStack().getType() == Material.IRON_SHOVEL) {
-            turn(Turn.IRON_SHOVEL, event.getPlayer(), Cord.of(event.getPlayer().getLocation()));
-            event.getItemDrop().setHealth(-1);
         }
     }
 
