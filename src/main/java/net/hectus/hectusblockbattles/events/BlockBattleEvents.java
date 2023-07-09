@@ -50,6 +50,12 @@ public class BlockBattleEvents {
     public static void onTurn(TurnInfo turn) {
         Match.addTurn(turn);
 
+        ArrayList< WarpSettings.Class> allow = new ArrayList<>();
+        allow.addAll(List.of(Match.currentWarp.allow));
+        if(!allow.contains(turn.turn().clazz)){
+            Match.lose();
+        }
+
         if (Match.blazeDebuff && (turn.turn().clazz == COLD || turn.turn().clazz == WATER)) {
             Match.next();
             return;
@@ -351,7 +357,6 @@ public class BlockBattleEvents {
             }
             case PINK_SHEEP -> Match.win(player);
             case WHITE_SHEEP -> {
-                ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(Match.currentWarp.allow));
                 if(allow.contains(COLD)){
                     doNext = false;
                 }

@@ -113,6 +113,11 @@ public class WarpManager {
             Match.getOpponent().startJailCounter(-3);
             Match.getOpponent().startBurnCounter(-3);
 
+            Match.allowed.clear();
+            for(WarpSettings.Class clazz: warp.allow){
+                Match.allowed.add(clazz);
+            }
+
             Match.next();
         } else {
             activator.showTitle(BlockBattleEvents.subtitle(McColor.RED + "Fail!"));
