@@ -29,6 +29,7 @@ public class Match {
     public static BBPlayer p1;
     public static BBPlayer p2;
     public static Warp currentWarp;
+    public static ArrayList<WarpSettings.Class> allowed = new ArrayList<>();
     public static List<TurnInfo> turnHistory = new ArrayList<>();
     public static Algorithm algorithm = new Algorithm();
 
