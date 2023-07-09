@@ -19,6 +19,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static net.hectus.hectusblockbattles.warps.WarpSettings.Class.*;
@@ -74,7 +76,7 @@ public class BlockBattleEvents {
         Turn last = Match.getLatestTurn().turn();
 
         switch (turn.turn()) {
-            case CAULDRON, MAGMA_BLOCK, PACKED_ICE, LIGHT_BLUE_WOOL -> opponent.setAttacked(true);
+            case CAULDRON, MAGMA_BLOCK, PACKED_ICE, LIGHT_BLUE_WOOL, SOUL_SAND, COMPOSTER -> opponent.setAttacked(true);
             case PURPLE_WOOL -> Match.win();
             case DINNERBONE -> {
                 if (player.isAttacked()) {
@@ -109,7 +111,7 @@ public class BlockBattleEvents {
             case LIGHTNING_TRIDENT -> {
                 if (last == Turn.LIGHTNING_ROD) {
                     turn.player().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
-                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
+                    opponent.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
                 }
             }
             case SEA_PICKLE_STACK -> {
@@ -128,7 +130,7 @@ public class BlockBattleEvents {
                     player.player.removePotionEffect(effect.getType());
                 }
             }
-            case SPRUCE_TRAPDOOR -> {
+            case SPRUCE_TRAPDOOR, MANGROVE_ROOTS -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, WATER, NATURE) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
                 }
@@ -145,13 +147,13 @@ public class BlockBattleEvents {
                 }
             }
             case BLACK_WOOL -> {
-                player.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
-                opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
+                opponent.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
             }
             case SCULK_BLOCK -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, DREAM) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
-                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, -1, 1));
+                    opponent.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, -1, 1));
                     opponent.removeLuck(10);
                 }
             }
@@ -225,10 +227,10 @@ public class BlockBattleEvents {
                 if (player.isAttacked() && Match.latestTurnIsClass(COLD, REDSTONE, NATURE) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
 
-                    player.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
-                    player.player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
-                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
-                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
+                    opponent.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
+                    opponent.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
                 }
             }
             case ORANGE_WOOL -> {
@@ -257,7 +259,7 @@ public class BlockBattleEvents {
                     player.setAttacked(false);
                 }
             }
-            case SPRUCE_LEAVES -> {
+            case SPRUCE_LEAVES, GREEN_BED -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, NATURE) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
                     opponent.setAttacked(true);
@@ -266,9 +268,110 @@ public class BlockBattleEvents {
             case WHITE_WOOL -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, WATER, REDSTONE, DREAM) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
-                    player.player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, -1, 125));
-                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, -1, 125));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, -1, 125));
+                    opponent.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, -1, 125));
                 }
+            }
+            //nature items
+            case BEE_NEST -> opponent.setAttacked(true);
+            case HONEY_BLOCK -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(NATURE, WATER, REDSTONE) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                }
+            }
+            case PUMPKIN_WALL -> {
+                Match.setIsNight(true);
+                player.addLuck(10);
+            }
+            case GREEN_WOOL -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(NATURE, HOT, COLD) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                }
+            }
+            case HAY_BALE -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(COLD, WATER) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                }
+            }
+            //redstone items
+            case LEVER -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, REDSTONE) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                }
+            }
+            case FENCE_GATE -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, HOT) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                }
+            }
+            case REDSTONE_REPEATER -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, COLD, NATURE) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                }
+            }
+            case WOODEN_BUTTON -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(HOT, COLD, WATER) && Match.latestTurnIsUnder(cord)) {
+                    if(Match.getLatestTurn().turn().type.equals(Turn.Type.COUNTERATTACK)){
+                        player.setAttacked(false);
+                    }
+                }
+            }
+            case STONE_BUTTON -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(NATURE, REDSTONE, DREAM) && Match.latestTurnIsUnder(cord)) {
+                    if(Match.getLatestTurn().turn().type.equals(Turn.Type.COUNTERATTACK)){
+                        player.setAttacked(false);
+                    }
+                }
+            }
+            case DAYLIGHT_SENSOR -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(HOT, NATURE, WATER, REDSTONE) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                }
+                Match.setIsNight(false);
+            }
+            //dream items
+            case RED_BED -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, COLD, DREAM) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                }
+            }
+            case BLUE_BED -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(COLD, WATER, NATURE, DREAM) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    player.addLuck(5);
+                }
+            }
+            case PINK_SHEEP -> Match.win(player);
+            case WHITE_SHEEP -> {
+                ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(Match.currentWarp.allow));
+                if(allow.contains(COLD)){
+                    doNext = false;
+                }
+            }
+            case LIGHT_GRAY_SHEEP -> doNext = false;
+            case GRAY_SHEEP -> player.addLuck(25);
+            case BLACK_SHEEP -> {
+                opponent.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
+                opponent.removeLuck(10);
+            }
+            case BROWN_SHEEP -> {
+                player.giveRandomItem();
+            }
+            case BLUE_SHEEP -> {
+                    player.setAttacked(false);
+            }
+            case PHANTOM -> {
+                opponent.setAttacked(true);
+            }
+            case DRAGON_HEAD -> {
+                opponent.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
+                opponent.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, -1, 1));
+                opponent.removeLuck(20);
             }
         }
 

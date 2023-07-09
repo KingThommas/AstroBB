@@ -1,15 +1,26 @@
 package net.hectus.hectusblockbattles.player;
 
+import net.hectus.color.McColor;
+import net.hectus.hectusblockbattles.InGameShop;
 import net.hectus.hectusblockbattles.match.Match;
+import net.hectus.util.Randomizer;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
+import org.bukkit.Color;
+import org.bukkit.DyeColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Random;
 
 public class BBPlayer {
     public final Player player;
@@ -34,6 +45,39 @@ public class BBPlayer {
     }
     public void removeLuck(int luck) {
         this.luck -= luck;
+    }
+
+    public boolean chance(double chance) {
+        double perc = chance - (1 - chance) * ((double) luck / 100);
+        return Randomizer.boolByChance(Math.min(100, perc));
+    }
+
+    public static int chance(double chance, int luck) {
+        return (int) (chance - (1 - chance) * ((double) luck / 100));
+    }
+
+    public double chancePerc(double chance) {
+        return chance - (1 - chance) * ((double) luck / 100);
+    }
+
+    public DyeColor randomSheepColor() {
+        int pink = chance(1, luck * 2);
+        int blue = chance(10, (int) (luck * 1.5));
+        int brown = chance(15, luck);
+        int black = chance(15, luck);
+        int gray = chance(15, luck);
+        int light_gray = chance(15, luck);
+        int white = 30;
+
+        int num = new Random().nextInt(pink+blue+brown+black+gray+light_gray+white+1);
+
+        if (num < pink) return DyeColor.PINK; else num += pink;
+        if (num < blue) return DyeColor.BLUE; else num += blue;
+        if (num < brown) return DyeColor.BROWN; else num += brown;
+        if (num < black) return DyeColor.BLACK; else num += black;
+        if (num < gray) return DyeColor.GRAY; else num += gray;
+        if (num < light_gray) return DyeColor.LIGHT_GRAY;
+        else return DyeColor.WHITE;
     }
 
     public boolean isDefended() {
@@ -137,5 +181,21 @@ public class BBPlayer {
 
     public void playSound(@NotNull Sound sound, double x, double y, double z) {
         player.playSound(sound, x, y, z);
+    }
+
+    public void addPotionEffect(PotionEffectType type, int dur, int amp) {
+        player.addPotionEffect(new PotionEffect(type, dur, amp));
+    }
+
+    public void addPotionEffect(PotionEffect potion) {
+        player.addPotionEffect(potion);
+    }
+
+    public void giveRandomItem(){
+        ArrayList<InGameShop.ShopItem> items = new ArrayList<>();
+        items.addAll(InGameShop.SHOP_ITEMS_1);
+        items.addAll(InGameShop.SHOP_ITEMS_2);
+        ItemStack item = (ItemStack) Randomizer.fromCollection(items);
+        player.getInventory().addItem(item);
     }
 }

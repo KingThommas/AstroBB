@@ -13,6 +13,7 @@ import net.hectus.hectusblockbattles.warps.Warp;
 import net.hectus.hectusblockbattles.warps.WarpSettings;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class Match {
-    public static boolean hasStarted, shopPhase;
+    public static boolean hasStarted, shopPhase, isNight;
     public static BBPlayer p1;
     public static BBPlayer p2;
     public static Warp currentWarp;
@@ -35,6 +36,10 @@ public class Match {
 
     public static void start(Player p1, Player p2) {
         hasStarted = true;
+
+        isNight = false;
+        HBB.WORLD.setTime(6000);
+        HBB.WORLD.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
 
         Match.p1 = new BBPlayer(p1);
         Match.p2 = new BBPlayer(p2);
@@ -176,6 +181,15 @@ public class Match {
     public static boolean latestTurnIsUnder(@NotNull Cord cord) {
         Block underBlock = new Location(HBB.WORLD, cord.x(), cord.y(), cord.z()).getBlock();
         return Match.getLatestTurn().turn().material == underBlock.getType();
+    }
+
+    public static void setIsNight(boolean isNight) {
+        Match.isNight = isNight;
+        if(isNight){
+            HBB.WORLD.setTime(0);
+        }else{
+            HBB.WORLD.setTime(6000);
+        }
     }
 
     public enum PlayerState {

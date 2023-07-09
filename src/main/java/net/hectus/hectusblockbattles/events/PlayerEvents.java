@@ -6,18 +6,18 @@ import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.Cord;
 import net.hectus.hectusblockbattles.HBB;
 import net.hectus.hectusblockbattles.match.Match;
+import net.hectus.hectusblockbattles.player.BBPlayer;
 import net.hectus.hectusblockbattles.structures.v2.Structure;
 import net.hectus.hectusblockbattles.turn.Turn;
 import net.hectus.hectusblockbattles.turn.TurnInfo;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.SeaPickle;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Trident;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -109,6 +109,25 @@ public class PlayerEvents implements Listener {
             case "ORANGE_WOOL" -> turn(Turn.ORANGE_WOOL, p, c);
             case "CAMPFIRE" -> turn(Turn.CAMPFIRE, p, c);
             case "RESPAWN_ANCHOR" -> turn(Turn.RESPAWN_ANCHOR, p, c);
+            case "BEE_NEST" -> turn(Turn.BEE_NEST, p, c);
+            case "HONEY_BLOCK" -> turn(Turn.HONEY_BLOCK, p, c);
+            case "PUMPKIN_WALL" -> turn(Turn.PUMPKIN_WALL, p, c);
+            case "GREEN_WOOL" -> turn(Turn.GREEN_WOOL, p, c);
+            case "MANGROVE_ROOTS" -> turn(Turn.MANGROVE_ROOTS, p, c);
+            case "COMPOSTER" -> turn(Turn.COMPOSTER, p, c);
+            case "HAY_BALE" -> turn(Turn.HAY_BALE, p, c);
+            case "LEVER" -> turn(Turn.LEVER, p, c);
+            case "FENCE_GATE" -> turn(Turn.FENCE_GATE, p, c);
+            case "REDSTONE_REPEATER" -> turn(Turn.REDSTONE_REPEATER, p, c);
+            case "RED_BED" -> turn(Turn.RED_BED, p, c);
+            case "PINK_BED" -> turn(Turn.PINK_BED, p, c);
+            case "GREEN_BED" -> turn(Turn.GREEN_BED, p, c);
+            case "BLUE_BED" -> turn(Turn.BLUE_BED, p, c);
+            case "DRAGON_HEAD" -> turn(Turn.DRAGON_HEAD, p, c);
+            case "SOUL_SAND" -> turn(Turn.SOUL_SAND, p, c);
+            case "WOODEN_BUTTON" -> turn(Turn.WOODEN_BUTTON, p, c);
+            case "STONE_BUTTON" -> turn(Turn.STONE_BUTTON, p, c);
+            case "DAYLIGHT_SENSOR" -> turn(Turn.DAYLIGHT_SENSOR, p, c);
 
             default -> {
                 Structure.BlockData blockData = new Structure.BlockData(b.getType(), b.getX(), b.getY(), b.getZ(), Structure.blockFace(b), Structure.blockBound(b), Structure.isOpen(b));
@@ -160,7 +179,27 @@ public class PlayerEvents implements Listener {
             case PIGLIN -> turn(Turn.PIGLIN, p, c);
             case POLAR_BEAR -> turn(Turn.POLAR_BEAR, p, c);
             case BOAT -> turn(Turn.BOAT, p, c);
-            case AXOLOTL -> turn(Turn.AXOLOTL, p, c);
+            case AXOLOTL -> {
+                Axolotl axolotl = (Axolotl) event.getEntity();
+                if(axolotl.getVariant().equals(Axolotl.Variant.BLUE)) turn(Turn.BLUE_AXOLOTL, p, c);
+                if(axolotl.getVariant().equals(Axolotl.Variant.GOLD)) turn(Turn.GOLD_AXOLOTL, p, c);
+                if(axolotl.getVariant().equals(Axolotl.Variant.CYAN)) turn(Turn.BLUE_AXOLOTL, p, c);
+                if(axolotl.getVariant().equals(Axolotl.Variant.WILD)) turn(Turn.BROWN_AXOLOTL, p, c);
+                if(axolotl.getVariant().equals(Axolotl.Variant.LUCY)) turn(Turn.PINK_AXOLOTL, p, c);
+            }
+            case SHEEP -> {
+                BBPlayer player = Match.getPlayer(p);
+                Sheep sheep = (Sheep) event.getEntity();
+                sheep.setColor(player.randomSheepColor());
+                if(sheep.getColor().equals(DyeColor.PINK)) turn(Turn.PINK_SHEEP, p, c);
+                if(sheep.getColor().equals(DyeColor.WHITE)) turn(Turn.WHITE_SHEEP, p, c);
+                if(sheep.getColor().equals(DyeColor.LIGHT_GRAY)) turn(Turn.LIGHT_GRAY_SHEEP, p, c);
+                if(sheep.getColor().equals(DyeColor.GRAY)) turn(Turn.GRAY_SHEEP, p, c);
+                if(sheep.getColor().equals(DyeColor.BLACK)) turn(Turn.BLACK_SHEEP, p, c);
+                if(sheep.getColor().equals(DyeColor.BROWN)) turn(Turn.BROWN_SHEEP, p, c);
+                if(sheep.getColor().equals(DyeColor.BLUE)) turn(Turn.BLUE_SHEEP, p, c);
+            }
+            case PHANTOM -> turn(Turn.PHANTOM, p, c);
         }
     }
 
