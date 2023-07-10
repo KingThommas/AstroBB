@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class Match {
-    public static boolean hasStarted, shopPhase, isNight;
+    public static boolean hasStarted, shopPhase, isNight, rain;
     public static BBPlayer p1;
     public static BBPlayer p2;
     public static Warp currentWarp;
@@ -37,6 +37,7 @@ public class Match {
         hasStarted = true;
 
         isNight = false;
+        rain = false;
         HBB.WORLD.setTime(6000);
         HBB.WORLD.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
 
@@ -85,11 +86,15 @@ public class Match {
     }
 
     public static void win() {
-        getOpponent().player.setHealth(0);
-        getOpponent().showTitle("", McColor.RED + "You lost!", null);
+        if(getOpponent().hasRevive()){
+            getOpponent().useRevive();
+        }else{
+            getOpponent().player.setHealth(0);
+            getOpponent().showTitle("", McColor.RED + "You lost!", null);
 
-        getPlacer().player.setHealth(20.0);
-        getPlacer().showTitle("", McColor.GREEN + "You won!", null);
+            getPlacer().player.setHealth(20.0);
+            getPlacer().showTitle("", McColor.GREEN + "You won!", null);
+        }
     }
 
     public static void win(@NotNull BBPlayer player) {
@@ -100,19 +105,27 @@ public class Match {
             opponent = p1;
         }
 
-        opponent.player.setHealth(0);
-        opponent.showTitle("", McColor.RED + "You lost!", null);
+        if (opponent.hasRevive()) {
+            opponent.useRevive();
+        } else {
+            opponent.player.setHealth(0);
+            opponent.showTitle("", McColor.RED + "You lost!", null);
 
-        player.player.setHealth(20.0);
-        player.showTitle("", McColor.GREEN + "You won!", null);
+            player.player.setHealth(20.0);
+            player.showTitle("", McColor.GREEN + "You won!", null);
+        }
     }
 
     public static void lose() {
-        getPlacer().player.setHealth(0);
-        getPlacer().showTitle("", McColor.RED + "You lost!", null);
+        if(getPlacer().hasRevive()){
+            getPlacer().useRevive();
+        }else{
+            getPlacer().player.setHealth(0);
+            getPlacer().showTitle("", McColor.RED + "You lost!", null);
 
-        getOpponent().player.setHealth(20.0);
-        getOpponent().showTitle("", McColor.GREEN + "You won!", null);
+            getOpponent().player.setHealth(20.0);
+            getOpponent().showTitle("", McColor.GREEN + "You won!", null);
+        }
     }
 
     public static void draw() {
@@ -189,6 +202,12 @@ public class Match {
         }else{
             HBB.WORLD.setTime(6000);
         }
+    }
+
+    public static void setRain(boolean rain) {
+        Match.rain = rain;
+        HBB.WORLD.setStorm(rain);
+        HBB.WORLD.setWeatherDuration(-1);
     }
 
     public enum PlayerState {

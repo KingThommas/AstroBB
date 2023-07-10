@@ -2,6 +2,7 @@ package net.hectus.hectusblockbattles.events;
 
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.Cord;
+import net.hectus.hectusblockbattles.HBB;
 import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.hectusblockbattles.player.BBPlayer;
 import net.hectus.hectusblockbattles.structures.v2.Structure;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -50,9 +52,7 @@ public class BlockBattleEvents {
     public static void onTurn(TurnInfo turn) {
         Match.addTurn(turn);
 
-        ArrayList< WarpSettings.Class> allow = new ArrayList<>();
-        allow.addAll(List.of(Match.currentWarp.allow));
-        if(!allow.contains(turn.turn().clazz)){
+        if(!Match.allowed.contains(turn.turn().clazz)){
             Match.lose();
         }
 
@@ -66,7 +66,7 @@ public class BlockBattleEvents {
             return;
         }
 
-        if (turn.turn().type == Turn.Type.ATTACK || turn.turn().type == Turn.Type.WARP) {
+        if (turn.turn().type == Turn.Type.WARP) {
             Match.lose();
             Match.getPlacer().showTitle("", "You can't use warps or attacks as your first move!", null);
             Match.getOpponent().showTitle("", "Your opponent used a warp or attack as his first move💀", null);
@@ -83,9 +83,13 @@ public class BlockBattleEvents {
 
         Turn last = Match.getLatestTurn().turn();
 
+        HBB.WORLD.sendMessage(Component.text(McColor.LIME + "Detecting structure [Switch]"));
         switch (turn.turn()) {
             case CAULDRON, MAGMA_BLOCK, PACKED_ICE, LIGHT_BLUE_WOOL, SOUL_SAND, COMPOSTER -> opponent.setAttacked(true);
-            case PURPLE_WOOL -> Match.win();
+            case PURPLE_WOOL -> {
+                Match.win();
+                return;
+            }
             case DINNERBONE -> {
                 if (player.isAttacked()) {
                     if (last.mob) {
@@ -123,8 +127,10 @@ public class BlockBattleEvents {
                 }
             }
             case SEA_PICKLE_STACK -> {
-                opponent.setAttacked(true);
-                opponent.setDoubleCounterAttack(true);
+                if(Match.allowed.contains(WATER)){
+                    opponent.setAttacked(true);
+                    opponent.setDoubleCounterAttack(true);
+                }
             }
             case TNT -> {
                 if (player.isDefended() && !opponent.isDefended()) Match.win();
@@ -177,6 +183,21 @@ public class BlockBattleEvents {
                     player.setAttacked(false);
                 } else if (!player.isAttacked()) {
                     doNext = false;
+                }
+            }
+            case SPONGE -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, WATER, DREAM) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    if(last.equals(Turn.WATER_BUCKET)){
+                        Match.setRain(true);
+                        doNext = false;
+                        player.addLuck(15);
+                        player.addPotionEffect(PotionEffectType.JUMP, -1, 255);
+                    }else if(last.clazz.equals(WATER)){
+                        Match.setRain(true);
+                        doNext = false;
+                        player.addLuck(5);
+                    }
                 }
             }
             case LIGHTNING_ROD -> {
@@ -248,10 +269,14 @@ public class BlockBattleEvents {
                 }
             }
             case CAMPFIRE -> {
-                if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, HOT, COLD) && Match.latestTurnIsUnder(cord)) {
+                boolean clazzAllow = Match.latestTurnIsClass(NEUTRAL, HOT, COLD) || last.equals(Turn.BEE_NEST);
+                if (player.isAttacked() && clazzAllow && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
                     opponent.setAttacked(true);
-                    // TODO: Add beehive +1 Turn & +10 Luck
+                    if(last.equals(Turn.BEE_NEST)){
+                        doNext = false;
+                        player.addLuck(10);
+                    }
                 }
             }
             case BLAZE -> {
@@ -357,7 +382,7 @@ public class BlockBattleEvents {
             }
             case PINK_SHEEP -> Match.win(player);
             case WHITE_SHEEP -> {
-                if(allow.contains(COLD)){
+                if(Match.allowed.contains(COLD)){
                     doNext = false;
                 }
             }
@@ -421,9 +446,8 @@ public class BlockBattleEvents {
                 }
             }
             case SEA_LANTERN -> {
-                // TODO: Add code for this
-                // I have no idea what "Procs a revive when activated"
-                // And if it's just reviving, it makes no sense in 1v1s
+                player.addRevive();
+                return;
             }
             case WATER_BUCKET -> {
                 if (player.isAttacked() && (Match.getLatestTurn().cord() == cord || last == Turn.LAVA_BUCKET)) {
@@ -435,6 +459,68 @@ public class BlockBattleEvents {
                     opponent.setAttacked(true);
                     player.player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, -1, 1));
                 }
+            }
+            case BLUE_AXOLOTL -> {
+                doNext = false;
+                player.addLuck(10);
+                opponent.removeLuck(10);
+                Match.win(player);
+            }
+            case PINK_AXOLOTL -> {
+                doNext = false;
+                player.addLuck(10);
+                opponent.removeLuck(10);
+                ArrayList<Warp> warps = new ArrayList<>(List.of(Warp.values()));
+                for(Warp warp : warps){
+                    ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
+                    if(!allow.contains(HOT)){
+                        warps.remove(warp);
+                    }
+                }
+                Warp newWarp = (Warp) Randomizer.fromCollection(warps);
+                WarpManager.warp(newWarp, player.player, opponent.player);
+            }
+            case BROWN_AXOLOTL -> {
+                doNext = false;
+                player.addLuck(10);
+                opponent.removeLuck(10);
+                ArrayList<Warp> warps = new ArrayList<>(List.of(Warp.values()));
+                for(Warp warp : warps){
+                    ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
+                    if(!allow.contains(REDSTONE)){
+                        warps.remove(warp);
+                    }
+                }
+                Warp newWarp = (Warp) Randomizer.fromCollection(warps);
+                WarpManager.warp(newWarp, player.player, opponent.player);
+            }
+            case GOLD_AXOLOTL -> {
+                doNext = false;
+                player.addLuck(10);
+                opponent.removeLuck(10);
+                ArrayList<Warp> warps = new ArrayList<>(List.of(Warp.values()));
+                for(Warp warp : warps){
+                    ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
+                    if(!allow.contains(DREAM)){
+                        warps.remove(warp);
+                    }
+                }
+                Warp newWarp = (Warp) Randomizer.fromCollection(warps);
+                WarpManager.warp(newWarp, player.player, opponent.player);
+            }
+            case CYAN_AXOLOTL -> {
+                doNext = false;
+                player.addLuck(10);
+                opponent.removeLuck(10);
+                ArrayList<Warp> warps = new ArrayList<>(List.of(Warp.values()));
+                for(Warp warp : warps){
+                    ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
+                    if(!allow.contains(WATER)){
+                        warps.remove(warp);
+                    }
+                }
+                Warp newWarp = (Warp) Randomizer.fromCollection(warps);
+                WarpManager.warp(newWarp, player.player, opponent.player);
             }
             case VERDANT_FROGLIGHT -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(DREAM) && Match.latestTurnIsUnder(cord)) {

@@ -29,7 +29,9 @@ public class BBPlayer {
     private int burningCounter = -3;
     private int jailCounter = -3;
     private int extraTurns = 0;
-    private boolean defended, movement, attacked, doubleCounterAttack ;
+    private int revives = 0;
+    private boolean defended, attacked, doubleCounterAttack = false;
+    private boolean movement = true;
     private Match.PlayerState state;
 
     @Contract(pure = true)
@@ -197,5 +199,19 @@ public class BBPlayer {
         items.addAll(InGameShop.SHOP_ITEMS_2);
         ItemStack item = (ItemStack) Randomizer.fromCollection(items);
         player.getInventory().addItem(item);
+    }
+
+    public boolean hasRevive() {
+        return revives >= 1;
+    }
+
+    public void useRevive(){
+        revives -= 1;
+        sendMessage(McColor.LIME + "Revive used.");
+        Match.getOpposite(this).sendMessage(McColor.RED + "Opponent used revive.");
+    }
+
+    public void addRevive(){
+        revives += 1;
     }
 }

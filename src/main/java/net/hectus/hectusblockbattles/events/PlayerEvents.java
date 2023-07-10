@@ -103,57 +103,58 @@ public class PlayerEvents implements Listener {
         Block b = event.getBlock();
         Cord c = new Cord(b.getX(), b.getY(), b.getZ());
 
-        switch (b.getType().name()) {
-            case "PURPLE_WOOL" -> turn(Turn.PURPLE_WOOL, p, c);
-            case "POWDER_SNOW" -> turn(Turn.POWDER_SNOW, p, c);
-            case "SPRUCE_TRAPDOOR" -> turn(Turn.SPRUCE_TRAPDOOR, p, c);
-            case "SEA_PICKLE" -> {
+        switch (b.getType()) {
+            case PURPLE_WOOL -> turn(Turn.PURPLE_WOOL, p, c);
+            case POWDER_SNOW -> turn(Turn.POWDER_SNOW, p, c);
+            case SPRUCE_TRAPDOOR -> turn(Turn.SPRUCE_TRAPDOOR, p, c);
+            case SEA_PICKLE -> {
                 if (b instanceof SeaPickle pickle) {
                     if (pickle.getPickles() >= 4) turn(Turn.SEA_PICKLE_STACK, p, c);
                 }
             }
-            case "STONECUTTER" -> turn(Turn.STONECUTTER, p, c);
-            case "MAGENTA_GLAZED_TERRACOTTA" -> turn(Turn.MAGENTA_GLAZED_TERRACOTTA, p, c);
-            case "MAGMA_BLOCK" -> turn(Turn.MAGMA_BLOCK, p, c);
-            case "NETHERRACK" -> turn(Turn.NETHERRACK, p, c);
-            case "LAVA" -> turn(Turn.LAVA_BUCKET, p, c);
-            case "FIRE" -> turn(Turn.FLINT_N_STEEL, p, c);
-            case "ORANGE_WOOL" -> turn(Turn.ORANGE_WOOL, p, c);
-            case "CAMPFIRE" -> turn(Turn.CAMPFIRE, p, c);
-            case "RESPAWN_ANCHOR" -> turn(Turn.RESPAWN_ANCHOR, p, c);
-            case "BEE_NEST" -> turn(Turn.BEE_NEST, p, c);
-            case "HONEY_BLOCK" -> turn(Turn.HONEY_BLOCK, p, c);
-            case "PUMPKIN_WALL" -> turn(Turn.PUMPKIN_WALL, p, c);
-            case "GREEN_WOOL" -> turn(Turn.GREEN_WOOL, p, c);
-            case "MANGROVE_ROOTS" -> turn(Turn.MANGROVE_ROOTS, p, c);
-            case "COMPOSTER" -> turn(Turn.COMPOSTER, p, c);
-            case "HAY_BALE" -> turn(Turn.HAY_BALE, p, c);
-            case "LEVER" -> turn(Turn.LEVER, p, c);
-            case "FENCE_GATE" -> turn(Turn.FENCE_GATE, p, c);
-            case "REDSTONE_REPEATER" -> turn(Turn.REDSTONE_REPEATER, p, c);
-            case "RED_BED" -> turn(Turn.RED_BED, p, c);
-            case "PINK_BED" -> turn(Turn.PINK_BED, p, c);
-            case "GREEN_BED" -> turn(Turn.GREEN_BED, p, c);
-            case "BLUE_BED" -> turn(Turn.BLUE_BED, p, c);
-            case "DRAGON_HEAD" -> turn(Turn.DRAGON_HEAD, p, c);
-            case "SOUL_SAND" -> turn(Turn.SOUL_SAND, p, c);
-            case "WOODEN_BUTTON" -> turn(Turn.WOODEN_BUTTON, p, c);
-            case "STONE_BUTTON" -> turn(Turn.STONE_BUTTON, p, c);
-            case "DAYLIGHT_SENSOR" -> turn(Turn.DAYLIGHT_SENSOR, p, c);
-            case "BRAIN_CORAL_BLOCK" -> turn(Turn.BRAIN_CORAL_BLOCK, p, c);
-            case "HORN_CORAL" -> turn(Turn.HORN_CORAL, p, c);
-            case "FIRE_CORAL" -> turn(Turn.FIRE_CORAL, p, c);
-            case "FIRE_CORAL_FAN" -> turn(Turn.FIRE_CORAL_FAN, p, c);
-            case "SEA_LANTERN" -> turn(Turn.SEA_LANTERN, p, c);
-            case "WATER" -> {
+            case STONECUTTER -> turn(Turn.STONECUTTER, p, c);
+            case MAGENTA_GLAZED_TERRACOTTA -> turn(Turn.MAGENTA_GLAZED_TERRACOTTA, p, c);
+            case SPONGE -> turn(Turn.CYAN_CARPET, p, c);
+            case MAGMA_BLOCK -> turn(Turn.MAGMA_BLOCK, p, c);
+            case NETHERRACK -> turn(Turn.NETHERRACK, p, c);
+            case LAVA -> turn(Turn.LAVA_BUCKET, p, c);
+            case FIRE -> turn(Turn.FLINT_N_STEEL, p, c);
+            case ORANGE_WOOL -> turn(Turn.ORANGE_WOOL, p, c);
+            case CAMPFIRE -> turn(Turn.CAMPFIRE, p, c);
+            case RESPAWN_ANCHOR -> turn(Turn.RESPAWN_ANCHOR, p, c);
+            case BEE_NEST -> turn(Turn.BEE_NEST, p, c);
+            case HONEY_BLOCK -> turn(Turn.HONEY_BLOCK, p, c);
+            case GREEN_WOOL -> turn(Turn.GREEN_WOOL, p, c);
+            case MANGROVE_ROOTS -> turn(Turn.MANGROVE_ROOTS, p, c);
+            case COMPOSTER -> turn(Turn.COMPOSTER, p, c);
+            case HAY_BLOCK -> turn(Turn.HAY_BALE, p, c);
+            case LEVER -> turn(Turn.LEVER, p, c);
+            case OAK_FENCE_GATE -> turn(Turn.FENCE_GATE, p, c);
+            case REPEATER -> turn(Turn.REDSTONE_REPEATER, p, c);
+            case RED_BED -> turn(Turn.RED_BED, p, c);
+            case PINK_BED -> turn(Turn.PINK_BED, p, c);
+            case GREEN_BED -> turn(Turn.GREEN_BED, p, c);
+            case BLUE_BED -> turn(Turn.BLUE_BED, p, c);
+            case DRAGON_HEAD -> turn(Turn.DRAGON_HEAD, p, c);
+            case SOUL_SAND -> turn(Turn.SOUL_SAND, p, c);
+            case OAK_BUTTON -> turn(Turn.WOODEN_BUTTON, p, c);
+            case STONE_BUTTON -> turn(Turn.STONE_BUTTON, p, c);
+            case DAYLIGHT_DETECTOR -> turn(Turn.DAYLIGHT_SENSOR, p, c);
+            case BRAIN_CORAL_BLOCK -> turn(Turn.BRAIN_CORAL_BLOCK, p, c);
+            case HORN_CORAL -> turn(Turn.HORN_CORAL, p, c);
+            case FIRE_CORAL -> turn(Turn.FIRE_CORAL, p, c);
+            case FIRE_CORAL_FAN -> turn(Turn.FIRE_CORAL_FAN, p, c);
+            case SEA_LANTERN -> turn(Turn.SEA_LANTERN, p, c);
+            case WATER -> {
                 if (c.toLocation().getNearbyEntitiesByType(PufferFish.class, 4).size() != 0) {
                     turn(Turn.PUFFERFISH_BUCKET, p, c);
                 } else {
                     turn(Turn.WATER_BUCKET, p, c);
                 }
             }
-            case "DRIED_KELP_BLOCK" -> turn(Turn.DRIED_KELP_BLOCK, p, c);
-            case "VERDANT_FROGLIGHT" -> turn(Turn.VERDANT_FROGLIGHT, p, c);
+            case DRIED_KELP_BLOCK -> turn(Turn.DRIED_KELP_BLOCK, p, c);
+            case VERDANT_FROGLIGHT -> turn(Turn.VERDANT_FROGLIGHT, p, c);
+            case CAULDRON -> turn(Turn.CAULDRON, p, c);
 
             default -> {
                 Structure.BlockData blockData = new Structure.BlockData(b.getType(), b.getX(), b.getY(), b.getZ(), Structure.blockFace(b), Structure.blockBound(b), Structure.isOpen(b));
@@ -162,7 +163,7 @@ public class PlayerEvents implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    /**@EventHandler(priority = EventPriority.HIGH)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         if (!Match.hasStarted) return;
 
@@ -194,7 +195,7 @@ public class PlayerEvents implements Listener {
                 turn(Turn.CHORUS_FRUIT_EAT, p, Cord.of(event.getTo()));
             }
         }
-    }
+    }*/
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntitySpawn(@NotNull EntitySpawnEvent event) {
@@ -239,7 +240,7 @@ public class PlayerEvents implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    /**@EventHandler(priority = EventPriority.HIGH)
     public void onPlayerMove(@NotNull PlayerMoveEvent event) {
         if (!Match.hasStarted) return;
 
@@ -257,7 +258,7 @@ public class PlayerEvents implements Listener {
                 Match.win(Match.getOpposite(Match.getPlayer(player)));
             }
         }
-    }
+    }*/
 
     private void turn(Turn turn, Player p, Cord cord) {
         BlockBattleEvents.onTurn(new TurnInfo(turn, p, cord));
