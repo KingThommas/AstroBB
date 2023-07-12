@@ -1,6 +1,8 @@
 package net.hectus.hectusblockbattles.events;
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
+import io.papermc.paper.event.entity.EntityCompostItemEvent;
+import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent;
 import io.papermc.paper.event.player.PlayerNameEntityEvent;
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.Cord;
@@ -21,6 +23,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockFertilizeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.TNTPrimeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
@@ -163,14 +166,13 @@ public class PlayerEvents implements Listener {
         }
     }
 
-    /**@EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         if (!Match.hasStarted) return;
 
         Player p = event.getPlayer();
         if (!Match.algorithm.isPlacer(p)) {
             p.sendMessage(Component.text(McColor.RED + "It isn't your turn right now!"));
-            event.setCancelled(true);
             return;
         }
 
@@ -195,7 +197,52 @@ public class PlayerEvents implements Listener {
                 turn(Turn.CHORUS_FRUIT_EAT, p, Cord.of(event.getTo()));
             }
         }
-    }*/
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onEntityCompostItem(EntityCompostItemEvent event) {
+        if (!(event.getEntity() instanceof Player)) return;
+
+        Player p = (Player) event.getEntity();
+        Cord c = Cord.of(event.getBlock().getLocation());
+
+        switch (event.getItem().getType()) {
+            case POPPY -> turn(Turn.POPPY, p, c);
+            case BLUE_ORCHID -> turn(Turn.BLUE_ORCHID, p, c);
+            case ALLIUM -> turn(Turn.ALLIUM, p, c);
+            case AZURE_BLUET -> turn(Turn.AZURE_BLUET, p, c);
+            case RED_TULIP -> turn(Turn.RED_TULIP, p, c);
+            case ORANGE_TULIP -> turn(Turn.ORANGE_TULIP, p, c);
+            case WHITE_TULIP -> turn(Turn.WHITE_TULIP, p, c);
+            case PINK_TULIP -> turn(Turn.PINK_TULIP, p, c);
+            case CORNFLOWER -> turn(Turn.CORNFLOWER, p, c);
+            case OXEYE_DAISY -> turn(Turn.OXEYE_DAISY, p, c);
+            case WITHER_ROSE -> turn(Turn.WITHER_ROSE, p, c);
+            case SUNFLOWER -> turn(Turn.SUNFLOWER, p, c);
+            case OAK_SAPLING -> turn(Turn.OAK_SAPLING, p, c);
+            case SPORE_BLOSSOM -> turn(Turn.SPORE_BLOSSOM, p, c);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerFlowerPotManipulate(@NotNull PlayerFlowerPotManipulateEvent event) {
+        Player p = event.getPlayer();
+        Cord c = Cord.of(event.getFlowerpot().getLocation());
+
+        switch (event.getItem().getType()) {
+            case POPPY, BLUE_ORCHID, ALLIUM, AZURE_BLUET, RED_TULIP,
+                    ORANGE_TULIP, WHITE_TULIP, PINK_TULIP, CORNFLOWER,
+                    OXEYE_DAISY, WITHER_ROSE, SUNFLOWER, OAK_SAPLING,
+                    SPORE_BLOSSOM -> turn(Turn.COMPOSTER_FILL, p, c);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onBlockFertilize(@NotNull BlockFertilizeEvent event) {
+        if (event.getBlock().getType() == Material.OAK_SAPLING || event.getBlock().getType() == Material.OAK_LOG) {
+            turn(Turn.OAK_SAPLING, event.getPlayer(), Cord.of(event.getBlock().getLocation()));
+        }
+    }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntitySpawn(@NotNull EntitySpawnEvent event) {

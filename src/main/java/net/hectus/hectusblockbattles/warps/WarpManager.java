@@ -20,10 +20,16 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class WarpManager {
     public static void warp(@NotNull Warp warp, Player activator, Player otherPlayer) {
         boolean doWarp = Randomizer.boolByChance(warp.chance * 100);
+
+        if (Match.nextWarp100P) {
+            doWarp = true;
+            Match.nextWarp100P = false;
+        }
 
         if (!doWarp) {
             if (warp == Warp.HELL) {
@@ -114,9 +120,10 @@ public class WarpManager {
             Match.getOpponent().startBurnCounter(-3);
 
             Match.allowed.clear();
-            for(WarpSettings.Class clazz: warp.allow){
-                Match.allowed.add(clazz);
-            }
+            Collections.addAll(Match.allowed, warp.allow);
+
+            Match.disallowed.clear();
+            Collections.addAll(Match.disallowed, warp.deny);
 
             Match.next();
         } else {

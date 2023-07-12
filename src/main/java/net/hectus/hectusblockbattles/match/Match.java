@@ -15,23 +15,24 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.IntStream;
 
 public class Match {
-    public static boolean hasStarted, shopPhase, isNight, rain;
-    public static BBPlayer p1;
-    public static BBPlayer p2;
+    public static boolean hasStarted, shopPhase, isNight, rain, nextWarp100P, azureWasUsed, netherPortalAwaitIgnite, blackWoolDebuff, blazeDebuff;
+    public static boolean nextCanMove = true;
+    public static BBPlayer p1, p2;
     public static Warp currentWarp;
-    public static ArrayList<WarpSettings.Class> allowed = new ArrayList<>();
+    public static HashSet<WarpSettings.Class> allowed = new HashSet<>(), disallowed = new HashSet<>();
     public static List<TurnInfo> turnHistory = new ArrayList<>();
     public static Algorithm algorithm = new Algorithm();
-
-    public static boolean netherPortalAwaitIgnite, blackWoolDebuff, blazeDebuff;
+    public static int swapTimer = -3;
 
     public static void start(Player p1, Player p2) {
         hasStarted = true;
@@ -117,9 +118,9 @@ public class Match {
     }
 
     public static void lose() {
-        if(getPlacer().hasRevive()){
+        if(getPlacer().hasRevive()) {
             getPlacer().useRevive();
-        }else{
+        } else {
             getPlacer().player.setHealth(0);
             getPlacer().showTitle("", McColor.RED + "You lost!", null);
 
@@ -151,6 +152,14 @@ public class Match {
     }
 
     public static void next() {
+        swapTimer--;
+        if (swapTimer == 0) {
+            ItemStack[] hotbar1 = p1.player.getInventory().getContents().clone();
+            ItemStack[] hotbar2 = p2.player.getInventory().getContents().clone();
+            p1.player.getInventory().setContents(hotbar2);
+            p1.player.getInventory().setContents(hotbar1);
+        }
+
         if (!getPlacer().hasToDoubleCounterAttack()){
             algorithm.timer.stop();
             algorithm.clear();
@@ -208,6 +217,14 @@ public class Match {
         Match.rain = rain;
         HBB.WORLD.setStorm(rain);
         HBB.WORLD.setWeatherDuration(-1);
+    }
+
+    public static void swapHotbars() {
+        for (int i = 0; i < 9; i++) {
+            ItemStack p1Slot = p1.player.getInventory().getItem(i);
+            p1.player.getInventory().setItem(i, p2.player.getInventory().getItem(i));
+            p2.player.getInventory().setItem(i, p1Slot);
+        }
     }
 
     public enum PlayerState {

@@ -22,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -52,7 +51,7 @@ public class BlockBattleEvents {
     public static void onTurn(TurnInfo turn) {
         Match.addTurn(turn);
 
-        if(!Match.allowed.contains(turn.turn().clazz)){
+        if(!Match.allowed.contains(turn.turn().clazz) || Match.disallowed.contains(turn.turn().clazz)) {
             Match.lose();
         }
 
@@ -85,7 +84,7 @@ public class BlockBattleEvents {
 
         HBB.WORLD.sendMessage(Component.text(McColor.LIME + "Detecting structure [Switch]"));
         switch (turn.turn()) {
-            case CAULDRON, MAGMA_BLOCK, PACKED_ICE, LIGHT_BLUE_WOOL, SOUL_SAND, COMPOSTER -> opponent.setAttacked(true);
+            case CAULDRON, MAGMA_BLOCK, PACKED_ICE, LIGHT_BLUE_WOOL, SOUL_SAND, COMPOSTER, OAK_SAPLING -> opponent.setAttacked(true);
             case PURPLE_WOOL -> {
                 Match.win();
                 return;
@@ -122,8 +121,8 @@ public class BlockBattleEvents {
             }
             case LIGHTNING_TRIDENT -> {
                 if (last == Turn.LIGHTNING_ROD) {
-                    turn.player().addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
-                    opponent.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
+                    player.addPotionEffect(PotionEffectType.GLOWING, -1, 1);
+                    opponent.addPotionEffect(PotionEffectType.BLINDNESS, -1, 1);
                 }
             }
             case SEA_PICKLE_STACK -> {
@@ -161,13 +160,13 @@ public class BlockBattleEvents {
                 }
             }
             case BLACK_WOOL -> {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
-                opponent.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
+                player.addPotionEffect(PotionEffectType.BLINDNESS, -1, 1);
+                opponent.addPotionEffect(PotionEffectType.BLINDNESS, -1, 1);
             }
             case SCULK_BLOCK -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, DREAM) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
-                    opponent.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, -1, 1));
+                    opponent.addPotionEffect(PotionEffectType.DARKNESS, -1, 1);
                     opponent.removeLuck(10);
                 }
             }
@@ -256,10 +255,10 @@ public class BlockBattleEvents {
                 if (player.isAttacked() && Match.latestTurnIsClass(COLD, REDSTONE, NATURE) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
 
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
-                    opponent.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
-                    opponent.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
+                    player.addPotionEffect(PotionEffectType.BLINDNESS, -1, 1);
+                    player.addPotionEffect(PotionEffectType.GLOWING, -1, 1);
+                    opponent.addPotionEffect(PotionEffectType.BLINDNESS, -1, 1);
+                    opponent.addPotionEffect(PotionEffectType.GLOWING, -1, 1);
                 }
             }
             case ORANGE_WOOL -> {
@@ -301,8 +300,8 @@ public class BlockBattleEvents {
             case WHITE_WOOL -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, WATER, REDSTONE, DREAM) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, -1, 125));
-                    opponent.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, -1, 125));
+                    player.addPotionEffect(PotionEffectType.SLOW, -1, 125);
+                    opponent.addPotionEffect(PotionEffectType.SLOW, -1, 125);
                 }
             }
             // NATURE ITEMS //
@@ -386,25 +385,21 @@ public class BlockBattleEvents {
                     doNext = false;
                 }
             }
-            case LIGHT_GRAY_SHEEP -> doNext = false;
+            case LIGHT_GRAY_SHEEP, DIRT, FLOWER_POT -> doNext = false;
             case GRAY_SHEEP -> player.addLuck(25);
             case BLACK_SHEEP -> {
-                opponent.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
+                opponent.addPotionEffect(PotionEffectType.BLINDNESS, -1, 1);
                 opponent.removeLuck(10);
             }
-            case BROWN_SHEEP -> {
-                player.giveRandomItem();
-            }
-            case BLUE_SHEEP -> {
-                    player.setAttacked(false);
-            }
+            case BROWN_SHEEP -> player.giveRandomItem();
+            case BLUE_SHEEP -> player.setAttacked(false);
             case PHANTOM -> {
                 opponent.setAttacked(true);
                 ignoreOpponentDefense = true;
             }
             case DRAGON_HEAD -> {
-                opponent.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 1));
-                opponent.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, -1, 1));
+                opponent.addPotionEffect(PotionEffectType.BLINDNESS, -1, 1);
+                opponent.addPotionEffect(PotionEffectType.SLOW, -1, 1);
                 opponent.removeLuck(20);
             }
             case SNOWBALL -> {
@@ -413,12 +408,12 @@ public class BlockBattleEvents {
                 } else {
                     doNext = false;
                     player.addLuck(15);
-                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, -1, 1));
+                    opponent.addPotionEffect(PotionEffectType.GLOWING, -1, 1);
                 }
             }
             case POLAR_BEAR -> {
-                opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, -1, 3));
-                opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, -1, 128));
+                opponent.addPotionEffect(PotionEffectType.SPEED, -1, 3);
+                opponent.addPotionEffect(PotionEffectType.JUMP, -1, 128);
             }
             case BRAIN_CORAL_BLOCK -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(REDSTONE) && Match.latestTurnIsUnder(cord)) {
@@ -457,7 +452,7 @@ public class BlockBattleEvents {
             case DRIED_KELP_BLOCK -> {
                 if (last.clazz == NATURE) {
                     opponent.setAttacked(true);
-                    player.player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, -1, 1));
+                    player.addPotionEffect(PotionEffectType.JUMP, -1, 1);
                 }
             }
             case BLUE_AXOLOTL -> {
@@ -529,17 +524,73 @@ public class BlockBattleEvents {
                 }
             }
             case PUFFERFISH_BUCKET -> {
-                opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.POISON, -1, 1));
+                opponent.addPotionEffect(PotionEffectType.POISON, -1, 1);
                 opponent.startDieCounter(2);
             }
             case SPLASH_WATER_BOTTLE -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(HOT, REDSTONE)) {
                     player.addLuck(20);
                 } else {
-                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, -1, 3));
-                    opponent.player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, -1, 3));
+                    opponent.addPotionEffect(PotionEffectType.SLOW, -1, 3);
+                    opponent.addPotionEffect(PotionEffectType.BLINDNESS, -1, 3);
                 }
             }
+            case COMPOSTER_FILL -> {
+                if (Match.getLatestTurn().turn() == Turn.COMPOSTER) {
+                    player.setAttacked(false);
+                }
+            }
+            case POPPY -> Match.swapHotbars();
+            case BLUE_ORCHID -> Match.nextWarp100P = true;
+            case ALLIUM -> {
+                int index;
+                do { index = new Random().nextInt(0, 9); }
+                while (opponent.player.getInventory().getItem(index) == null);
+
+                opponent.player.getInventory().clear(index);
+            }
+            case AZURE_BLUET -> {
+                if (!Match.azureWasUsed) {
+                    player.addLuck(20);
+                    Match.azureWasUsed = true;
+                }
+            }
+            case RED_TULIP -> {
+                Match.allowed.add(REDSTONE);
+                doNext = false;
+            }
+            case ORANGE_TULIP -> {
+                Match.allowed.add(HOT);
+                doNext = false;
+            }
+            case WHITE_TULIP -> {
+                Match.allowed.add(COLD);
+                doNext = false;
+            }
+            case PINK_TULIP -> {
+                Match.allowed.add(DREAM);
+                doNext = false;
+            }
+            case CORNFLOWER -> {
+                Match.allowed.add(WATER);
+                Match.setRain(true);
+                player.addPotionEffect(PotionEffectType.DARKNESS, -1, 1);
+            }
+            case OXEYE_DAISY -> {
+                if (Randomizer.boolByChance(25)) doNext = false;
+            }
+            case WITHER_ROSE -> {
+                opponent.removeLuck(15);
+                Match.disallowed.add(DREAM);
+                player.killACellWhichWillThenConvertToAZombieAndKillMoreCellsToSpreadTheCancerEvenMore();
+            }
+            case SUNFLOWER -> {
+                Match.setRain(false);
+                player.addLuck(10);
+                player.addPotionEffect(PotionEffectType.SPEED, -1, 2);
+                opponent.addPotionEffect(PotionEffectType.SPEED, -1, 2);
+            }
+            case SPORE_BLOSSOM -> player.makeAlwaysMove();
 
             default -> {
                 player.sendActionBar(McColor.RED + "You just wasted an item!");
@@ -572,6 +623,7 @@ public class BlockBattleEvents {
         if (doNext) Match.next();
         else Match.getPlacer().sendActionBar("You have an extra turn!");
     }
+
 
     @Contract("_ -> new")
     public static @NotNull Title subtitle(String content) {

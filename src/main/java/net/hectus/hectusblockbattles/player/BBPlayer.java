@@ -30,9 +30,10 @@ public class BBPlayer {
     private int jailCounter = -3;
     private int extraTurns = 0;
     private int revives = 0;
-    private boolean defended, attacked, doubleCounterAttack = false;
+    private boolean defended, attacked, doubleCounterAttack, canAlwaysMove;
     private boolean movement = true;
     private Match.PlayerState state;
+    private Cancer cancer = null;
 
     @Contract(pure = true)
     public BBPlayer(Player player) {
@@ -49,17 +50,8 @@ public class BBPlayer {
         this.luck -= luck;
     }
 
-    public boolean chance(double chance) {
-        double perc = chance - (1 - chance) * ((double) luck / 100);
-        return Randomizer.boolByChance(Math.min(100, perc));
-    }
-
     public static int chance(double chance, int luck) {
         return (int) (chance - (1 - chance) * ((double) luck / 100));
-    }
-
-    public double chancePerc(double chance) {
-        return chance - (1 - chance) * ((double) luck / 100);
     }
 
     public DyeColor randomSheepColor() {
@@ -130,6 +122,13 @@ public class BBPlayer {
         return jailCounter >= 0;
     }
 
+    public void makeAlwaysMove() {
+        canAlwaysMove = true;
+    }
+    public boolean canAlwaysMove() {
+        return canAlwaysMove;
+    }
+
     public void addExtraTurns(int turns) {
         extraTurns += turns;
     }
@@ -142,6 +141,23 @@ public class BBPlayer {
         if (dieCounter == 0 || burningCounter == 0) {
             Match.win(Match.getOpposite(this));
         }
+
+        if (hasCancer()) {
+            if (cancer.count()) {
+                Match.win(Match.getOpposite(this));
+            }
+        }
+    }
+
+    public boolean hasCancer() {
+        return cancer != null;
+    }
+    public int cancerStage() {
+        return cancer.stage();
+    }
+    /** Just starts cancer */
+    public void killACellWhichWillThenConvertToAZombieAndKillMoreCellsToSpreadTheCancerEvenMore() {
+        cancer = new Cancer();
     }
 
     public void swapHotbars() {
@@ -155,10 +171,34 @@ public class BBPlayer {
         }
     }
 
+    public void giveRandomItem(){
+        ArrayList<InGameShop.ShopItem> items = new ArrayList<>();
+        items.addAll(InGameShop.SHOP_ITEMS_1);
+        items.addAll(InGameShop.SHOP_ITEMS_2);
+        ItemStack item = (ItemStack) Randomizer.fromCollection(items);
+        player.getInventory().addItem(item);
+    }
+
+    public boolean hasRevive() {
+        return revives >= 1;
+    }
+
+    public void useRevive(){
+        revives -= 1;
+        sendMessage(McColor.LIME + "Revive used.");
+        Match.getOpposite(this).sendMessage(McColor.RED + "Opponent used revive.");
+    }
+
+    public void addRevive(){
+        revives += 1;
+    }
+
     //==========================================//
     // The next code is basically just from the //
     // Bukkit Player but so it's easier to use. //
     //==========================================//
+
+    // Also, only add bukkit player stuff here, the rest belongs over this
 
     public void sendMessage(@NotNull String msg) {
         player.sendMessage(Component.text(msg));
@@ -191,27 +231,5 @@ public class BBPlayer {
 
     public void addPotionEffect(PotionEffect potion) {
         player.addPotionEffect(potion);
-    }
-
-    public void giveRandomItem(){
-        ArrayList<InGameShop.ShopItem> items = new ArrayList<>();
-        items.addAll(InGameShop.SHOP_ITEMS_1);
-        items.addAll(InGameShop.SHOP_ITEMS_2);
-        ItemStack item = (ItemStack) Randomizer.fromCollection(items);
-        player.getInventory().addItem(item);
-    }
-
-    public boolean hasRevive() {
-        return revives >= 1;
-    }
-
-    public void useRevive(){
-        revives -= 1;
-        sendMessage(McColor.LIME + "Revive used.");
-        Match.getOpposite(this).sendMessage(McColor.RED + "Opponent used revive.");
-    }
-
-    public void addRevive(){
-        revives += 1;
     }
 }

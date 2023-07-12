@@ -23,12 +23,8 @@ public class ScoreBoard {
         final Scoreboard scoreboard = scoreboardManager.getNewScoreboard();
         final Objective o = scoreboard.registerNewObjective("bb", Criteria.DUMMY, Component.text(McColor.GREEN + "BlockBattles Alpha"));
         o.setDisplaySlot(DisplaySlot.SIDEBAR);
-        String whosTurn = "";
-        if(Match.getPlacer().player.getName().equalsIgnoreCase(p.player.getName())){
-            whosTurn = "You";
-        }else{
-            whosTurn = "Opponent";
-        }
+
+        String whosTurn = Match.getPlacer().player.getName().equalsIgnoreCase(p.player.getName()) ? "You" : "Opponent";
 
         Score blank1 = o.getScore(" ");
         Score user = o.getScore(McColor.GRAY + p.player.getName());
@@ -37,34 +33,24 @@ public class ScoreBoard {
         Score turn = o.getScore(McColor.GRAY + "Turn: " + McColor.WHITE + whosTurn);
         Score blank3 = o.getScore("   ");
         Score luck = o.getScore(McColor.GRAY + "Your Luck: " + McColor.WHITE + p.luck());
-        Score turns = o.getScore(McColor.GRAY + "Extra Turns: " + McColor.WHITE + p.getExtraTurns());
+        Score turns = o.getScore(McColor.GRAY + "Cancer: " + McColor.WHITE + (p.hasCancer() ? "Stage " + p.cancerStage() : "No"));
         Score blank4 = o.getScore("    ");
-        McColor color = McColor.RED;
-        if(p.isAttacked()){
-            color = McColor.LIME;
-        }
-        Score attacked = o.getScore(McColor.GRAY + "Attacked: " + color + p.isAttacked());
-        if(p.isDefended()){
-            color = McColor.LIME;
-        }
-        Score defended = o.getScore(McColor.GRAY + "Defended: " + color + p.isDefended());
-        if(p.canMove()){
-            color = McColor.LIME;
-        }
-        Score frozen = o.getScore(McColor.GRAY + "Frozen: " + color + !p.canMove());
+        Score attacked = o.getScore(McColor.GRAY + "Attacked: " + (p.isAttacked() ? McColor.LIME : McColor.RED) + p.isAttacked());
+        Score defended = o.getScore(McColor.GRAY + "Defended: " + (p.isDefended() ? McColor.LIME : McColor.RED) + p.isDefended());
+        Score frozen = o.getScore(McColor.GRAY + "Frozen: " + ((!p.canMove()) ? McColor.LIME : McColor.RED) + !p.canMove());
 
-        blank1.setScore(11);
-        user.setScore(10);
-        opponent.setScore(9);
-        blank2.setScore(8);
-        turn.setScore(7);
-        blank3.setScore(6);
-        luck.setScore(5);
-        turns.setScore(4);
-        blank4.setScore(3);
-        attacked.setScore(2);
-        defended.setScore(1);
-        frozen.setScore(0);
+        blank1.setScore(11); // Separation
+        user.setScore(10); // Your username
+        opponent.setScore(9); // Your opponent's username
+        blank2.setScore(8); // Separation
+        turn.setScore(7); // Who is currently turning
+        blank3.setScore(6); // Separation
+        luck.setScore(5); // Your luck
+        turns.setScore(4); // Your extra turns
+        blank4.setScore(3); // Separation
+        attacked.setScore(2); // If you're attacked
+        defended.setScore(1); // If you're defended
+        frozen.setScore(0); // If you're frozen
 
         p.player.setScoreboard(scoreboard);
 

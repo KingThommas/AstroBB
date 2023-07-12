@@ -113,7 +113,25 @@ public enum Turn {
     BLUE_SHEEP(Type.CUSTOM, McColor.WHITE, "Blue Sheep", Material.SHEEP_SPAWN_EGG, null, Class.DREAM, true),
     PHANTOM(Type.ATTACK, McColor.GRAY, "Phantom", Material.PHANTOM_SPAWN_EGG, null, Class.DREAM, true),
     DRAGON_HEAD(Type.BUFF, McColor.BLACK, "Dragon Head", Material.DRAGON_HEAD, null, Class.DREAM, false),
-    SOUL_SAND(Type.ATTACK, McColor.DARK_GRAY, "Soul Sand", Material.SOUL_SAND, null, Class.DREAM, false);
+    SOUL_SAND(Type.ATTACK, McColor.DARK_GRAY, "Soul Sand", Material.SOUL_SAND, null, Class.DREAM, false),
+    FLOWER_POT(Type.AWAIT, McColor.DARK_RED, "Flower Pot", Material.FLOWER_POT, null, Class.NATURE, false),
+    DIRT(Type.AWAIT, McColor.GRAY, "Dirt", Material.DIRT, null, Class.NATURE, false),
+    COMPOSTER_FILL(Type.COUNTER, McColor.GREEN, "Filling a Composter", Material.BONE_MEAL, null, Class.NATURE, false),
+    POPPY(Type.CUSTOM, McColor.RED, "Poppy Flower", Material.POPPY, null, Class.NATURE, false),
+    BLUE_ORCHID(Type.BUFF, McColor.BLUE, "Blue Orchid", Material.BLUE_ORCHID, null, Class.NATURE, false),
+    ALLIUM(Type.BUFF, McColor.PURPLE, "Allium Flower", Material.ALLIUM, null, Class.NATURE, false),
+    AZURE_BLUET(Type.BUFF, McColor.WHITE, "Azure Bluet", Material.AZURE_BLUET, null, Class.NATURE, false),
+    RED_TULIP(Type.BUFF, McColor.RED, "Red Tulip", Material.RED_TULIP, null, Class.NATURE, false),
+    ORANGE_TULIP(Type.BUFF, McColor.GOLD, "Orange Tulip", Material.ORANGE_TULIP, null, Class.NATURE, false),
+    WHITE_TULIP(Type.BUFF, McColor.WHITE, "White Tulip", Material.WHITE_TULIP, null, Class.NATURE, false),
+    PINK_TULIP(Type.BUFF, McColor.PINK, "Pink Tulip", Material.PINK_TULIP, null, Class.NATURE, false),
+    CORNFLOWER(Type.BUFF, McColor.BLUE, "Cornflower", Material.CORNFLOWER, null, Class.NATURE, false),
+    OXEYE_DAISY(Type.BUFF, McColor.WHITE, "Oxeye Daisy", Material.OXEYE_DAISY, null, Class.NATURE, false),
+    WITHER_ROSE(Type.BUFF, McColor.BLACK, "Wither Rose", Material.WITHER_ROSE, null, Class.NATURE, false),
+    SUNFLOWER(Type.BUFF, McColor.YELLOW, "Sunflower", Material.SUNFLOWER, null, Class.NATURE, false),
+    OAK_SAPLING(Type.BUFF, McColor.GREEN, "Oak Sapling", Material.OAK_SAPLING, null, Class.NATURE, false),
+    SPORE_BLOSSOM(Type.BUFF, McColor.PINK, "Spore Blossom", Material.SPORE_BLOSSOM, null, Class.NATURE, false),
+    TREE(Type.ATTACK, McColor.GREEN, "Grow a Tree", Material.OAK_WOOD, null, Class.NATURE, false);
 
     public final Type type;
     public final McColor color;
