@@ -2,21 +2,15 @@ package net.hectus.hectusblockbattles;
 
 import net.hectus.hectusblockbattles.commands.MatchCommand;
 import net.hectus.hectusblockbattles.commands.StructureCommand;
+import net.hectus.hectusblockbattles.events.BaseEvents;
 import net.hectus.hectusblockbattles.events.InGameShopEvents;
-import net.hectus.hectusblockbattles.events.PlayerEvents;
 import net.hectus.hectusblockbattles.structures.v2.StructureManager;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.List;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -35,7 +29,7 @@ public final class HBB extends JavaPlugin {
         // //=================================================================
 
         getServer().getPluginManager().registerEvents(new InGameShopEvents(), this);
-        getServer().getPluginManager().registerEvents(new PlayerEvents(), this);
+        getServer().getPluginManager().registerEvents(new BaseEvents(), this);
 
         LOGGER.info("Hectus BlockBattles started.");
 
@@ -51,6 +45,12 @@ public final class HBB extends JavaPlugin {
         Objects.requireNonNull(getCommand("match")).setExecutor(new MatchCommand());
 
         WORLD = Bukkit.getWorld("world");
+
+        try {
+            Translation.init();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

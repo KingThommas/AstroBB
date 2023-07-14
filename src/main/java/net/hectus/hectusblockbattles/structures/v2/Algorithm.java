@@ -1,19 +1,18 @@
 package net.hectus.hectusblockbattles.structures.v2;
 
 import net.hectus.color.McColor;
+import net.hectus.hectusblockbattles.Cord;
 import net.hectus.hectusblockbattles.HBB;
+import net.hectus.hectusblockbattles.Translation;
 import net.hectus.hectusblockbattles.events.BlockBattleEvents;
 import net.hectus.hectusblockbattles.events.StructurePlaceEvent;
 import net.hectus.hectusblockbattles.match.Match;
-import net.hectus.hectusblockbattles.Cord;
 import net.hectus.storing.pair.Pair;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.title.Title;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,11 +28,8 @@ public class Algorithm {
     public void start(Player player) {
         HBB.LOGGER.info("The algorithm was started!");
 
-        HBB.WORLD.showTitle(Title.title(
-                     Component.text(player.getName() + " starts!"),
-                Component.empty(),
-                Title.Times.times(Duration.ofMillis(100), Duration.ofSeconds(1), Duration.ofMillis(200))
-        ));
+        Match.p1.showTitle(Translation.get("match.start_player", Match.p1.locale(), player.getName()), "", null);
+        Match.p2.showTitle(Translation.get("match.start_player", Match.p2.locale(), player.getName()), "", null);
 
         running = true;
         placer = player;
@@ -114,16 +110,16 @@ public class Algorithm {
                 if (chance >= 1.0) {
                     BlockBattleEvents.onStructurePlace(new StructurePlaceEvent(structure, relative, placer, opponent, possible));
                 } else {
-                    placer.showTitle(BlockBattleEvents.subtitle(McColor.RED + "Structure was misplaced!"));
-                    opponent.sendActionBar(Component.text(placer.getName() + " misplaced his structure!"));
+                    placer.showTitle(BlockBattleEvents.subtitle(McColor.RED + Translation.get("structure.misplace", placer.locale())));
+                    opponent.sendActionBar(Component.text(Translation.get("structure.misplace.opponent", opponent.locale(), placer.getName())));
                 }
                 timer.stop();
                 clear();
                 start(opponent);
             } else {
                 if (misplacedMaterials > 0) {
-                    placer.showTitle(BlockBattleEvents.subtitle(McColor.RED + "Misplace!"));
-                    opponent.sendActionBar(Component.text(placer.getName() + " misplaced!"));
+                    placer.showTitle(BlockBattleEvents.subtitle(McColor.RED + Translation.get("turn.misplace", placer.locale())));
+                    opponent.sendActionBar(Component.text(Translation.get("turn.misplace.opponent", opponent.locale(), placer.getName())));
                 }
             }
         }

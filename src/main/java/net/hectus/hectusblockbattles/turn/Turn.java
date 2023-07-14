@@ -63,6 +63,7 @@ public enum Turn {
     CAMPFIRE(Type.COUNTERATTACK, McColor.GOLD, "Campfire", Material.CAMPFIRE, null, Class.HOT, false),
     BLAZE(Type.ATTACK, McColor.YELLOW, "Blaze Spawn", Material.BLAZE_SPAWN_EGG, null, Class.HOT, true),
     PIGLIN(Type.ATTACK, McColor.PINK, "Piglin Spawn", Material.PIGLIN_SPAWN_EGG, null, Class.HOT, true),
+    PIGLIN_CONVERT(Type.CUSTOM, McColor.GREEN, "Piglin Zombified", Material.ZOMBIFIED_PIGLIN_SPAWN_EGG, null, Class.HOT, true),
     RESPAWN_ANCHOR(Type.BUFF, McColor.BLACK, "Respawn Anchor", Material.RESPAWN_ANCHOR, null, Class.HOT, false),
     PACKED_ICE(Type.ATTACK, McColor.BLUE, "Packed Ice", Material.PACKED_ICE, null, Class.COLD, false),
     BLUE_ICE(Type.COUNTER, McColor.BLUE, "Blue Ice", Material.BLUE_ICE, null, Class.COLD, false),
@@ -131,7 +132,8 @@ public enum Turn {
     SUNFLOWER(Type.BUFF, McColor.YELLOW, "Sunflower", Material.SUNFLOWER, null, Class.NATURE, false),
     OAK_SAPLING(Type.BUFF, McColor.GREEN, "Oak Sapling", Material.OAK_SAPLING, null, Class.NATURE, false),
     SPORE_BLOSSOM(Type.BUFF, McColor.PINK, "Spore Blossom", Material.SPORE_BLOSSOM, null, Class.NATURE, false),
-    TREE(Type.ATTACK, McColor.GREEN, "Grow a Tree", Material.OAK_WOOD, null, Class.NATURE, false);
+    TREE(Type.ATTACK, McColor.GREEN, "Grow a Tree", Material.OAK_WOOD, null, Class.NATURE, false),
+    OAK_STAIRS(Type.CUSTOM, McColor.GOLD, "Oak Stairs", Material.OAK_STAIRS, null, Class.NATURE, false);
 
     public final Type type;
     public final McColor color;

@@ -2,12 +2,12 @@ package net.hectus.hectusblockbattles.player;
 
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.InGameShop;
+import net.hectus.hectusblockbattles.Translation;
 import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.util.Randomizer;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Locale;
 import java.util.Random;
 
 public class BBPlayer {
@@ -28,12 +28,10 @@ public class BBPlayer {
     private int dieCounter = -3;
     private int burningCounter = -3;
     private int jailCounter = -3;
-    private int extraTurns = 0;
     private int revives = 0;
     private boolean defended, attacked, doubleCounterAttack, canAlwaysMove;
     private boolean movement = true;
     private Match.PlayerState state;
-    private Cancer cancer = null;
 
     @Contract(pure = true)
     public BBPlayer(Player player) {
@@ -129,35 +127,11 @@ public class BBPlayer {
         return canAlwaysMove;
     }
 
-    public void addExtraTurns(int turns) {
-        extraTurns += turns;
-    }
-    public int getExtraTurns() {
-        return extraTurns;
-    }
-
     public void count() {
         dieCounter--;
         if (dieCounter == 0 || burningCounter == 0) {
             Match.win(Match.getOpposite(this));
         }
-
-        if (hasCancer()) {
-            if (cancer.count()) {
-                Match.win(Match.getOpposite(this));
-            }
-        }
-    }
-
-    public boolean hasCancer() {
-        return cancer != null;
-    }
-    public int cancerStage() {
-        return cancer.stage();
-    }
-    /** Just starts cancer */
-    public void killACellWhichWillThenConvertToAZombieAndKillMoreCellsToSpreadTheCancerEvenMore() {
-        cancer = new Cancer();
     }
 
     public void swapHotbars() {
@@ -185,8 +159,8 @@ public class BBPlayer {
 
     public void useRevive(){
         revives -= 1;
-        sendMessage(McColor.LIME + "Revive used.");
-        Match.getOpposite(this).sendMessage(McColor.RED + "Opponent used revive.");
+        sendMessage(McColor.LIME + Translation.get("player.revive", locale()));
+        Match.getOpposite(this).sendMessage(McColor.RED + Translation.get("player.revive.opponent", Match.getOpposite(this).locale(), player.getName()));
     }
 
     public void addRevive(){
@@ -199,6 +173,10 @@ public class BBPlayer {
     //==========================================//
 
     // Also, only add bukkit player stuff here, the rest belongs over this
+
+    public Locale locale() {
+        return player.locale();
+    }
 
     public void sendMessage(@NotNull String msg) {
         player.sendMessage(Component.text(msg));
@@ -227,9 +205,5 @@ public class BBPlayer {
 
     public void addPotionEffect(PotionEffectType type, int dur, int amp) {
         player.addPotionEffect(new PotionEffect(type, dur, amp));
-    }
-
-    public void addPotionEffect(PotionEffect potion) {
-        player.addPotionEffect(potion);
     }
 }

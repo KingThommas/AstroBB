@@ -2,6 +2,7 @@ package net.hectus.hectusblockbattles.warps;
 
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.InGameShop;
+import net.hectus.hectusblockbattles.Translation;
 import net.hectus.hectusblockbattles.events.BlockBattleEvents;
 import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.hectusblockbattles.turn.Turn;
@@ -61,8 +62,9 @@ public class WarpManager {
                 case BOOK -> {
                     DayOfWeek day = LocalDateTime.now().getDayOfWeek();
                     if (day == DayOfWeek.SUNDAY || day == DayOfWeek.SATURDAY) {
-                        Match.getPlacer().showTitle(McColor.RED + "Wrong Usage!", McColor.RED + "You can only use the book warp in the week!", null);
-                        otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + activator.getName() + " forgot that the days of the week exist💀"));
+                        Match.getPlacer().showTitle(McColor.RED + Translation.get("turn.wrong_usage", activator.locale()), McColor.RED + Translation.get("turn.wrong_usage.book_warp_only_in_week", Match.getPlacer().locale()), null);
+                        otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.wrong_usage.book_warp_only_in_week.opponent", otherPlayer.locale(), activator.getName())));
+
                         return;
                     }
                     Match.getPlacer().addLuck(35);
@@ -71,8 +73,8 @@ public class WarpManager {
                 case SUN -> {
                     int hour = LocalTime.now(Clock.systemUTC()).getHour();
                     if (hour < 6 || hour >= 18) {
-                        Match.getPlacer().showTitle(McColor.RED + "Wrong Usage!", McColor.RED + "You can only use the sun warp during the day!", null);
-                        otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + activator.getName() + " forgot that the time exist💀"));
+                        Match.getPlacer().showTitle(McColor.RED + Translation.get("turn.wrong_usage", activator.locale()), McColor.RED + Translation.get("turn.wrong_usage.sun_warp_only_during_day", Match.getPlacer().locale()), null);
+                        otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.wrong_usage.sun_warp_only_during_day.opponent", otherPlayer.locale(), activator.getName())));
                         return;
                     }
 
@@ -110,8 +112,8 @@ public class WarpManager {
             activator.teleport(new Location(activator.getWorld(), cord.x() - 2, cord.y(), cord.z()));
             otherPlayer.teleport(new Location(activator.getWorld(), cord.x() + 2, cord.y(), cord.z()));
 
-            activator.showTitle(BlockBattleEvents.subtitle(McColor.GREEN + "Success!"));
-            otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + activator.getName() + "'s Warp succeeded!"));
+            activator.showTitle(BlockBattleEvents.subtitle(McColor.GREEN + Translation.get("turn.warp.success", activator.locale())));
+            otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.warp.success.opponent", otherPlayer.locale(), activator.getName())));
 
             Match.getPlacer().startJailCounter(-3);
             Match.getPlacer().startBurnCounter(-3);
@@ -127,8 +129,8 @@ public class WarpManager {
 
             Match.next();
         } else {
-            activator.showTitle(BlockBattleEvents.subtitle(McColor.RED + "Fail!"));
-            otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + activator.getName() + "'s Warp failed!"));
+            activator.showTitle(BlockBattleEvents.subtitle(McColor.RED + Translation.get("turn.warp.fail", activator.locale())));
+            otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.warp.fail.opponent", otherPlayer.locale(), activator.getName())));
         }
     }
 }

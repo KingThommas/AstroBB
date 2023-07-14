@@ -3,6 +3,7 @@ package net.hectus.hectusblockbattles.events;
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.Cord;
 import net.hectus.hectusblockbattles.HBB;
+import net.hectus.hectusblockbattles.Translation;
 import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.hectusblockbattles.player.BBPlayer;
 import net.hectus.hectusblockbattles.structures.v2.Structure;
@@ -60,15 +61,15 @@ public class BlockBattleEvents {
             return;
         }
         if (Match.getPlayer(turn.player()).isJailed() && turn.turn().type == Turn.Type.ATTACK) {
-            Match.getPlayer(turn.player()).showTitle("", "You are jailed, so you can't attack!", null);
+            Match.getPlayer(turn.player()).showTitle("", Translation.get("attack.jailed", turn.player().locale()), null);
             Match.next();
             return;
         }
 
         if (turn.turn().type == Turn.Type.WARP) {
             Match.lose();
-            Match.getPlacer().showTitle("", "You can't use warps or attacks as your first move!", null);
-            Match.getOpponent().showTitle("", "Your opponent used a warp or attack as his first move💀", null);
+            Match.getPlacer().showTitle("", Translation.get("warp.first_move", turn.player().locale()), null);
+            Match.getOpponent().showTitle("", Translation.get("warp.first_move.opponent", Match.getOpponent().player.locale()), null);
             return;
         }
 
@@ -84,7 +85,7 @@ public class BlockBattleEvents {
 
         HBB.WORLD.sendMessage(Component.text(McColor.LIME + "Detecting structure [Switch]"));
         switch (turn.turn()) {
-            case CAULDRON, MAGMA_BLOCK, PACKED_ICE, LIGHT_BLUE_WOOL, SOUL_SAND, COMPOSTER, OAK_SAPLING -> opponent.setAttacked(true);
+            case CAULDRON, MAGMA_BLOCK, PACKED_ICE, LIGHT_BLUE_WOOL, SOUL_SAND, COMPOSTER, OAK_SAPLING, TREE -> opponent.setAttacked(true);
             case PURPLE_WOOL -> {
                 Match.win();
                 return;
@@ -222,8 +223,7 @@ public class BlockBattleEvents {
                 }
             }
             case IRON_SHOVEL -> {
-                // TODO: Add also countering Dirt
-                if (player.isAttacked() && last == Turn.CAULDRON && last.clazz == HOT) {
+                if (player.isAttacked() && (last == Turn.CAULDRON || last.clazz == HOT || last == Turn.DIRT)) {
                     player.setAttacked(false);
                     doNext = false;
                 }
@@ -304,7 +304,6 @@ public class BlockBattleEvents {
                     opponent.addPotionEffect(PotionEffectType.SLOW, -1, 125);
                 }
             }
-            // NATURE ITEMS //
             case BEE_NEST -> opponent.setAttacked(true);
             case HONEY_BLOCK -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(NATURE, WATER, REDSTONE) && Match.latestTurnIsUnder(cord)) {
@@ -327,7 +326,6 @@ public class BlockBattleEvents {
                     opponent.setAttacked(true);
                 }
             }
-            // REDSTONE ITEMS //
             case LEVER -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, REDSTONE) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
@@ -365,8 +363,6 @@ public class BlockBattleEvents {
                 }
                 Match.setIsNight(false);
             }
-
-            // DREAM ITEMS //
             case RED_BED -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(NEUTRAL, COLD, DREAM) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
@@ -582,7 +578,6 @@ public class BlockBattleEvents {
             case WITHER_ROSE -> {
                 opponent.removeLuck(15);
                 Match.disallowed.add(DREAM);
-                player.killACellWhichWillThenConvertToAZombieAndKillMoreCellsToSpreadTheCancerEvenMore();
             }
             case SUNFLOWER -> {
                 Match.setRain(false);
@@ -591,10 +586,39 @@ public class BlockBattleEvents {
                 opponent.addPotionEffect(PotionEffectType.SPEED, -1, 2);
             }
             case SPORE_BLOSSOM -> player.makeAlwaysMove();
+            case PIGLIN -> {
+                player.sendMessage(McColor.RED + Translation.get("turn.piglin.msg", player.player.locale()));
+                opponent.sendMessage(McColor.RED + Translation.get("turn.piglin.msg", opponent.player.locale()));
+            }
+            case PIGLIN_CONVERT -> {
+                player.addPotionEffect(PotionEffectType.BLINDNESS, -1, 1);
+                player.addPotionEffect(PotionEffectType.SLOW, -1, 2);
+                player.removeLuck(-50);
+                doNext = false;
+            }
+            case OAK_STAIRS -> {
+                if (player.isAttacked() && Match.latestTurnIsClass(HOT, NATURE, DREAM) && Match.latestTurnIsUnder(cord)) {
+                    player.setAttacked(false);
+                    opponent.setAttacked(true);
+                } else {
+                    doNext = false;
+                }
+            }
+            case PINK_BED -> {
+                if (Randomizer.boolByChance(70)) {
+                    for (PotionEffect effect : player.player.getActivePotionEffects()) {
+                        player.player.removePotionEffect(effect.getType());
+                    }
+                    player.startBurnCounter(-3);
+                    player.startJailCounter(-3);
+                    player.startDieCounter(-3);
+                    player.setMovement(true);
+                }
+            }
 
             default -> {
-                player.sendActionBar(McColor.RED + "You just wasted an item!");
-                opponent.sendActionBar(McColor.YELLOW + "Your opponent just wasted an item!");
+                player.sendActionBar(McColor.RED + Translation.get("turn.waste", player.player.locale()));
+                opponent.sendActionBar(McColor.YELLOW + Translation.get("turn.waste.opponent", opponent.player.locale(), player.player.getName()));
             }
         }
 
@@ -620,8 +644,10 @@ public class BlockBattleEvents {
         Match.p1 = Match.p1.player == player.player ? player : opponent;
         Match.p2 = Match.p1.player == player.player ? opponent : player;
 
-        if (doNext) Match.next();
-        else Match.getPlacer().sendActionBar("You have an extra turn!");
+        if (doNext)
+            Match.next();
+        else
+            Match.getPlacer().sendActionBar(Translation.get("turn.extra", player.player.locale()));
     }
 
 

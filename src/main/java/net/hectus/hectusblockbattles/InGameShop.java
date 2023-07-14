@@ -137,8 +137,8 @@ public final class InGameShop implements Listener {
 
                     Match.algorithm.start(player);
 
-                    Match.p1.sendActionBar(McColor.RED + "The game starts! Good luck!");
-                    Match.p2.sendActionBar(McColor.RED + "The game starts! Good luck!");
+                    Match.p2.sendActionBar(McColor.GREEN + Translation.get("match.start.message", Match.p2.locale()));
+                    Match.p2.sendActionBar(McColor.GREEN + Translation.get("match.start.message", Match.p2.locale()));
                 } else {
                     shopInv.addItem(new ItemStack(Material.GOLD_INGOT, money - shopItem.price));
                 }
@@ -169,13 +169,12 @@ public final class InGameShop implements Listener {
                     bbPlayer.setState(Match.PlayerState.SHOP_OVERTIME_FINISHED);
 
                     if (bbPlayer.getState() == Match.PlayerState.SHOP_OVERTIME_FINISHED && Match.getOpposite(bbPlayer).getState() == Match.PlayerState.SHOP_OVERTIME_FINISHED) {
-                        Match.p1.sendActionBar(McColor.RED + "The game starts! Good luck!");
-                        Match.p2.sendActionBar(McColor.RED + "The game starts! Good luck!");
+                        Match.p1.sendActionBar(McColor.RED + Translation.get("match.start.message", Match.p1.locale()));
+                        Match.p2.sendActionBar(McColor.RED + Translation.get("match.start.message", Match.p2.locale()));
 
                         Match.algorithm.start(player);
-                    } else {    
-                        bbPlayer.sendActionBar(McColor.GREEN + "You finished early!");
-                        bbPlayer.sendMessage(McColor.GOLD + "You finished early! You have to wait for your opponent to finish too now!");
+                    } else {
+                        bbPlayer.sendMessage(McColor.GOLD + Translation.get("shop.finish_early", bbPlayer.locale()));
                     }
                 }
             }

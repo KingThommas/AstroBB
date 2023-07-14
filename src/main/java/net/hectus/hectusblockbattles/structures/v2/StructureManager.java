@@ -50,7 +50,7 @@ public class StructureManager {
 
             return true;
         } catch (IOException e) {
-            HBB.LOGGER.info("Something went wrong while saving a OutdatedStructure:\n" + structure);
+            HBB.LOGGER.info("Something went wrong while saving a Structure:\n" + structure);
             return false;
         }
     }
@@ -107,7 +107,7 @@ public class StructureManager {
                 }
             }
         } catch (IOException e) {
-            HBB.LOGGER.info("Something went wrong while saving a OutdatedStructure:\n" + structure);
+            HBB.LOGGER.info("Something went wrong while saving a Structure:\n" + structure);
         }
         return false;
     }

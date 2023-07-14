@@ -1,10 +1,7 @@
 package net.hectus.hectusblockbattles.match;
 
 import net.hectus.color.McColor;
-import net.hectus.hectusblockbattles.Cord;
-import net.hectus.hectusblockbattles.HBB;
-import net.hectus.hectusblockbattles.InGameShop;
-import net.hectus.hectusblockbattles.ScoreBoard;
+import net.hectus.hectusblockbattles.*;
 import net.hectus.hectusblockbattles.player.BBPlayer;
 import net.hectus.hectusblockbattles.structures.v2.Algorithm;
 import net.hectus.hectusblockbattles.turn.Turn;
@@ -25,7 +22,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class Match {
-    public static boolean hasStarted, shopPhase, isNight, rain, nextWarp100P, azureWasUsed, netherPortalAwaitIgnite, blackWoolDebuff, blazeDebuff;
+    public static boolean hasStarted, shopPhase, isNight, rain, nextWarp100P, azureWasUsed, netherPortalAwaitIgnite, blazeDebuff;
     public static boolean nextCanMove = true;
     public static BBPlayer p1, p2;
     public static Warp currentWarp;
@@ -91,10 +88,10 @@ public class Match {
             getOpponent().useRevive();
         }else{
             getOpponent().player.setHealth(0);
-            getOpponent().showTitle("", McColor.RED + "You lost!", null);
+            getOpponent().showTitle("", McColor.RED + Translation.get("match.lose", getOpponent().locale()), null);
 
             getPlacer().player.setHealth(20.0);
-            getPlacer().showTitle("", McColor.GREEN + "You won!", null);
+            getPlacer().showTitle("", McColor.GREEN + Translation.get("match.win", getPlacer().locale()), null);
         }
     }
 
@@ -110,10 +107,10 @@ public class Match {
             opponent.useRevive();
         } else {
             opponent.player.setHealth(0);
-            opponent.showTitle("", McColor.RED + "You lost!", null);
+            opponent.showTitle("", McColor.RED + Translation.get("match.lose", opponent.locale()), null);
 
             player.player.setHealth(20.0);
-            player.showTitle("", McColor.GREEN + "You won!", null);
+            player.showTitle("", McColor.GREEN + Translation.get("match.win", player.locale()), null);
         }
     }
 
@@ -122,23 +119,23 @@ public class Match {
             getPlacer().useRevive();
         } else {
             getPlacer().player.setHealth(0);
-            getPlacer().showTitle("", McColor.RED + "You lost!", null);
+            getPlacer().showTitle("", McColor.RED + Translation.get("match.lose", getPlacer().locale()), null);
 
             getOpponent().player.setHealth(20.0);
-            getOpponent().showTitle("", McColor.GREEN + "You won!", null);
+            getOpponent().showTitle("", McColor.GREEN + Translation.get("match.win", getOpponent().locale()), null);
         }
     }
 
     public static void draw() {
         getPlacer().player.setHealth(0);
-        getPlacer().showTitle("", McColor.GOLD + "Draw!", null);
+        getPlacer().showTitle("", McColor.GOLD + Translation.get("match.draw", getPlacer().locale()), null);
 
         getOpponent().player.setHealth(0);
-        getOpponent().showTitle("", McColor.GOLD + "Draw!", null);
+        getOpponent().showTitle("", McColor.GOLD + Translation.get("match.draw", getOpponent().locale()), null);
     }
 
         public static void shopDone() {
-            p1.player.sendMessage("Shop done triggerd");
+            p1.sendMessage("Shop done triggerd");
             shopPhase = false;
             ScoreBoard.start();
             algorithm.start(p1.player);
