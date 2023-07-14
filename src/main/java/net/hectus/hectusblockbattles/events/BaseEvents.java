@@ -4,7 +4,6 @@ import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import io.papermc.paper.event.entity.EntityCompostItemEvent;
 import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent;
 import io.papermc.paper.event.player.PlayerNameEntityEvent;
-import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.Compring;
 import net.hectus.hectusblockbattles.Cord;
 import net.hectus.hectusblockbattles.HBB;
@@ -20,7 +19,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.SeaPickle;
 import org.bukkit.entity.*;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -30,7 +28,9 @@ import org.bukkit.event.block.TNTPrimeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +40,7 @@ import java.util.Random;
 public class BaseEvents implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerNameEntity(@NotNull PlayerNameEntityEvent event) {
-        if (cantPlace(event)) return;
+        // if (cantPlace(event)) return;
 
         String name = Compring.from(event.getName()).toLowerCase();
         if (name.contains("dinnerbone") || name.contains("grumm")) {
@@ -58,7 +58,7 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerItemConsume(@NotNull PlayerItemConsumeEvent event) {
-        if (cantPlace(event)) return;
+        // if (cantPlace(event)) return;
 
         Player player = event.getPlayer();
         if (event.getItem().getType() == Material.ENCHANTED_GOLDEN_APPLE) {
@@ -83,7 +83,7 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerLaunchProjectile(@NotNull PlayerLaunchProjectileEvent event) {
-        if (cantPlace(event)) return;
+        // if (cantPlace(event)) return;
 
         if (event.getProjectile().getType() == EntityType.TRIDENT) {
             if (((Trident) event.getProjectile()).hasGlint()) {
@@ -98,10 +98,10 @@ public class BaseEvents implements Listener {
     public void onPotionSplash(@NotNull PotionSplashEvent event) {
         Player p = (Player) event.getPotion().getShooter();
 
-        if (cantPlace(p)) {
-            event.setCancelled(true);
-            return;
-        }
+        // if (cantPlace(p)) {
+        //     event.setCancelled(true);
+        //     return;
+        // }
 
         Cord c = Cord.of(event.getPotion().getLocation());
         if (event.getPotion().getEffects().size() == 0) {
@@ -114,10 +114,10 @@ public class BaseEvents implements Listener {
         if (!Match.hasStarted) return;
 
         Player p = event.getPlayer();
-        if (cantPlace(p)) {
-            event.setCancelled(true);
-            return;
-        }
+        // if (cantPlace(p)) {
+        //     event.setCancelled(true);
+        //     return;
+        // }
 
         Block b = event.getBlock();
         Cord c = new Cord(b.getX(), b.getY(), b.getZ());
@@ -126,6 +126,11 @@ public class BaseEvents implements Listener {
             case PURPLE_WOOL -> turn(Turn.PURPLE_WOOL, p, c);
             case POWDER_SNOW -> turn(Turn.POWDER_SNOW, p, c);
             case SPRUCE_TRAPDOOR -> turn(Turn.SPRUCE_TRAPDOOR, p, c);
+            case BLACK_WOOL -> turn(Turn.BLACK_WOOL, p, c);
+            case SCULK -> turn(Turn.SCULK_BLOCK, p, c);
+            case GREEN_CARPET -> turn(Turn.GREEN_CARPET, p, c);
+            case IRON_TRAPDOOR -> turn(Turn.IRON_TRAPDOOR, p, c);
+            case GOLD_BLOCK -> turn(Turn.GOLD_BLOCK, p, c);
             case SEA_PICKLE -> {
                 if (b instanceof SeaPickle pickle) {
                     if (pickle.getPickles() >= 4) turn(Turn.SEA_PICKLE_STACK, p, c);
@@ -141,6 +146,11 @@ public class BaseEvents implements Listener {
             case ORANGE_WOOL -> turn(Turn.ORANGE_WOOL, p, c);
             case CAMPFIRE -> turn(Turn.CAMPFIRE, p, c);
             case RESPAWN_ANCHOR -> turn(Turn.RESPAWN_ANCHOR, p, c);
+            case PACKED_ICE -> turn(Turn.PACKED_ICE, p, c);
+            case BLUE_ICE -> turn(Turn.BLUE_ICE, p, c);
+            case SPRUCE_LEAVES -> turn(Turn.SPRUCE_LEAVES, p, c);
+            case LIGHT_BLUE_WOOL -> turn(Turn.LIGHT_BLUE_WOOL, p, c);
+            case WHITE_WOOL -> turn(Turn.WHITE_WOOL, p, c);
             case BEE_NEST -> turn(Turn.BEE_NEST, p, c);
             case HONEY_BLOCK -> turn(Turn.HONEY_BLOCK, p, c);
             case GREEN_WOOL -> turn(Turn.GREEN_WOOL, p, c);
@@ -158,12 +168,26 @@ public class BaseEvents implements Listener {
             case SOUL_SAND -> turn(Turn.SOUL_SAND, p, c);
             case OAK_BUTTON -> turn(Turn.WOODEN_BUTTON, p, c);
             case STONE_BUTTON -> turn(Turn.STONE_BUTTON, p, c);
-            case DAYLIGHT_DETECTOR -> turn(Turn.DAYLIGHT_SENSOR, p, c);
             case BRAIN_CORAL_BLOCK -> turn(Turn.BRAIN_CORAL_BLOCK, p, c);
             case HORN_CORAL -> turn(Turn.HORN_CORAL, p, c);
             case FIRE_CORAL -> turn(Turn.FIRE_CORAL, p, c);
             case FIRE_CORAL_FAN -> turn(Turn.FIRE_CORAL_FAN, p, c);
+            case POPPY -> turn(Turn.POPPY, p, c);
+            case BLUE_ORCHID -> turn(Turn.BLUE_ORCHID, p, c);
+            case ALLIUM -> turn(Turn.ALLIUM, p, c);
+            case AZURE_BLUET -> turn(Turn.AZURE_BLUET, p, c);
+            case RED_TULIP -> turn(Turn.RED_TULIP, p, c);
+            case ORANGE_TULIP -> turn(Turn.ORANGE_TULIP, p, c);
+            case WHITE_TULIP -> turn(Turn.WHITE_TULIP, p, c);
+            case PINK_TULIP -> turn(Turn.PINK_TULIP, p, c);
+            case CORNFLOWER -> turn(Turn.CORNFLOWER, p, c);
+            case OXEYE_DAISY -> turn(Turn.OXEYE_DAISY, p, c);
+            case WITHER_ROSE -> turn(Turn.WITHER_ROSE, p, c);
+            case SUNFLOWER -> turn(Turn.SUNFLOWER, p, c);
+            case OAK_SAPLING -> turn(Turn.OAK_SAPLING, p, c);
+            case SPORE_BLOSSOM -> turn(Turn.SPORE_BLOSSOM, p, c);
             case SEA_LANTERN -> turn(Turn.SEA_LANTERN, p, c);
+            case FLOWER_POT -> turn(Turn.FLOWER_POT, p, c);
             case WATER -> {
                 if (c.toLocation().getNearbyEntitiesByType(PufferFish.class, 4).size() != 0) {
                     turn(Turn.PUFFERFISH_BUCKET, p, c);
@@ -187,7 +211,8 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
-        if (!Match.hasStarted || cantPlace(event)) return;
+        if (!Match.hasStarted) return;
+        // if (cantPlace(event)) return;
 
         Player p = event.getPlayer();
 
@@ -218,10 +243,10 @@ public class BaseEvents implements Listener {
     public void onEntityCompostItem(@NotNull EntityCompostItemEvent event) {
         if (!(event.getEntity() instanceof Player p)) return;
 
-        if (cantPlace(p)) {
-            event.setCancelled(true);
-            return;
-        }
+        // if (cantPlace(p)) {
+        //     event.setCancelled(true);
+        //     return;
+        // }
 
         switch (event.getItem().getType()) {
             case POPPY, BLUE_ORCHID, ALLIUM, AZURE_BLUET, RED_TULIP,
@@ -233,7 +258,7 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerFlowerPotManipulate(@NotNull PlayerFlowerPotManipulateEvent event) {
-        if (cantPlace(event)) return;
+        // if (cantPlace(event)) return;
 
         Player p = event.getPlayer();
         Cord c = Cord.of(event.getFlowerpot().getLocation());
@@ -258,10 +283,10 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockFertilize(@NotNull BlockFertilizeEvent event) {
-        if (cantPlace(event.getPlayer())) {
-            event.setCancelled(true);
-            return;
-        }
+        // if (cantPlace(event.getPlayer())) {
+        //     event.setCancelled(true);
+        //     return;
+        // }
 
         if (event.getBlock().getType() == Material.OAK_SAPLING || event.getBlock().getType() == Material.OAK_LOG) {
             turn(Turn.OAK_SAPLING, event.getPlayer(), Cord.of(event.getBlock().getLocation()));
@@ -306,7 +331,7 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerDropItem(@NotNull PlayerDropItemEvent event) {
-        if (cantPlace(event)) return;
+        // if (cantPlace(event)) return;
 
         if (event.getItemDrop().getItemStack().getType() == Material.IRON_SHOVEL) {
             turn(Turn.IRON_SHOVEL, event.getPlayer(), Cord.of(event.getPlayer().getLocation()));
@@ -314,25 +339,25 @@ public class BaseEvents implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerMove(@NotNull PlayerMoveEvent event) {
-        Player player = event.getPlayer();
-
-        if (!Match.hasStarted || player.isOp() || Match.getPlayer(player).canAlwaysMove()) return;
-
-        if (event.hasChangedPosition()) {
-            Match.getPlayer(player).setDefended(false);
-
-            if (Match.getPlayer(player).isJailed()) {
-                Match.getPlayer(player).showTitle("", "You are jailed, so you can't move!", null);
-                event.setCancelled(true);
-            }
-
-            if (!Match.algorithm.isPlacer(player) || !Match.getPlayer(player).canMove() || outOfBounds(event.getTo())) {
-                Match.win(Match.getOpposite(Match.getPlayer(player)));
-            }
-        }
-    }
+//    @EventHandler(priority = EventPriority.HIGH)
+//    public void onPlayerMove(@NotNull PlayerMoveEvent event) {
+//        Player player = event.getPlayer();
+//
+//        if (!Match.hasStarted || player.isOp() || Match.getPlayer(player).canAlwaysMove()) return;
+//
+//        if (event.hasChangedPosition()) {
+//            Match.getPlayer(player).setDefended(false);
+//
+//            if (Match.getPlayer(player).isJailed()) {
+//                Match.getPlayer(player).showTitle("", "You are jailed, so you can't move!", null);
+//                event.setCancelled(true);
+//            }
+//
+//            if (!Match.algorithm.isPlacer(player) || !Match.getPlayer(player).canMove() || outOfBounds(event.getTo())) {
+//                Match.win(Match.getOpposite(Match.getPlayer(player)));
+//            }
+//        }
+//    }
 
     private void turn(Turn turn, Player p, Cord cord) {
         BlockBattleEvents.onTurn(new TurnInfo(turn, p, cord));
@@ -344,20 +369,20 @@ public class BaseEvents implements Listener {
         return xDiff > 4 || zDiff > 4;
     }
 
-    public boolean cantPlace(Player player) {
-        if (!Match.algorithm.isPlacer(player) && !Match.netherPortalAwaitIgnite) {
-            player.sendMessage(Component.text(McColor.RED + Translation.get("turn.not_placer", Match.getPlayer(player).locale())));
-            return true;
-        }
-        return false;
-    }
-
-    public boolean cantPlace(PlayerEvent event) {
-        if (!Match.algorithm.isPlacer(event.getPlayer()) && !Match.netherPortalAwaitIgnite) {
-            event.getPlayer().sendMessage(Component.text(McColor.RED + Translation.get("turn.not_placer", Match.getPlayer(event.getPlayer()).locale())));
-            if (event instanceof Cancellable) ((Cancellable) event).setCancelled(true);
-            return true;
-        }
-        return false;
-    }
+//    public boolean cantPlace(Player player) {
+//        if (!Match.algorithm.isPlacer(player) && !Match.netherPortalAwaitIgnite) {
+//            player.sendMessage(Component.text(McColor.RED + Translation.get("turn.not_placer", Match.getPlayer(player).locale())));
+//            return true;
+//        }
+//        return false;
+//    }
+//
+//    public boolean cantPlace(PlayerEvent event) {
+//        if (!Match.algorithm.isPlacer(event.getPlayer()) && !Match.netherPortalAwaitIgnite) {
+//            event.getPlayer().sendMessage(Component.text(McColor.RED + Translation.get("turn.not_placer", Match.getPlayer(event.getPlayer()).locale())));
+//            if (event instanceof Cancellable) ((Cancellable) event).setCancelled(true);
+//            return true;
+//        }
+//        return false;
+//    }
 }

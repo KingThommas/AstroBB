@@ -12,19 +12,19 @@ public class Translation {
     private static JsonNode en, de, es, fr, nl, no, pl;
 
     public static void init() throws IOException {
-        en = MAPPER.readTree(new File("lang/en.json"));
-        de = MAPPER.readTree(new File("lang/de.json"));
-        es = MAPPER.readTree(new File("lang/es.json"));
-        fr = MAPPER.readTree(new File("lang/fr.json"));
-        nl = MAPPER.readTree(new File("lang/nl.json"));
-        no = MAPPER.readTree(new File("lang/no.json"));
-        pl = MAPPER.readTree(new File("lang/pl.json"));
+        en = MAPPER.readTree(new File(HBB.dataFolder, "en.json"));
+        de = MAPPER.readTree(new File(HBB.dataFolder, "de.json"));
+        es = MAPPER.readTree(new File(HBB.dataFolder, "es.json"));
+        fr = MAPPER.readTree(new File(HBB.dataFolder, "fr.json"));
+        nl = MAPPER.readTree(new File(HBB.dataFolder, "nl.json"));
+        no = MAPPER.readTree(new File(HBB.dataFolder, "no.json"));
+        pl = MAPPER.readTree(new File(HBB.dataFolder, "pl.json"));
     }
 
     public static String get(String key, Locale locale) {
         if (en.get(key) == null) throw new IllegalArgumentException("Translation-Key not found!");
 
-        return switch (locale.getCountry()) {
+        return switch (locale.getCountry().toLowerCase()) {
             case "de" -> de.get(key).asText();
             case "es" -> es.get(key).asText();
             case "fr" -> fr.get(key).asText();

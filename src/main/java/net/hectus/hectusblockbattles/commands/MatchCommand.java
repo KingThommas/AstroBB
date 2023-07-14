@@ -31,12 +31,9 @@ public class MatchCommand implements CommandExecutor, TabExecutor {
         ArrayList<String> players = new ArrayList<>();
         for (Player player : Bukkit.getOnlinePlayers()) players.add(player.getName());
 
-        if (args.length == 1)
-            return Completer.startComplete(args[0], List.of("start"));
-        else if (args.length == 2)
-            return Completer.containComplete(args[1], players);
-        else if (args.length == 3)
-            return Completer.containComplete(args[2], players);
+        if (args.length == 1) return Completer.startComplete(args[0], List.of("start"));
+        else if (args.length == 2) return Completer.containComplete(args[1], players);
+        else if (args.length == 3) return Completer.containComplete(args[2], players);
 
         return Collections.emptyList();
     }

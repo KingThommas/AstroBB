@@ -1,12 +1,11 @@
 package net.hectus.hectusblockbattles.warps;
 
 import net.hectus.color.McColor;
-import net.hectus.hectusblockbattles.InGameShop;
+import net.hectus.hectusblockbattles.Cord;
 import net.hectus.hectusblockbattles.Translation;
 import net.hectus.hectusblockbattles.events.BlockBattleEvents;
 import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.hectusblockbattles.turn.Turn;
-import net.hectus.hectusblockbattles.Cord;
 import net.hectus.util.Randomizer;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,7 +19,6 @@ import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Collections;
 
 public class WarpManager {
@@ -87,14 +85,7 @@ public class WarpManager {
                         }
                     }
                 }
-                case MUSHROOM -> {
-                    ArrayList<InGameShop.ShopItem> shopItems = new ArrayList<>(InGameShop.SHOP_ITEMS_1);
-                    shopItems.addAll(InGameShop.SHOP_ITEMS_2);
-
-                    Material mat = ((InGameShop.ShopItem) Randomizer.fromCollection(shopItems)).item();
-
-                    activator.getInventory().addItem(new ItemStack(mat));
-                }
+                case MUSHROOM -> Match.getPlacer().giveRandomItem();
                 case END -> {
                     activator.getInventory().addItem(new ItemStack(Material.ENDER_PEARL));
                     Match.getPlacer().addLuck(10);
@@ -111,7 +102,6 @@ public class WarpManager {
 
             activator.teleport(new Location(activator.getWorld(), cord.x() - 2, cord.y(), cord.z()));
             otherPlayer.teleport(new Location(activator.getWorld(), cord.x() + 2, cord.y(), cord.z()));
-
             activator.showTitle(BlockBattleEvents.subtitle(McColor.GREEN + Translation.get("turn.warp.success", Match.getPlacer().locale())));
             otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.warp.success.opponent", Match.getOpponent().locale(), activator.getName())));
 

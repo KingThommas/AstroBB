@@ -155,9 +155,15 @@ public class BBPlayer {
     }
 
     public void giveRandomItem(){
-        ArrayList<InGameShop.ShopItem> items = new ArrayList<>();
-        items.addAll(InGameShop.SHOP_ITEMS_1);
-        items.addAll(InGameShop.SHOP_ITEMS_2);
+        ArrayList<InGameShop.ShopItem> items = new ArrayList<>(InGameShop.SHOP_ITEMS_NEUTRAL);
+        items.addAll(InGameShop.SHOP_ITEMS_HOT);
+        items.addAll(InGameShop.SHOP_ITEMS_COLD);
+        items.addAll(InGameShop.SHOP_ITEMS_WATER);
+        items.addAll(InGameShop.SHOP_ITEMS_NATURE);
+        items.addAll(InGameShop.SHOP_ITEMS_REDSTONE);
+        items.addAll(InGameShop.SHOP_ITEMS_DREAM);
+        items.addAll(InGameShop.SHOP_ITEMS_GARDEN);
+        items.addAll(InGameShop.SHOP_ITEMS_WARPS);
         ItemStack item = (ItemStack) Randomizer.fromCollection(items);
         player.getInventory().addItem(item);
     }

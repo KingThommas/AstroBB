@@ -54,7 +54,6 @@ public class Algorithm {
         BBPlayer opponent = Match.getOpponent();
 
         for (Structure structure : new HashSet<>(possible.keySet())) {
-
             HashMap<Material, Integer> materials = new HashMap<>();
             for (Structure.BlockData structureData : structure.blockData) {
                 Material mat = structureData.material();

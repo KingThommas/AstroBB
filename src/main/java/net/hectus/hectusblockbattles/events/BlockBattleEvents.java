@@ -2,7 +2,6 @@ package net.hectus.hectusblockbattles.events;
 
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.Cord;
-import net.hectus.hectusblockbattles.HBB;
 import net.hectus.hectusblockbattles.Translation;
 import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.hectusblockbattles.player.BBPlayer;
@@ -36,6 +35,8 @@ public class BlockBattleEvents {
             case "NETHER_PORTAL"   -> Turn.NETHER_PORTAL_FRAME;
             case "OAK_DOOR_TURTLE" -> Turn.OAK_DOORS;
             case "JAIL_METHOD"     -> Turn.JAIL_METHOD;
+            case "PUMPKIN_WALL"    -> Turn.PUMPKIN_WALL;
+            case "DAYLIGHT_WALL"   -> Turn.DAYLIGHT_ROW;
             default                -> Turn.NONE;
         };
 
@@ -49,6 +50,7 @@ public class BlockBattleEvents {
             onTurn(new TurnInfo(turn, event.placer(), event.relative()));
         }
     }
+
     public static void onTurn(TurnInfo turn) {
         Match.addTurn(turn);
         BBPlayer player = Match.getPlayer(turn.player());
@@ -67,12 +69,12 @@ public class BlockBattleEvents {
             return;
         }
 
-        if (turn.turn().type == Turn.Type.WARP) {
-            Match.lose();
-            Match.getPlacer().showTitle("", Translation.get("warp.first_move", player.locale()), null);
-            Match.getOpponent().showTitle("", Translation.get("warp.first_move.opponent", Match.getOpponent().locale()), null);
-            return;
-        }
+        // if (turn.turn().type == Turn.Type.WARP) {
+        //     Match.lose();
+        //     Match.getPlacer().showTitle("", Translation.get("warp.first_move", player.locale()), null);
+        //     Match.getOpponent().showTitle("", Translation.get("warp.first_move.opponent", Match.getOpponent().locale()), null);
+        //     return;
+        // }
 
         BBPlayer opponent = Match.getOpponent();
         Cord cord = turn.cord();
@@ -83,9 +85,8 @@ public class BlockBattleEvents {
 
         Turn last = Match.getLatestTurn().turn();
 
-        HBB.WORLD.sendMessage(Component.text(McColor.LIME + "Detecting structure [Switch]"));
         switch (turn.turn()) {
-            case CAULDRON, MAGMA_BLOCK, PACKED_ICE, LIGHT_BLUE_WOOL, SOUL_SAND, COMPOSTER, OAK_SAPLING, TREE -> opponent.setAttacked(true);
+            case CAULDRON, MAGMA_BLOCK, PACKED_ICE, LIGHT_BLUE_WOOL, SOUL_SAND, COMPOSTER, OAK_SAPLING, TREE, BEE_NEST -> opponent.setAttacked(true);
             case PURPLE_WOOL -> {
                 Match.win();
                 return;
@@ -304,7 +305,6 @@ public class BlockBattleEvents {
                     opponent.addPotionEffect(PotionEffectType.SLOW, -1, 125);
                 }
             }
-            case BEE_NEST -> opponent.setAttacked(true);
             case HONEY_BLOCK -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(NATURE, WATER, REDSTONE) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
@@ -357,7 +357,7 @@ public class BlockBattleEvents {
                     }
                 }
             }
-            case DAYLIGHT_SENSOR -> {
+            case DAYLIGHT_ROW -> {
                 if (player.isAttacked() && Match.latestTurnIsClass(HOT, NATURE, WATER, REDSTONE) && Match.latestTurnIsUnder(cord)) {
                     player.setAttacked(false);
                 }

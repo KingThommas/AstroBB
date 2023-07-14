@@ -2,10 +2,8 @@ package net.hectus.hectusblockbattles.events;
 
 import net.hectus.hectusblockbattles.Compring;
 import net.hectus.hectusblockbattles.InGameShop;
-import net.hectus.hectusblockbattles.Translation;
 import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.hectusblockbattles.player.BBPlayer;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,16 +25,17 @@ public class InGameShopEvents implements Listener {
 
             ItemStack item = event.getCurrentItem();
             if (item != null) {
-                Material mat = item.getType();
-                String name = Compring.from(item.displayName());
-
                 Player player = (Player) event.getWhoClicked();
 
-                if (mat != Material.LIGHT_GRAY_STAINED_GLASS_PANE && mat != Material.GRAY_STAINED_GLASS_PANE && mat != Material.GOLD_INGOT && mat != Material.WHITE_CONCRETE) {
+                if (event.getSlot() > 17) {
                     InGameShop.onItemClicked(player, item, Objects.requireNonNull(event.getClickedInventory()));
-                } else if (mat == Material.WHITE_CONCRETE) {
-                    InGameShop.HotBar hotBar = (Match.getPlayer(player).getState() == Match.PlayerState.SHOP_NORMAL ? InGameShop.HotBar.NORMAL : InGameShop.HotBar.OVERTIME);
-                    InGameShop.displayShop(player, hotBar, Objects.requireNonNull(inv.getItem(4)).getAmount(), name.contains(Translation.get("shop.page.last", Match.getPlayer(player).locale())) ? 1 : 2);
+                    return;
+                }
+                InGameShop.HotBar hotBar = Match.getPlayer(player).getState() == Match.PlayerState.SHOP_NORMAL ? InGameShop.HotBar.NORMAL : InGameShop.HotBar.OVERTIME;
+                int coins = Objects.requireNonNull(event.getClickedInventory().getItem(13)).getAmount();
+
+                if (event.getSlot() <= 8) {
+                    InGameShop.displayShop(player, hotBar, coins, event.getSlot() + 1);
                 }
             }
         } else if (inv instanceof PlayerInventory) {

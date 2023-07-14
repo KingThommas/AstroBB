@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -33,6 +34,9 @@ public class Match {
 
     public static void start(Player p1, Player p2) {
         hasStarted = true;
+
+        Collections.addAll(allowed, Warp.DEFAULT.allow);
+        Collections.addAll(disallowed, Warp.DEFAULT.deny);
 
         isNight = false;
         rain = false;
@@ -134,15 +138,13 @@ public class Match {
         getOpponent().showTitle("", McColor.GOLD + Translation.get("match.draw", getOpponent().locale()), null);
     }
 
-        public static void shopDone() {
-            p1.sendMessage("Shop done triggerd");
-            shopPhase = false;
-            ScoreBoard.start();
-            algorithm.start(p1.player);
-
-            p1.swapHotbars();
-            p2.swapHotbars();
-        }
+    public static void shopDone() {
+        shopPhase = false;
+        ScoreBoard.start();
+        algorithm.start(p1.player);
+        p1.swapHotbars();
+        p2.swapHotbars();
+    }
 
     public static void addTurn(TurnInfo turn) {
         turnHistory.add(turn);
@@ -203,9 +205,9 @@ public class Match {
 
     public static void setIsNight(boolean isNight) {
         Match.isNight = isNight;
-        if(isNight){
+        if (isNight) {
             HBB.WORLD.setTime(0);
-        }else{
+        } else {
             HBB.WORLD.setTime(6000);
         }
     }
