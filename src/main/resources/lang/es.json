@@ -9,8 +9,6 @@
   "player.revive": "Usaste tu reanimacion.",
   "player.revive.opponent": "%s Uso su reanimacion.",
   "scoreboard.attacked": "Ataco: ",
-  "scoreboard.cancer": "Cancer: ",
-  "scoreboard.cancer.stage": "Etapa %d",
   "scoreboard.defended": "Defendido: ",
   "scoreboard.frozen": "Congelado: ",
   "scoreboard.luck": "Tu suerte: ",

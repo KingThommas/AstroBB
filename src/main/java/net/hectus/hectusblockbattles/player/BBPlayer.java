@@ -24,6 +24,7 @@ import java.util.Random;
 
 public class BBPlayer {
     public final Player player;
+    private Locale locale;
     private int luck = 10;
     private int dieCounter = -3;
     private int burningCounter = -3;
@@ -34,8 +35,16 @@ public class BBPlayer {
     private Match.PlayerState state;
 
     @Contract(pure = true)
-    public BBPlayer(Player player) {
+    public BBPlayer(@NotNull Player player) {
         this.player = player;
+        locale = player.locale();
+    }
+
+    public Locale locale() {
+        return locale;
+    }
+    public void setLocale(Locale locale) {
+        this.locale = locale;
     }
 
     public int luck() {
@@ -173,10 +182,6 @@ public class BBPlayer {
     //==========================================//
 
     // Also, only add bukkit player stuff here, the rest belongs over this
-
-    public Locale locale() {
-        return player.locale();
-    }
 
     public void sendMessage(@NotNull String msg) {
         player.sendMessage(Component.text(msg));

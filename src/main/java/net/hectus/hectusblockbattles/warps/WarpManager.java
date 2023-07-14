@@ -62,8 +62,8 @@ public class WarpManager {
                 case BOOK -> {
                     DayOfWeek day = LocalDateTime.now().getDayOfWeek();
                     if (day == DayOfWeek.SUNDAY || day == DayOfWeek.SATURDAY) {
-                        Match.getPlacer().showTitle(McColor.RED + Translation.get("turn.wrong_usage", activator.locale()), McColor.RED + Translation.get("turn.wrong_usage.book_warp_only_in_week", Match.getPlacer().locale()), null);
-                        otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.wrong_usage.book_warp_only_in_week.opponent", otherPlayer.locale(), activator.getName())));
+                        Match.getPlacer().showTitle(McColor.RED + Translation.get("turn.wrong_usage", Match.getPlacer().locale()), McColor.RED + Translation.get("turn.wrong_usage.book_warp_only_in_week", Match.getPlacer().locale()), null);
+                        otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.wrong_usage.book_warp_only_in_week.opponent", Match.getOpponent().locale(), activator.getName())));
 
                         return;
                     }
@@ -73,8 +73,8 @@ public class WarpManager {
                 case SUN -> {
                     int hour = LocalTime.now(Clock.systemUTC()).getHour();
                     if (hour < 6 || hour >= 18) {
-                        Match.getPlacer().showTitle(McColor.RED + Translation.get("turn.wrong_usage", activator.locale()), McColor.RED + Translation.get("turn.wrong_usage.sun_warp_only_during_day", Match.getPlacer().locale()), null);
-                        otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.wrong_usage.sun_warp_only_during_day.opponent", otherPlayer.locale(), activator.getName())));
+                        Match.getPlacer().showTitle(McColor.RED + Translation.get("turn.wrong_usage", Match.getPlacer().locale()), McColor.RED + Translation.get("turn.wrong_usage.sun_warp_only_during_day", Match.getPlacer().locale()), null);
+                        otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.wrong_usage.sun_warp_only_during_day.opponent", Match.getOpponent().locale(), activator.getName())));
                         return;
                     }
 
@@ -112,8 +112,8 @@ public class WarpManager {
             activator.teleport(new Location(activator.getWorld(), cord.x() - 2, cord.y(), cord.z()));
             otherPlayer.teleport(new Location(activator.getWorld(), cord.x() + 2, cord.y(), cord.z()));
 
-            activator.showTitle(BlockBattleEvents.subtitle(McColor.GREEN + Translation.get("turn.warp.success", activator.locale())));
-            otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.warp.success.opponent", otherPlayer.locale(), activator.getName())));
+            activator.showTitle(BlockBattleEvents.subtitle(McColor.GREEN + Translation.get("turn.warp.success", Match.getPlacer().locale())));
+            otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.warp.success.opponent", Match.getOpponent().locale(), activator.getName())));
 
             Match.getPlacer().startJailCounter(-3);
             Match.getPlacer().startBurnCounter(-3);
@@ -129,8 +129,8 @@ public class WarpManager {
 
             Match.next();
         } else {
-            activator.showTitle(BlockBattleEvents.subtitle(McColor.RED + Translation.get("turn.warp.fail", activator.locale())));
-            otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.warp.fail.opponent", otherPlayer.locale(), activator.getName())));
+            activator.showTitle(BlockBattleEvents.subtitle(McColor.RED + Translation.get("turn.warp.fail", Match.getPlacer().locale())));
+            otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.warp.fail.opponent", Match.getOpponent().locale(), activator.getName())));
         }
     }
 }

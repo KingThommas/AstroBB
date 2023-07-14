@@ -2,11 +2,7 @@ package net.hectus.hectusblockbattles.structures.v2;
 
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.HBB;
-import net.hectus.hectusblockbattles.events.BlockBattleEvents;
-import net.hectus.hectusblockbattles.match.Match;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Contract;
 
@@ -27,7 +23,7 @@ public class AlgorithmTimer {
         task = Bukkit.getScheduler().runTaskTimer(HBB.getPlugin(HBB.class), () -> {
             ticks--;
 
-            algorithm.placer.sendActionBar(Component.text(McColor.GRAY + String.valueOf(ticks)));
+            algorithm.placer.sendActionBar(McColor.GRAY + String.valueOf(ticks));
 
             if (ticks <= 0) {
                 ticks = 10;

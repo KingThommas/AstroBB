@@ -2,6 +2,7 @@ package net.hectus.hectusblockbattles.structures.v2;
 
 import com.google.gson.Gson;
 import net.hectus.hectusblockbattles.HBB;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -10,7 +11,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Locale;
 
 public class StructureManager {
     public static final HashSet<Structure> loadedStructures = new HashSet<>();
@@ -73,9 +73,10 @@ public class StructureManager {
         }
     }
 
+    @Contract(pure = true)
     public static @Nullable Structure get(String name) {
         for (Structure structure : loadedStructures) {
-            if (structure.name.toLowerCase(Locale.ROOT).equals(name.toLowerCase(Locale.ROOT))) {
+            if (structure.name.equalsIgnoreCase(name)) {
                 return structure;
             }
         }

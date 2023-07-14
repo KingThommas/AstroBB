@@ -51,6 +51,7 @@ public class BlockBattleEvents {
     }
     public static void onTurn(TurnInfo turn) {
         Match.addTurn(turn);
+        BBPlayer player = Match.getPlayer(turn.player());
 
         if(!Match.allowed.contains(turn.turn().clazz) || Match.disallowed.contains(turn.turn().clazz)) {
             Match.lose();
@@ -60,20 +61,19 @@ public class BlockBattleEvents {
             Match.next();
             return;
         }
-        if (Match.getPlayer(turn.player()).isJailed() && turn.turn().type == Turn.Type.ATTACK) {
-            Match.getPlayer(turn.player()).showTitle("", Translation.get("attack.jailed", turn.player().locale()), null);
+        if (player.isJailed() && turn.turn().type == Turn.Type.ATTACK) {
+            player.showTitle("", Translation.get("attack.jailed", player.locale()), null);
             Match.next();
             return;
         }
 
         if (turn.turn().type == Turn.Type.WARP) {
             Match.lose();
-            Match.getPlacer().showTitle("", Translation.get("warp.first_move", turn.player().locale()), null);
-            Match.getOpponent().showTitle("", Translation.get("warp.first_move.opponent", Match.getOpponent().player.locale()), null);
+            Match.getPlacer().showTitle("", Translation.get("warp.first_move", player.locale()), null);
+            Match.getOpponent().showTitle("", Translation.get("warp.first_move.opponent", Match.getOpponent().locale()), null);
             return;
         }
 
-        BBPlayer player = Match.getPlayer(turn.player());
         BBPlayer opponent = Match.getOpponent();
         Cord cord = turn.cord();
 
@@ -587,8 +587,8 @@ public class BlockBattleEvents {
             }
             case SPORE_BLOSSOM -> player.makeAlwaysMove();
             case PIGLIN -> {
-                player.sendMessage(McColor.RED + Translation.get("turn.piglin.msg", player.player.locale()));
-                opponent.sendMessage(McColor.RED + Translation.get("turn.piglin.msg", opponent.player.locale()));
+                player.sendMessage(McColor.RED + Translation.get("turn.piglin.msg", player.locale()));
+                opponent.sendMessage(McColor.RED + Translation.get("turn.piglin.msg", opponent.locale()));
             }
             case PIGLIN_CONVERT -> {
                 player.addPotionEffect(PotionEffectType.BLINDNESS, -1, 1);
@@ -617,8 +617,8 @@ public class BlockBattleEvents {
             }
 
             default -> {
-                player.sendActionBar(McColor.RED + Translation.get("turn.waste", player.player.locale()));
-                opponent.sendActionBar(McColor.YELLOW + Translation.get("turn.waste.opponent", opponent.player.locale(), player.player.getName()));
+                player.sendActionBar(McColor.RED + Translation.get("turn.waste", player.locale()));
+                opponent.sendActionBar(McColor.YELLOW + Translation.get("turn.waste.opponent", opponent.locale(), player.player.getName()));
             }
         }
 
@@ -647,7 +647,7 @@ public class BlockBattleEvents {
         if (doNext)
             Match.next();
         else
-            Match.getPlacer().sendActionBar(Translation.get("turn.extra", player.player.locale()));
+            Match.getPlacer().sendActionBar(Translation.get("turn.extra", player.locale()));
     }
 
 

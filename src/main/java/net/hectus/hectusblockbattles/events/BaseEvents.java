@@ -62,7 +62,7 @@ public class BaseEvents implements Listener {
 
         Player player = event.getPlayer();
         if (event.getItem().getType() == Material.ENCHANTED_GOLDEN_APPLE) {
-            player.sendMessage(Component.text(Translation.get("super_apple", player.locale())));
+            player.sendMessage(Component.text(Translation.get("super_apple", Match.getPlayer(player).locale())));
             turn(Turn.OP_GAP, player, Cord.of(player.getLocation()));
         }
     }
@@ -346,7 +346,7 @@ public class BaseEvents implements Listener {
 
     public boolean cantPlace(Player player) {
         if (!Match.algorithm.isPlacer(player) && !Match.netherPortalAwaitIgnite) {
-            player.sendMessage(Component.text(McColor.RED + Translation.get("turn.not_placer", player.locale())));
+            player.sendMessage(Component.text(McColor.RED + Translation.get("turn.not_placer", Match.getPlayer(player).locale())));
             return true;
         }
         return false;
@@ -354,7 +354,7 @@ public class BaseEvents implements Listener {
 
     public boolean cantPlace(PlayerEvent event) {
         if (!Match.algorithm.isPlacer(event.getPlayer()) && !Match.netherPortalAwaitIgnite) {
-            event.getPlayer().sendMessage(Component.text(McColor.RED + Translation.get("turn.not_placer", event.getPlayer().locale())));
+            event.getPlayer().sendMessage(Component.text(McColor.RED + Translation.get("turn.not_placer", Match.getPlayer(event.getPlayer()).locale())));
             if (event instanceof Cancellable) ((Cancellable) event).setCancelled(true);
             return true;
         }

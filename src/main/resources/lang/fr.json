@@ -9,8 +9,6 @@
   "player.revive": "Tu vient d'utiliser ta vie'.",
   "player.revive.opponent": "%s vient d'utiliser sa vie.",
   "scoreboard.attacked": "Attacké: ",
-  "scoreboard.cancer": "Cancer: ",
-  "scoreboard.cancer.stage": "Stage %d",
   "scoreboard.defended": "Défendu: ",
   "scoreboard.frozen": "Gelé: ",
   "scoreboard.luck": "Ta Chance: ",

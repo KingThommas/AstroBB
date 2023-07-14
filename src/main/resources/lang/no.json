@@ -9,8 +9,6 @@
   "player.revive": "You just used your revive.",
   "player.revive.opponent": "%s just used his revive.",
   "scoreboard.attacked": "Attacked: ",
-  "scoreboard.cancer": "Cancer: ",
-  "scoreboard.cancer.stage": "Stage %d",
   "scoreboard.defended": "Defended: ",
   "scoreboard.frozen": "Frozen: ",
   "scoreboard.luck": "Your Luck: ",

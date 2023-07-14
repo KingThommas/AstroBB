@@ -9,8 +9,6 @@
   "player.revive": "Du hast dich gerade wiederbelebt.",
   "player.revive.opponent": "%s hat sich wiederbelebt.",
   "scoreboard.attacked": "Angegriffen: ",
-  "scoreboard.cancer": "Krebs: ",
-  "scoreboard.cancer.stage": "Stufe %d",
   "scoreboard.defended": "Verteidigt: ",
   "scoreboard.frozen": "Eingefroren: ",
   "scoreboard.luck": "Dein Glück: ",

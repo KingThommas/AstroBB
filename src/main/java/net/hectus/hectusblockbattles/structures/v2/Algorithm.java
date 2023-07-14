@@ -7,8 +7,8 @@ import net.hectus.hectusblockbattles.Translation;
 import net.hectus.hectusblockbattles.events.BlockBattleEvents;
 import net.hectus.hectusblockbattles.events.StructurePlaceEvent;
 import net.hectus.hectusblockbattles.match.Match;
+import net.hectus.hectusblockbattles.player.BBPlayer;
 import net.hectus.storing.pair.Pair;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +20,7 @@ import java.util.Map;
 public class Algorithm {
     public boolean running = false; // If the algorithm is already running
     public AlgorithmTimer timer = new AlgorithmTimer(this); // The timer for block placement detection
-    public Player placer; // The player who's currently placing blocks
+    public BBPlayer placer; // The player who's currently placing blocks
     private final HashSet<Structure.BlockData> placed = new HashSet<>(); // All placed blocks
     private final HashMap<Structure, Double> possible = new HashMap<>(); // Structures and their chances
     private Cord relative; // The 0 0 0 relative, used to compare with the structure relatives
@@ -32,7 +32,7 @@ public class Algorithm {
         Match.p2.showTitle(Translation.get("match.start_player", Match.p2.locale(), player.getName()), "", null);
 
         running = true;
-        placer = player;
+        placer = Match.getPlayer(player);
         StructureManager.loadedStructures.forEach(struct -> possible.put(struct, 0.0));
         timer.instance(this);
     }
@@ -51,10 +51,7 @@ public class Algorithm {
     }
 
     public void calculateChances() {
-        Player opponent;
-        if (isPlacer(Match.p1.player))
-            opponent = Match.p2.player;
-        else opponent = Match.p1.player;
+        BBPlayer opponent = Match.getOpponent();
 
         for (Structure structure : new HashSet<>(possible.keySet())) {
 
@@ -108,18 +105,18 @@ public class Algorithm {
                 possible.put(structure, chance);
 
                 if (chance >= 1.0) {
-                    BlockBattleEvents.onStructurePlace(new StructurePlaceEvent(structure, relative, placer, opponent, possible));
+                    BlockBattleEvents.onStructurePlace(new StructurePlaceEvent(structure, relative, placer.player, opponent.player, possible));
                 } else {
-                    placer.showTitle(BlockBattleEvents.subtitle(McColor.RED + Translation.get("structure.misplace", placer.locale())));
-                    opponent.sendActionBar(Component.text(Translation.get("structure.misplace.opponent", opponent.locale(), placer.getName())));
+                    placer.showTitle("", McColor.RED + Translation.get("structure.misplace", placer.locale()), null);
+                    opponent.sendActionBar(Translation.get("structure.misplace.opponent", opponent.locale(), placer.player.getName()));
                 }
                 timer.stop();
                 clear();
-                start(opponent);
+                start(opponent.player);
             } else {
                 if (misplacedMaterials > 0) {
-                    placer.showTitle(BlockBattleEvents.subtitle(McColor.RED + Translation.get("turn.misplace", placer.locale())));
-                    opponent.sendActionBar(Component.text(Translation.get("turn.misplace.opponent", opponent.locale(), placer.getName())));
+                    placer.showTitle("", McColor.RED + Translation.get("turn.misplace", placer.locale()), null);
+                    opponent.sendActionBar(Translation.get("turn.misplace.opponent", opponent.locale(), placer.player.getName()));
                 }
             }
         }
@@ -135,7 +132,7 @@ public class Algorithm {
 
     public boolean isPlacer(@NotNull Player player) {
         if (running) {
-            return player.getName().equals(placer.getName());
+            return player.getName().equals(placer.player.getName());
         } else {
             return false;
         }
