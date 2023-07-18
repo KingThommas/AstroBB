@@ -1,9 +1,9 @@
 package net.hectus.hectusblockbattles.watch;
 
-import net.hectus.color.McColor;
 import net.hectus.data.time.Time;
 import net.hectus.data.time.Timer;
 import net.hectus.hectusblockbattles.HBB;
+import net.hectus.hectusblockbattles.match.GameFlow;
 import net.hectus.hectusblockbattles.match.Match;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
@@ -19,7 +19,7 @@ public class TurnWatch implements Timer {
             if (!paused) {
                 time.decrement();
                 Match.getPlacer().sendActionBar(time.getOneUnitFormatted());
-                if (time.getAs(Time.Unit.SECONDS) == 0) Match.lose();
+                if (time.getAs(Time.Unit.SECONDS) == 0) GameFlow.lose(GameFlow.LoseReason.TIME_OVER);
             }
         }, 0L, 20L);
     }

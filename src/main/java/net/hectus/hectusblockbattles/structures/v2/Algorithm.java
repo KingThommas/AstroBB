@@ -1,8 +1,9 @@
 package net.hectus.hectusblockbattles.structures.v2;
 
+import net.hectus.color.Ansi;
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.Cord;
-import net.hectus.hectusblockbattles.HBB;
+import net.hectus.hectusblockbattles.Trace;
 import net.hectus.hectusblockbattles.Translation;
 import net.hectus.hectusblockbattles.events.BlockBattleEvents;
 import net.hectus.hectusblockbattles.events.StructurePlaceEvent;
@@ -19,22 +20,21 @@ import java.util.Map;
 
 public class Algorithm {
     public boolean running = false; // If the algorithm is already running
-    public AlgorithmTimer timer = new AlgorithmTimer(this); // The timer for block placement detection
     public BBPlayer placer; // The player who's currently placing blocks
     private final HashSet<Structure.BlockData> placed = new HashSet<>(); // All placed blocks
     private final HashMap<Structure, Double> possible = new HashMap<>(); // Structures and their chances
     private Cord relative; // The 0 0 0 relative, used to compare with the structure relatives
 
     public void start(Player player) {
-        HBB.LOGGER.info("The algorithm was started!");
-
-        Match.p1.showTitle(Translation.get("match.start_player", Match.p1.locale(), player.getName()), "", null);
-        Match.p2.showTitle(Translation.get("match.start_player", Match.p2.locale(), player.getName()), "", null);
+        System.out.println("Algorithm.start(" + "player = " + player.getName() + ") by: " + Trace.last());
 
         running = true;
         placer = Match.getPlayer(player);
+
+        Match.getOpponent().sendMessage(McColor.GOLD + "Your turn is over");
+        Match.getPlacer().sendMessage(McColor.LIME + "It's your turn now!");
+
         StructureManager.loadedStructures.forEach(struct -> possible.put(struct, 0.0));
-        timer.instance(this);
     }
 
     public void addBlock(Structure.BlockData blockData) {
@@ -46,11 +46,11 @@ public class Algorithm {
             if (relative.z() > blockData.z()) relative = new Cord(relative.x(), relative.y(), blockData.z());
         }
         placed.add(blockData);
-
-        timer.lap(this);
+        calculateChances();
     }
 
     public void calculateChances() {
+        System.out.println(Ansi.DARK_GRAY + "Algorithm.calculateChances()" + Ansi.RESET);
         BBPlayer opponent = Match.getOpponent();
 
         for (Structure structure : new HashSet<>(possible.keySet())) {
@@ -109,7 +109,6 @@ public class Algorithm {
                     placer.showTitle("", McColor.RED + Translation.get("structure.misplace", placer.locale()), null);
                     opponent.sendActionBar(Translation.get("structure.misplace.opponent", opponent.locale(), placer.player.getName()));
                 }
-                timer.stop();
                 clear();
                 start(opponent.player);
             } else {
@@ -122,6 +121,8 @@ public class Algorithm {
     }
 
     public void clear() {
+        System.out.println("Algorithm.clear() by: " + Trace.last());
+
         running = false;
         placed.clear();
         possible.clear();
@@ -130,11 +131,8 @@ public class Algorithm {
     }
 
     public boolean isPlacer(@NotNull Player player) {
-        if (running) {
-            return player.getName().equals(placer.player.getName());
-        } else {
-            return false;
-        }
+        System.out.println("Algorithm.isPlacer(" + "player = " + player + ") - return: " + (running && player.getName().equals(placer.player.getName())) + " by: " + Trace.last());
+        return running && player.getUniqueId() == placer.player.getUniqueId();
     }
 
     public Pair<Structure, Double> getHighestChance() {

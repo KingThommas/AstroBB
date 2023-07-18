@@ -1,8 +1,11 @@
 package net.hectus.hectusblockbattles.events;
 
+import net.hectus.color.Ansi;
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.Cord;
+import net.hectus.hectusblockbattles.Trace;
 import net.hectus.hectusblockbattles.Translation;
+import net.hectus.hectusblockbattles.match.GameFlow;
 import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.hectusblockbattles.player.BBPlayer;
 import net.hectus.hectusblockbattles.structures.v2.Structure;
@@ -29,6 +32,8 @@ import static net.hectus.hectusblockbattles.warps.WarpSettings.Class.*;
 
 public class BlockBattleEvents {
     public static void onStructurePlace(@NotNull StructurePlaceEvent event) {
+        System.out.println("BlockBattleEvents.onStructurePlace(event = " + event + ")");
+
         Structure structure = event.structure();
 
         Turn turn = switch (structure.name) {
@@ -52,29 +57,32 @@ public class BlockBattleEvents {
     }
 
     public static void onTurn(TurnInfo turn) {
+        System.out.println("BlockBattleEvents.onTurn(turn = " + turn + ") by: " + Trace.last() + Ansi.YELLOW);
+        System.out.println("++++++++++++++++++++++++++ TURN ++++++++++++++++++++++++++");
+
         Match.addTurn(turn);
         BBPlayer player = Match.getPlayer(turn.player());
 
         if(!Match.allowed.contains(turn.turn().clazz) || Match.disallowed.contains(turn.turn().clazz)) {
-            Match.lose();
+            GameFlow.lose(GameFlow.LoseReason.DISALLOWED_TURN);
         }
 
         if (Match.blazeDebuff && (turn.turn().clazz == COLD || turn.turn().clazz == WATER)) {
-            Match.next();
+            GameFlow.next();
             return;
         }
         if (player.isJailed() && turn.turn().type == Turn.Type.ATTACK) {
-            player.showTitle("", Translation.get("attack.jailed", player.locale()), null);
-            Match.next();
+            player.showTitle("", Translation.get("attack.jailed", turn.player().locale()), null);
+            GameFlow.next();
             return;
         }
 
-        // if (turn.turn().type == Turn.Type.WARP) {
-        //     Match.lose();
-        //     Match.getPlacer().showTitle("", Translation.get("warp.first_move", player.locale()), null);
-        //     Match.getOpponent().showTitle("", Translation.get("warp.first_move.opponent", Match.getOpponent().locale()), null);
-        //     return;
-        // }
+        if (turn.turn().type == Turn.Type.WARP) {
+            GameFlow.lose(GameFlow.LoseReason.WARP_ON_FIRST_TURN);
+            Match.getPlacer().showTitle("", Translation.get("warp.first_move", player.locale()), null);
+            Match.getOpponent().showTitle("", Translation.get("warp.first_move.opponent", Match.getOpponent().locale()), null);
+            return;
+        }
 
         BBPlayer opponent = Match.getOpponent();
         Cord cord = turn.cord();
@@ -88,16 +96,12 @@ public class BlockBattleEvents {
         switch (turn.turn()) {
             case CAULDRON, MAGMA_BLOCK, PACKED_ICE, LIGHT_BLUE_WOOL, SOUL_SAND, COMPOSTER, OAK_SAPLING, TREE, BEE_NEST -> opponent.setAttacked(true);
             case PURPLE_WOOL -> {
-                Match.win();
+                GameFlow.win(GameFlow.WinReason.PURPLE_WOOL);
                 return;
             }
             case DINNERBONE -> {
-                if (player.isAttacked()) {
-                    if (last.mob) {
-                        player.setAttacked(false);
-                    } else {
-                        Match.lose();
-                    }
+                if (player.isAttacked() && last.mob) {
+                    player.setAttacked(false);
                 }
             }
             case JAIL_METHOD -> {
@@ -134,10 +138,10 @@ public class BlockBattleEvents {
                 }
             }
             case TNT -> {
-                if (player.isDefended() && !opponent.isDefended()) Match.win();
-                else if (!player.isDefended() && opponent.isDefended()) Match.lose();
+                if (player.isDefended() && !opponent.isDefended()) GameFlow.win(GameFlow.WinReason.TNT);
+                else if (!player.isDefended() && opponent.isDefended()) GameFlow.lose(GameFlow.LoseReason.TNT);
 
-                Match.draw();
+                GameFlow.draw(GameFlow.DrawReason.TNT);
             }
             case OP_GAP -> {
                 if (new Random().nextBoolean()) player.addLuck(100);
@@ -375,7 +379,7 @@ public class BlockBattleEvents {
                     player.addLuck(5);
                 }
             }
-            case PINK_SHEEP -> Match.win(player);
+            case PINK_SHEEP -> GameFlow.win(GameFlow.WinReason.PINK_SHEEP);
             case WHITE_SHEEP -> {
                 if(Match.allowed.contains(COLD)){
                     doNext = false;
@@ -455,17 +459,21 @@ public class BlockBattleEvents {
                 doNext = false;
                 player.addLuck(10);
                 opponent.removeLuck(10);
-                Match.win(player);
+                GameFlow.win(GameFlow.WinReason.BLUE_AXOLOTL);
             }
             case PINK_AXOLOTL -> {
                 doNext = false;
                 player.addLuck(10);
                 opponent.removeLuck(10);
                 ArrayList<Warp> warps = new ArrayList<>(List.of(Warp.values()));
-                for(Warp warp : warps){
-                    ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
-                    if(!allow.contains(HOT)){
-                        warps.remove(warp);
+                if (!warps.isEmpty()) {
+                    for (Warp warp : warps) {
+                        if (warp != null) {
+                            ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
+                            if (!allow.contains(HOT)) {
+                                warps.remove(warp);
+                            }
+                        }
                     }
                 }
                 Warp newWarp = (Warp) Randomizer.fromCollection(warps);
@@ -476,10 +484,14 @@ public class BlockBattleEvents {
                 player.addLuck(10);
                 opponent.removeLuck(10);
                 ArrayList<Warp> warps = new ArrayList<>(List.of(Warp.values()));
-                for(Warp warp : warps){
-                    ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
-                    if(!allow.contains(REDSTONE)){
-                        warps.remove(warp);
+                if (!warps.isEmpty()) {
+                    for (Warp warp : warps) {
+                        if (warp != null) {
+                            ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
+                            if (!allow.contains(REDSTONE)) {
+                                warps.remove(warp);
+                            }
+                        }
                     }
                 }
                 Warp newWarp = (Warp) Randomizer.fromCollection(warps);
@@ -490,10 +502,14 @@ public class BlockBattleEvents {
                 player.addLuck(10);
                 opponent.removeLuck(10);
                 ArrayList<Warp> warps = new ArrayList<>(List.of(Warp.values()));
-                for(Warp warp : warps){
-                    ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
-                    if(!allow.contains(DREAM)){
-                        warps.remove(warp);
+                if (!warps.isEmpty()) {
+                    for (Warp warp : warps) {
+                        if (warp != null) {
+                            ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
+                            if (!allow.contains(DREAM)) {
+                                warps.remove(warp);
+                            }
+                        }
                     }
                 }
                 Warp newWarp = (Warp) Randomizer.fromCollection(warps);
@@ -504,10 +520,14 @@ public class BlockBattleEvents {
                 player.addLuck(10);
                 opponent.removeLuck(10);
                 ArrayList<Warp> warps = new ArrayList<>(List.of(Warp.values()));
-                for(Warp warp : warps){
-                    ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
-                    if(!allow.contains(WATER)){
-                        warps.remove(warp);
+                if (!warps.isEmpty()) {
+                    for (Warp warp : warps) {
+                        if (warp != null) {
+                            ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
+                            if (!allow.contains(WATER)) {
+                                warps.remove(warp);
+                            }
+                        }
                     }
                 }
                 Warp newWarp = (Warp) Randomizer.fromCollection(warps);
@@ -587,8 +607,8 @@ public class BlockBattleEvents {
             }
             case SPORE_BLOSSOM -> player.makeAlwaysMove();
             case PIGLIN -> {
-                player.sendMessage(McColor.RED + Translation.get("turn.piglin.msg", player.locale()));
-                opponent.sendMessage(McColor.RED + Translation.get("turn.piglin.msg", opponent.locale()));
+                player.sendMessage(McColor.RED + Translation.get("turn.piglin.msg", player.player.locale()));
+                opponent.sendMessage(McColor.RED + Translation.get("turn.piglin.msg", opponent.player.locale()));
             }
             case PIGLIN_CONVERT -> {
                 player.addPotionEffect(PotionEffectType.BLINDNESS, -1, 1);
@@ -617,8 +637,8 @@ public class BlockBattleEvents {
             }
 
             default -> {
-                player.sendActionBar(McColor.RED + Translation.get("turn.waste", player.locale()));
-                opponent.sendActionBar(McColor.YELLOW + Translation.get("turn.waste.opponent", opponent.locale(), player.player.getName()));
+                player.sendActionBar(McColor.RED + Translation.get("turn.waste", player.player.locale()));
+                opponent.sendActionBar(McColor.YELLOW + Translation.get("turn.waste.opponent", opponent.player.locale(), player.player.getName()));
             }
         }
 
@@ -631,9 +651,9 @@ public class BlockBattleEvents {
             }
         }
 
-        if (player.isAttacked()) Match.lose();
+        if (player.isAttacked()) GameFlow.lose(GameFlow.LoseReason.NO_COUNTER);
         if (opponent.isDefended() && !ignoreOpponentDefense) opponent.setAttacked(false);
-        if (Match.currentWarp == Warp.REDSTONE && turn.turn().clazz == REDSTONE) Match.getPlacer().addLuck(5);
+        if (Match.currentWarp == Warp.REDSTONE && turn.turn().clazz == REDSTONE) player.addLuck(5);
 
         if (turn.turn().type == Turn.Type.COUNTER) {
             player.startJailCounter(-3);
@@ -644,15 +664,17 @@ public class BlockBattleEvents {
         Match.p1 = Match.p1.player == player.player ? player : opponent;
         Match.p2 = Match.p1.player == player.player ? opponent : player;
 
-        if (doNext)
-            Match.next();
-        else
-            Match.getPlacer().sendActionBar(Translation.get("turn.extra", player.locale()));
+        System.out.println("-------------------------- TURN --------------------------" + Ansi.RESET);
+
+        if (doNext) GameFlow.next();
+        else Match.getPlacer().sendActionBar(Translation.get("turn.extra", player.locale()));
     }
 
 
     @Contract("_ -> new")
     public static @NotNull Title subtitle(String content) {
+        System.out.println("BlockBattleEvents.subtitle(" + "content = " + content + ") by: " + Trace.last());
+
         return Title.title(
                 Component.empty(),
                 Component.text(content),

@@ -14,4 +14,10 @@ public record Cord(int x, int y, int z) {
     public @NotNull Location toLocation() {
         return new Location(HBB.WORLD, x, y, z);
     }
+
+    @Contract(pure = true)
+    @Override
+    public String toString() {
+        return String.format("X: %d, Y: %d, Z: %d", x, y, z);
+    }
 }

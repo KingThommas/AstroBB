@@ -1,9 +1,9 @@
 package net.hectus.hectusblockbattles.commands;
 
 import net.hectus.color.McColor;
+import net.hectus.hectusblockbattles.Cord;
 import net.hectus.hectusblockbattles.structures.v2.Structure;
 import net.hectus.hectusblockbattles.structures.v2.StructureManager;
-import net.hectus.hectusblockbattles.Cord;
 import net.hectus.text.Completer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;

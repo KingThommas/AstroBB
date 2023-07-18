@@ -67,6 +67,7 @@ public class Structure {
             }
         }
 
+        System.out.println("Structure.save(c1 = "+c1+", c2 = "+c2+", name = "+name+", useExactBlockData = "+useExactBlockData+", world = "+world+") - return: " + structure.name);
         return structure;
     }
 

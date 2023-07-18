@@ -1,8 +1,12 @@
 package net.hectus.hectusblockbattles;
 
+import net.hectus.color.Ansi;
+import net.hectus.hectusblockbattles.commands.DebugCommand;
+import net.hectus.hectusblockbattles.commands.GiveUpCommand;
 import net.hectus.hectusblockbattles.commands.MatchCommand;
 import net.hectus.hectusblockbattles.commands.StructureCommand;
 import net.hectus.hectusblockbattles.events.BaseEvents;
+import net.hectus.hectusblockbattles.events.ClientEvents;
 import net.hectus.hectusblockbattles.events.InGameShopEvents;
 import net.hectus.hectusblockbattles.structures.v2.StructureManager;
 import org.bukkit.Bukkit;
@@ -30,8 +34,9 @@ public final class HBB extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new InGameShopEvents(), this);
         getServer().getPluginManager().registerEvents(new BaseEvents(), this);
+        getServer().getPluginManager().registerEvents(new ClientEvents(), this);
 
-        LOGGER.info("Hectus BlockBattles started.");
+        LOGGER.info(Ansi.LIME + "Hectus BlockBattles started." + Ansi.RESET);
 
         dataFolder = getDataFolder();
         if (!dataFolder.exists()) dataFolder.mkdirs();
@@ -43,6 +48,8 @@ public final class HBB extends JavaPlugin {
 
         Objects.requireNonNull(getCommand("structure")).setExecutor(new StructureCommand());
         Objects.requireNonNull(getCommand("match")).setExecutor(new MatchCommand());
+        Objects.requireNonNull(getCommand("giveup")).setExecutor(new GiveUpCommand());
+        Objects.requireNonNull(getCommand("debug")).setExecutor(new DebugCommand());
 
         WORLD = Bukkit.getWorld("world");
 

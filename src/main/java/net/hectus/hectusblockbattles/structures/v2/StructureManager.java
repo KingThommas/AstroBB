@@ -2,6 +2,7 @@ package net.hectus.hectusblockbattles.structures.v2;
 
 import com.google.gson.Gson;
 import net.hectus.hectusblockbattles.HBB;
+import net.hectus.hectusblockbattles.Trace;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,6 +25,8 @@ public class StructureManager {
      *         false = failed
      */
     public static boolean save(Structure structure) {
+        System.out.println("StructureManager.save(" + "structure = " + structure + ") by: " + Trace.last());
+
         loadAll(false);
         try {
             if (loadedStructures.contains(structure)) return false;
@@ -61,6 +64,8 @@ public class StructureManager {
      *              false = only loads new structures that weren't there before
      */
     public static void loadAll(boolean force) {
+        System.out.println("StructureManager.loadAll(" + "force = " + force + ") by: " + Trace.last());
+
         try (FileReader reader = new FileReader(STRUCTURE_FILE)) {
             if (force) loadedStructures.clear();
 
@@ -75,6 +80,8 @@ public class StructureManager {
 
     @Contract(pure = true)
     public static @Nullable Structure get(String name) {
+        System.out.println("StructureManager.get(" + "name = " + name + ") by: " + Trace.last());
+
         for (Structure structure : loadedStructures) {
             if (structure.name.equalsIgnoreCase(name)) {
                 return structure;
@@ -90,6 +97,8 @@ public class StructureManager {
      *         false = failed
      */
     public static boolean remove(String structure) {
+        System.out.println("StructureManager.remove(" + "structure = " + structure + ") by: " + Trace.last());
+
         try {
             loadAll(true);
 

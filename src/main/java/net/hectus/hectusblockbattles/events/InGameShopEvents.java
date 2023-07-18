@@ -19,7 +19,11 @@ import java.util.Objects;
 public class InGameShopEvents implements Listener {
     @EventHandler
     public static void onInventoryClick(@NotNull InventoryClickEvent event) {
-        Inventory inv = Objects.requireNonNull(event.getClickedInventory());
+        System.out.println("InGameShopEvents.onInventoryClick(" + "event = " + event + ")");
+
+        Inventory inv = event.getClickedInventory();
+        if (inv == null) return;
+
         if (Compring.from(event.getView().title()).toLowerCase().contains("shop")) {
             event.setCancelled(true);
 
@@ -45,6 +49,8 @@ public class InGameShopEvents implements Listener {
 
     @EventHandler
     public void onInventoryClose(@NotNull InventoryCloseEvent event) {
+        System.out.println("InGameShopEvents.onInventoryClose(player = " + event.getPlayer() + ")");
+
         if (!Match.shopPhase || event.getReason() == InventoryCloseEvent.Reason.OPEN_NEW) return;
 
         BBPlayer player = Match.getPlayer((Player) event.getPlayer());

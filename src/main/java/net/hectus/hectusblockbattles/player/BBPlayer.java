@@ -2,7 +2,9 @@ package net.hectus.hectusblockbattles.player;
 
 import net.hectus.color.McColor;
 import net.hectus.hectusblockbattles.InGameShop;
+import net.hectus.hectusblockbattles.Trace;
 import net.hectus.hectusblockbattles.Translation;
+import net.hectus.hectusblockbattles.match.GameFlow;
 import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.util.Randomizer;
 import net.kyori.adventure.sound.Sound;
@@ -24,7 +26,6 @@ import java.util.Random;
 
 public class BBPlayer {
     public final Player player;
-    private Locale locale;
     private int luck = 10;
     private int dieCounter = -3;
     private int burningCounter = -3;
@@ -37,27 +38,28 @@ public class BBPlayer {
     @Contract(pure = true)
     public BBPlayer(@NotNull Player player) {
         this.player = player;
-        locale = player.locale();
     }
 
     public Locale locale() {
-        return locale;
-    }
-    public void setLocale(Locale locale) {
-        this.locale = locale;
+        return player.locale();
     }
 
     public int luck() {
+        System.out.println(player.getName() + ".luck() - return: " + luck + " by: " + Trace.last());
         return luck;
     }
     public void addLuck(int luck) {
+        System.out.println(player.getName() + ".addLuck(" + "luck = " + luck + ") by: " + Trace.last());
         this.luck += luck;
     }
     public void removeLuck(int luck) {
+        System.out.println(player.getName() + ".removeLuck(" + "luck = " + luck + ") by: " + Trace.last());
         this.luck -= luck;
     }
 
+    @Contract(pure = true)
     public static int chance(double chance, int luck) {
+        System.out.println("BBPlayer.chance(" + "chance = " + chance + ", luck = " + luck + ") by: " + Trace.last());
         return (int) (chance - (1 - chance) * ((double) luck / 100));
     }
 
@@ -72,78 +74,101 @@ public class BBPlayer {
 
         int num = new Random().nextInt(pink+blue+brown+black+gray+light_gray+white+1);
 
-        if (num < pink) return DyeColor.PINK; else num += pink;
-        if (num < blue) return DyeColor.BLUE; else num += blue;
-        if (num < brown) return DyeColor.BROWN; else num += brown;
-        if (num < black) return DyeColor.BLACK; else num += black;
-        if (num < gray) return DyeColor.GRAY; else num += gray;
-        if (num < light_gray) return DyeColor.LIGHT_GRAY;
-        else return DyeColor.WHITE;
+        DyeColor out;
+        if (num < pink) out = DyeColor.PINK; else num += pink;
+        if (num < blue) out = DyeColor.BLUE; else num += blue;
+        if (num < brown) out = DyeColor.BROWN; else num += brown;
+        if (num < black) out = DyeColor.BLACK; else num += black;
+        if (num < gray) out = DyeColor.GRAY; else num += gray;
+        if (num < light_gray) out = DyeColor.LIGHT_GRAY;
+        else out = DyeColor.WHITE;
+
+        System.out.println(player.getName() + ".randomSheepColor() - return: " + out + " by: " + Trace.last());
+        return out;
     }
 
     public boolean isDefended() {
+        System.out.println(player.getName() + ".isDefended() - return: " + defended + " by: " + Trace.last());
         return defended;
     }
     public void setDefended(boolean defended) {
+        System.out.println(player.getName() + ".setDefended(" + "defended = " + defended + ") by: " + Trace.last());
         this.defended = defended;
     }
 
     public boolean hasToDoubleCounterAttack() {
+        System.out.println(player.getName() + ".hasToDoubleCounterAttack() - return: " + doubleCounterAttack + " by: " + Trace.last());
         return doubleCounterAttack;
     }
     public void setDoubleCounterAttack(boolean doubleCounterAttack) {
+        System.out.println(player.getName() + ".setDoubleCounterAttack(" + "doubleCounterAttack = " + doubleCounterAttack + ") by: " + Trace.last());
         this.doubleCounterAttack = doubleCounterAttack;
     }
 
-    public boolean canMove() {
-        return movement;
+    public boolean cantMove() {
+        System.out.println(player.getName() + ".cantMove() - return: " + !movement + " by: " + Trace.last());
+        return !movement;
     }
     public void setMovement(boolean movement) {
+        System.out.println(player.getName() + ".setMovement(" + "movement = " + movement + ") by: " + Trace.last());
         this.movement = movement;
     }
 
     public Match.PlayerState getState() {
+        System.out.println(player.getName() + ".getState() - return: " + state + " by: " + Trace.last());
         return state;
     }
     public void setState(Match.PlayerState state) {
+        System.out.println(player.getName() + ".setState(" + "state = " + state + ") by: " + Trace.last());
         this.state = state;
     }
 
     public boolean isAttacked() {
+        System.out.println(player.getName() + ".isAttacked() - return: " + attacked + " by: " + Trace.last());
         return attacked;
     }
     public void setAttacked(boolean attacked) {
+        System.out.println(player.getName() + ".setAttacked(" + "attacked = " + attacked + ") by: " + Trace.last());
         this.attacked = attacked;
     }
 
     public void startDieCounter(int turns) {
+        System.out.println(player.getName() + ".startDieCounter(" + "turns = " + turns + ") by: " + Trace.last());
         dieCounter = turns;
     }
     public void startBurnCounter(int turns) {
+        System.out.println(player.getName() + ".startBurnCounter(" + "turns = " + turns + ") by: " + Trace.last());
         burningCounter = turns;
     }
     public void startJailCounter(int turns) {
+        System.out.println(player.getName() + ".startJailCounter(" + "turns = " + turns + ") by: " + Trace.last());
         jailCounter = turns;
     }
     public boolean isJailed() {
+        System.out.println(player.getName() + ".isJailed() - return: " + (jailCounter >= 0) + " by: " + Trace.last());
         return jailCounter >= 0;
     }
 
     public void makeAlwaysMove() {
+        System.out.println(player.getName() + ".makeAlwaysMove()");
         canAlwaysMove = true;
     }
     public boolean canAlwaysMove() {
+        System.out.println(player.getName() + ".canAlwaysMove() - return: " + canAlwaysMove);
         return canAlwaysMove;
     }
 
     public void count() {
+        System.out.println(player.getName() + ".count() by: " + Trace.last());
+
         dieCounter--;
-        if (dieCounter == 0 || burningCounter == 0) {
-            Match.win(Match.getOpposite(this));
-        }
+        if (dieCounter == 0) GameFlow.lose(this, GameFlow.LoseReason.DEATH_COUNTER);
+        if (burningCounter == 0) GameFlow.lose(this, GameFlow.LoseReason.BURNING);
     }
 
     public void swapHotbars() {
+        System.out.println(player.getName() + ".swapHotbars() by: " + Trace.last());
+
         PlayerInventory inv = player.getInventory();
         int i = 0;
         while (i < 9) {
@@ -155,6 +180,8 @@ public class BBPlayer {
     }
 
     public void giveRandomItem(){
+        System.out.println(player.getName() + ".giveRandomItem() by: " + Trace.last());
+
         ArrayList<InGameShop.ShopItem> items = new ArrayList<>(InGameShop.SHOP_ITEMS_NEUTRAL);
         items.addAll(InGameShop.SHOP_ITEMS_HOT);
         items.addAll(InGameShop.SHOP_ITEMS_COLD);
@@ -169,12 +196,15 @@ public class BBPlayer {
     }
 
     public boolean hasRevive() {
+        System.out.println(player.getName() + ".hasRevive() - return: " + revives + " by: " + Trace.last());
         return revives >= 1;
     }
 
     public void useRevive(){
+        System.out.println(player.getName() + ".useRevive() by: " + Trace.last());
+
         revives -= 1;
-        sendMessage(McColor.LIME + Translation.get("player.revive", locale()));
+        sendMessage(McColor.LIME + Translation.get("player.revive", player.locale()));
         Match.getOpposite(this).sendMessage(McColor.RED + Translation.get("player.revive.opponent", Match.getOpposite(this).locale(), player.getName()));
     }
 

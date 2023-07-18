@@ -31,7 +31,6 @@ dependencies {
     implementation files('libs/HectaLib-0.0.5-PRE-ALPHA.jar') // HectaLib for some custom stuff
     implementation 'mysql:mysql-connector-java:8.0.32' // MySQL for database stuff
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-    compileOnly 'com.arcaniax:HeadDatabase-API:1.3.1' // HeadDatabase to get custom heads like arrows, etc.
 }
 
 def targetJavaVersion = 17

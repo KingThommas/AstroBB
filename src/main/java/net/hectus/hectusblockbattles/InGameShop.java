@@ -195,6 +195,8 @@ public final class InGameShop implements Listener {
     }
 
     public static void displayShop(@NotNull Player player, @NotNull HotBar hotBar, int coins, int page) {
+        System.out.println("InGameShop.displayShop(" + "player = " + player + ", hotBar = " + hotBar + ", coins = " + coins + ", page = " + page + ") by: " + Trace.last());
+
         player.closeInventory(InventoryCloseEvent.Reason.OPEN_NEW);
 
         if (!NOT_IN_CURRENT_HOTBAR_FRAME.displayName().toString().contains("Not available!")){
@@ -289,7 +291,7 @@ public final class InGameShop implements Listener {
                 ItemStack item = new ItemStack(shopItem.item, shopItem.price);
 
                 ItemMeta meta = item.getItemMeta();
-                meta.displayName(Component.text(shopItem.color + Compring.from(item.displayName())));
+                meta.displayName(Component.text(shopItem.color + Compring.from(item.displayName()).replace("]", "").replace("[", "")));
                 item.setItemMeta(meta);
 
                 shop.addItem(item);
@@ -302,6 +304,7 @@ public final class InGameShop implements Listener {
     }
 
     public static void onItemClicked(Player player, @NotNull ItemStack item, @NotNull Inventory shopInv) {
+        System.out.println("InGameShop.onItemClicked(player = " + player.getName() + ", item = " + item.getType() + ", shopInv = " + shopInv.getType() + ") by: " + Trace.last());
         ShopItem shopItem = Objects.requireNonNull(getItem(item.getType()));
 
         ItemStack coinItem = shopInv.getItem(13);
@@ -334,6 +337,8 @@ public final class InGameShop implements Listener {
     }
 
     public static void finish(Player player, @NotNull String title) {
+        System.out.println("InGameShop.finish(" + "player = " + player.getName() + ", title = " + title + ") by: " + Trace.last());
+
         if (title.contains("normal")) {
             Match.getPlayer(player).swapHotbars();
             displayShop(player, OVERTIME, 64, 1);

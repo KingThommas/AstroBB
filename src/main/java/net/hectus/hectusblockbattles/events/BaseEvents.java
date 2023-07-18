@@ -4,10 +4,9 @@ import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import io.papermc.paper.event.entity.EntityCompostItemEvent;
 import io.papermc.paper.event.player.PlayerFlowerPotManipulateEvent;
 import io.papermc.paper.event.player.PlayerNameEntityEvent;
-import net.hectus.hectusblockbattles.Compring;
-import net.hectus.hectusblockbattles.Cord;
-import net.hectus.hectusblockbattles.HBB;
-import net.hectus.hectusblockbattles.Translation;
+import net.hectus.color.McColor;
+import net.hectus.hectusblockbattles.*;
+import net.hectus.hectusblockbattles.match.GameFlow;
 import net.hectus.hectusblockbattles.match.Match;
 import net.hectus.hectusblockbattles.structures.v2.Structure;
 import net.hectus.hectusblockbattles.turn.Turn;
@@ -19,6 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.SeaPickle;
 import org.bukkit.entity.*;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -28,9 +28,7 @@ import org.bukkit.event.block.TNTPrimeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +38,9 @@ import java.util.Random;
 public class BaseEvents implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerNameEntity(@NotNull PlayerNameEntityEvent event) {
-        // if (cantPlace(event)) return;
+        System.out.println("BaseEvents.onPlayerNameEntity(player = " + event.getPlayer().getName() + ", name = " + Compring.from(event.getName()) + ")");
+
+        if (cantPlace(event)) return;
 
         String name = Compring.from(event.getName()).toLowerCase();
         if (name.contains("dinnerbone") || name.contains("grumm")) {
@@ -50,6 +50,8 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onTNTPrime(@NotNull TNTPrimeEvent event) {
+        System.out.println("BaseEvents.onTNTPrime(cause = " + event.getCause() + ")");
+
         event.setCancelled(true);
         if (event.getCause() == TNTPrimeEvent.PrimeCause.PLAYER) {
             turn(Turn.TNT, Match.getPlacer().player, Cord.of(event.getBlock().getLocation()));
@@ -58,17 +60,21 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerItemConsume(@NotNull PlayerItemConsumeEvent event) {
-        // if (cantPlace(event)) return;
+        System.out.println("BaseEvents.onPlayerItemConsume(player = " + event.getPlayer() + ", item = " + event.getItem().getType() + ")");
+
+        if (cantPlace(event)) return;
 
         Player player = event.getPlayer();
         if (event.getItem().getType() == Material.ENCHANTED_GOLDEN_APPLE) {
-            player.sendMessage(Component.text(Translation.get("super_apple", Match.getPlayer(player).locale())));
+            player.sendMessage(Component.text(Translation.get("super_apple", player.locale())));
             turn(Turn.OP_GAP, player, Cord.of(player.getLocation()));
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPortalCreate(@NotNull PortalCreateEvent event) {
+        System.out.println("BaseEvents.onPortalCreate(reason = " + event.getReason() + ", entity = " + Objects.requireNonNullElse(event.getEntity(), Match.getPlacer().player).getName() + ")");
+
         if (event.getReason() == PortalCreateEvent.CreateReason.FIRE) {
             turn(Turn.NETHER_PORTAL_IGNITE, (Player) event.getEntity(), Cord.of(Objects.requireNonNull(event.getEntity()).getLocation()));
         }
@@ -76,6 +82,8 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityTransform(@NotNull EntityTransformEvent event) {
+        System.out.println("BaseEvents.onEntityTransform(reason = " + event.getTransformReason() + ")");
+
         if (event.getTransformReason() == EntityTransformEvent.TransformReason.PIGLIN_ZOMBIFIED && Match.hasStarted) {
             turn(Turn.PIGLIN_CONVERT, Match.getPlacer().player, Cord.of(event.getTransformedEntity().getLocation()));
         }
@@ -83,7 +91,9 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerLaunchProjectile(@NotNull PlayerLaunchProjectileEvent event) {
-        // if (cantPlace(event)) return;
+        System.out.println("BaseEvents.onPlayerLaunchProjectile(projectile = " + event.getProjectile().getType() + ", player = " + event.getPlayer() + ")");
+
+        if (cantPlace(event)) return;
 
         if (event.getProjectile().getType() == EntityType.TRIDENT) {
             if (((Trident) event.getProjectile()).hasGlint()) {
@@ -96,12 +106,14 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPotionSplash(@NotNull PotionSplashEvent event) {
+        System.out.println("BaseEvents.onPotionSplash(" + "event = " + event + ")");
+
         Player p = (Player) event.getPotion().getShooter();
 
-        // if (cantPlace(p)) {
-        //     event.setCancelled(true);
-        //     return;
-        // }
+        if (cantPlace(p)) {
+            event.setCancelled(true);
+            return;
+        }
 
         Cord c = Cord.of(event.getPotion().getLocation());
         if (event.getPotion().getEffects().size() == 0) {
@@ -111,13 +123,15 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockPlace(@NotNull BlockPlaceEvent event) {
+        System.out.println("BaseEvents.onBlockPlace(block = " + event.getBlockPlaced().getType() + ", entity = " + event.getPlayer().getName() + ")");
+
         if (!Match.hasStarted) return;
 
         Player p = event.getPlayer();
-        // if (cantPlace(p)) {
-        //     event.setCancelled(true);
-        //     return;
-        // }
+        if (cantPlace(p)) {
+            event.setCancelled(true);
+            return;
+        }
 
         Block b = event.getBlock();
         Cord c = new Cord(b.getX(), b.getY(), b.getZ());
@@ -132,6 +146,7 @@ public class BaseEvents implements Listener {
             case IRON_TRAPDOOR -> turn(Turn.IRON_TRAPDOOR, p, c);
             case GOLD_BLOCK -> turn(Turn.GOLD_BLOCK, p, c);
             case SEA_PICKLE -> {
+                System.out.println("BaseEvents.onBlockPlace - SEA_PICKLE");
                 if (b instanceof SeaPickle pickle) {
                     if (pickle.getPickles() >= 4) turn(Turn.SEA_PICKLE_STACK, p, c);
                 }
@@ -187,8 +202,10 @@ public class BaseEvents implements Listener {
             case OAK_SAPLING -> turn(Turn.OAK_SAPLING, p, c);
             case SPORE_BLOSSOM -> turn(Turn.SPORE_BLOSSOM, p, c);
             case SEA_LANTERN -> turn(Turn.SEA_LANTERN, p, c);
-            case FLOWER_POT -> turn(Turn.FLOWER_POT, p, c);
+            case DIRT -> Match.turnHistory.add(new TurnInfo(Turn.DIRT, p, c));
+            case FLOWER_POT -> Match.turnHistory.add(new TurnInfo(Turn.FLOWER_POT, p, c));
             case WATER -> {
+                System.out.println("BaseEvents.onBlockPlace - WATER");
                 if (c.toLocation().getNearbyEntitiesByType(PufferFish.class, 4).size() != 0) {
                     turn(Turn.PUFFERFISH_BUCKET, p, c);
                 } else {
@@ -211,15 +228,16 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
-        if (!Match.hasStarted) return;
-        // if (cantPlace(event)) return;
+        System.out.println("BaseEvents.onPlayerTeleport(cause = " + event.getCause() + ", player = " + event.getPlayer().getName() + ")");
+
+        if (!Match.hasStarted || cantPlace(event)) return;
 
         Player p = event.getPlayer();
 
         switch (event.getCause()) {
             case ENDER_PEARL -> {
                 if (outOfBounds(event.getTo())) {
-                    Match.lose();
+                    GameFlow.lose(GameFlow.LoseReason.PLAYER_OUT_OF_BOUNDS);
                 } else {
                     turn(Turn.ENDER_PEARL_TP, p, Cord.of(event.getTo()));
                 }
@@ -241,12 +259,14 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityCompostItem(@NotNull EntityCompostItemEvent event) {
+        System.out.println("BaseEvents.onEntityCompostItem(entity = " + event.getEntity().getName() + ", item = " + event.getItem().getType() + ")");
+
         if (!(event.getEntity() instanceof Player p)) return;
 
-        // if (cantPlace(p)) {
-        //     event.setCancelled(true);
-        //     return;
-        // }
+        if (cantPlace(p)) {
+            event.setCancelled(true);
+            return;
+        }
 
         switch (event.getItem().getType()) {
             case POPPY, BLUE_ORCHID, ALLIUM, AZURE_BLUET, RED_TULIP,
@@ -258,7 +278,9 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerFlowerPotManipulate(@NotNull PlayerFlowerPotManipulateEvent event) {
-        // if (cantPlace(event)) return;
+        System.out.println("BaseEvents.onPlayerFlowerPotManipulate(player = " + event.getPlayer().getName() + ", item = " + event.getItem().getType() + ")");
+
+        if (cantPlace(event)) return;
 
         Player p = event.getPlayer();
         Cord c = Cord.of(event.getFlowerpot().getLocation());
@@ -283,10 +305,12 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockFertilize(@NotNull BlockFertilizeEvent event) {
-        // if (cantPlace(event.getPlayer())) {
-        //     event.setCancelled(true);
-        //     return;
-        // }
+        System.out.println("BaseEvents.onBlockFertilize(player = " + Objects.requireNonNull(event.getPlayer()).getName() + ", item = " + event.getBlock().getType() + ")");
+
+        if (cantPlace(event.getPlayer())) {
+            event.setCancelled(true);
+            return;
+        }
 
         if (event.getBlock().getType() == Material.OAK_SAPLING || event.getBlock().getType() == Material.OAK_LOG) {
             turn(Turn.OAK_SAPLING, event.getPlayer(), Cord.of(event.getBlock().getLocation()));
@@ -295,6 +319,8 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntitySpawn(@NotNull EntitySpawnEvent event) {
+        System.out.println("BaseEvents.onEntitySpawn(entity = " + event.getEntity().getType() + ")");
+
         Player p = Match.getPlacer().player;
         Cord c = Cord.of(event.getLocation());
 
@@ -331,7 +357,9 @@ public class BaseEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerDropItem(@NotNull PlayerDropItemEvent event) {
-        // if (cantPlace(event)) return;
+        System.out.println("BaseEvents.onPlayerDropItem(player = " + event.getPlayer().getName() + ", item = " + event.getItemDrop().getItemStack().getType() + ")");
+
+        if (cantPlace(event)) return;
 
         if (event.getItemDrop().getItemStack().getType() == Material.IRON_SHOVEL) {
             turn(Turn.IRON_SHOVEL, event.getPlayer(), Cord.of(event.getPlayer().getLocation()));
@@ -339,27 +367,31 @@ public class BaseEvents implements Listener {
         }
     }
 
-//    @EventHandler(priority = EventPriority.HIGH)
-//    public void onPlayerMove(@NotNull PlayerMoveEvent event) {
-//        Player player = event.getPlayer();
-//
-//        if (!Match.hasStarted || player.isOp() || Match.getPlayer(player).canAlwaysMove()) return;
-//
-//        if (event.hasChangedPosition()) {
-//            Match.getPlayer(player).setDefended(false);
-//
-//            if (Match.getPlayer(player).isJailed()) {
-//                Match.getPlayer(player).showTitle("", "You are jailed, so you can't move!", null);
-//                event.setCancelled(true);
-//            }
-//
-//            if (!Match.algorithm.isPlacer(player) || !Match.getPlayer(player).canMove() || outOfBounds(event.getTo())) {
-//                Match.win(Match.getOpposite(Match.getPlayer(player)));
-//            }
-//        }
-//    }
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerMove(@NotNull PlayerMoveEvent event) {
+        Player player = event.getPlayer();
+
+        if (event.hasExplicitlyChangedPosition()) {
+            if (!Match.algorithm.running) return;
+            if (Match.getPlayer(player).canAlwaysMove()) return;
+
+            Match.getPlayer(player).setDefended(false);
+
+            if (Match.getPlayer(player).isJailed()) {
+                Match.getPlayer(player).showTitle("", "You are jailed, so you can't move!", null);
+                event.setCancelled(true);
+            }
+
+            if (Match.algorithm.running) {
+                if (!Match.algorithm.isPlacer(player) || Match.getPlayer(player).cantMove()) {
+                    event.setCancelled(true);
+                }
+            }
+        }
+    }
 
     private void turn(Turn turn, Player p, Cord cord) {
+        System.out.println("BaseEvents.turn(" + "turn = " + turn + ", p = " + p.getName() + ", cord = " + cord + ") by: " + Trace.last());
         BlockBattleEvents.onTurn(new TurnInfo(turn, p, cord));
     }
 
@@ -369,20 +401,21 @@ public class BaseEvents implements Listener {
         return xDiff > 4 || zDiff > 4;
     }
 
-//    public boolean cantPlace(Player player) {
-//        if (!Match.algorithm.isPlacer(player) && !Match.netherPortalAwaitIgnite) {
-//            player.sendMessage(Component.text(McColor.RED + Translation.get("turn.not_placer", Match.getPlayer(player).locale())));
-//            return true;
-//        }
-//        return false;
-//    }
-//
-//    public boolean cantPlace(PlayerEvent event) {
-//        if (!Match.algorithm.isPlacer(event.getPlayer()) && !Match.netherPortalAwaitIgnite) {
-//            event.getPlayer().sendMessage(Component.text(McColor.RED + Translation.get("turn.not_placer", Match.getPlayer(event.getPlayer()).locale())));
-//            if (event instanceof Cancellable) ((Cancellable) event).setCancelled(true);
-//            return true;
-//        }
-//        return false;
-//    }
+    public boolean cantPlace(Player player) {
+        if (!Match.algorithm.isPlacer(player) && !Match.netherPortalAwaitIgnite) {
+            player.sendMessage(Component.text(McColor.RED + Translation.get("turn.not_placer", Match.getPlayer(player).locale())));
+            System.out.println("BaseEvents.cantPlace(" + "player = " + player + ") - return: true by: " + Trace.last());
+            return true;
+        }
+        System.out.println("BaseEvents.cantPlace(" + "player = " + player + ") - return: false by: " + Trace.last());
+        return false;
+    }
+
+    public boolean cantPlace(@NotNull PlayerEvent event) {
+        if (cantPlace(event.getPlayer())) {
+            if (event instanceof Cancellable) ((Cancellable) event).setCancelled(true);
+            return true;
+        }
+        return false;
+    }
 }
