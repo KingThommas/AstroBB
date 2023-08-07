@@ -29,6 +29,17 @@ public class Structure {
         useExactBlockData = exactBlockData;
     }
 
+    public Structure rotated() {
+        Structure rotated = new Structure(name, useExactBlockData);
+        rotated.materials.putAll(materials);
+
+        for (BlockData block : blockData) {
+            rotated.blockData.add(new BlockData(block.material, block.z, block.y, block.x, block.direction, block.blockBound, block.open));
+        }
+
+        return rotated;
+    }
+
     public record BlockData(Material material, int x, int y, int z, BlockFace direction, BlockBound blockBound, boolean open) {}
     public enum BlockBound { NONE, TOP, BOTTOM, DOUBLE_SLAB, STALACTITE, STALAGMITE }
 

@@ -12,4 +12,8 @@ public class Compring {
     public static String from(Component component) {
         return PlainTextComponentSerializer.plainText().serializeOr(component, "Couldn't convert Component to String!");
     }
+
+    public static Component format(String format, Object... args) {
+        return Component.text(String.format(format, args));
+    }
 }

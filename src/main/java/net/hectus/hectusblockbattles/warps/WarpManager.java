@@ -104,8 +104,8 @@ public class WarpManager {
                 }
             }
 
-            Match.getPlacer().player.teleport(new Location(activator.getWorld(), cord.x() - 2, cord.y(), cord.z()));
-            Match.getOpponent().player.teleport(new Location(activator.getWorld(), cord.x() + 2, cord.y(), cord.z()));
+            Match.p1.player.teleport(new Location(activator.getWorld(), cord.x() - 2, cord.y(), cord.z()));
+            Match.p2.player.teleport(new Location(activator.getWorld(), cord.x() + 2, cord.y(), cord.z()));
             activator.showTitle(BlockBattleEvents.subtitle(McColor.GREEN + Translation.get("turn.warp.success", activator.locale())));
             otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.warp.success.opponent", otherPlayer.locale(), activator.getName())));
 
@@ -125,6 +125,8 @@ public class WarpManager {
         } else {
             activator.showTitle(BlockBattleEvents.subtitle(McColor.RED + Translation.get("turn.warp.fail", activator.locale())));
             otherPlayer.showTitle(BlockBattleEvents.subtitle(McColor.YELLOW + Translation.get("turn.warp.fail.opponent", otherPlayer.locale(), activator.getName())));
+
+            GameFlow.next();
         }
     }
 }

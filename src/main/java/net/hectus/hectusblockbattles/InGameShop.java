@@ -35,7 +35,7 @@ public final class InGameShop implements Listener {
             i(Material.IRON_TRAPDOOR, 5, BOTH, McColor.GRAY),
             i(Material.CAULDRON, 9, BOTH, McColor.DARK_GRAY),
             i(Material.GOLD_BLOCK, 8, BOTH, McColor.GOLD),
-            i(Material.BLACK_WOOL, 7, BOTH, McColor.BLACK),
+            i(Material.BLACK_WOOL, 6, BOTH, McColor.BLACK),
             i(Material.SCULK, 7, BOTH, McColor.DARK_AQUA),
             i(Material.GREEN_CARPET, 7, BOTH, McColor.GREEN),
             i(Material.CYAN_CARPET, 7, BOTH, McColor.AQUA),

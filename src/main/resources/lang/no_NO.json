@@ -6,12 +6,14 @@
   "game_flow.lose_reason.death_counter": "%s tapte, på grunn av han hadde en døds motangrep fra pulver snø eller en kulefisk.",
   "game_flow.lose_reason.disallowed_turn": "%s tapte, på grunn av han brukte en nåværende tur.",
   "game_flow.lose_reason.gave_up": "%s tapte, på grunn av han ga opp.",
+  "game_flow.lose_reason.movement": "%s tapte, på grunn av han bevegde seg mens det var ikke hans tur",
   "game_flow.lose_reason.no_counter": "%s tapte, på grunn av han hadde ikke et motangrep eller et motangrep , because he didn't counter or counterattack.",
   "game_flow.lose_reason.no_items": "%s taper, på grunn av han hadde ingen tid igjen., because he had no items left.",
   "game_flow.lose_reason.player_out_of_bounds": "%s tapte, å¨grunn av han gikk ut av banen.",
   "game_flow.lose_reason.time_over": "%s tapte, på grunn av tiden hans var over.",
   "game_flow.lose_reason.tnt": "%s tapte, fordi han brukte dynamitt og var ikke beskyttet, Jeg har ingen håp igjen for menneskeheten...",
   "game_flow.lose_reason.turn_out_of_bounds": "%s tapte, på grunn av han brukte noe ut av banen.",
+  "game_flow.lose_reason.warp_on_first_turn": "%s tapte, på grunn av han prøvde å warpe på sin første tur💀",
   "game_flow.win_reason.blue_axolotl": "%s vant,fordi han hadde flaks og hadde den blå axolotlen.",
   "game_flow.win_reason.pink_sheep": "%s vant, fordi han hadde flaks og har den rosa sauen.",
   "game_flow.win_reason.purple_wool": "%s vant,på grunn av han brukte lilla ull.",
@@ -26,8 +28,6 @@
   "player.revive": "Du har allerede brukt din gjenopplivelse.",
   "player.revive.opponent": "%s Har nettop brukt hans.",
   "scoreboard.attacked": "Angrept: ",
-  "scoreboard.cancer": "Kreft: ",
-  "scoreboard.cancer.stage": "Scene %d",
   "scoreboard.defended": "Forsvart: ",
   "scoreboard.frozen": "Fryst: ",
   "scoreboard.luck": "Lykken din: ",
@@ -39,8 +39,6 @@
   "shop.finish_early": "Du fullførte tidlig! Då er nøtt til å vente for din motstander for å fullførre nå også!",
   "shop.not_available.lore": "Du kan ikke kjøpe denne varen i den midlertidige shop fasen.",
   "shop.not_available.title": "Ikke tilgjengelig!",
-  "shop.page.last": "Siste Side",
-  "shop.page.next": "Neste Side",
   "shop.title": "Pre-Round Shop, %s fase",
   "structure.misplace": "Strukturen var feilplassert!",
   "structure.misplace.opponent": "%s feilplasserte strukturen sin!",
@@ -62,5 +60,54 @@
   "turn.wrong_usage.sun_warp_only_during_day": "Du kan bare bruke sol warp i løpet av dagen!",
   "turn.wrong_usage.sun_warp_only_during_day.opponent": "%s Glemte hvordan tid funker💀",
   "warp.first_move": "Du kan ikke bruke en warp som din første trekk!",
-  "warp.first_move.opponent": "%s brukte en warp som hans første trekk💀"
+  "warp.first_move.opponent": "%s brukte en warp som hans første trekk💀",
+  "item": {
+    "types": {
+      "summon": "Tilkall",
+      "counter": "Motangrep",
+      "special": "Spesiell",
+      "combo": "Combo",
+      "luck": "Flaks",
+      "warp": "Warp",
+      "attack": "Angrep",
+      "counterattack": "motangrep",
+      "buff": "Buff"
+    },
+    "rarity": {
+      "common": "Vanlig",
+      "uncommon": "Uvanlig",
+      "rare": "Sjeldent",
+      "epic": "Episk",
+      "legendary": "Legendarisk",
+      "mythic": "Mystisk",
+      "seasonal": "Sesongbestemt"
+    },
+    "quality": {
+      "poor": "Fattig",
+      "bad": "Dårlig",
+      "decent": "Grei",
+      "good": "Bra",
+      "perfect": "Perfekt"
+    },
+    "buff": {
+      "luck": "Lykke",
+      "opponent": "(Motstander)",
+      "death_counter": "Døds motangrep",
+      "freezes": "Fryser"
+    },
+    "oak_doors": {
+      "placementt": "Du kan plassere fire eik dør rundt deg selv, så du er helt omringet, for å bruke eik dør skilpadde metoden."
+    },
+    "type": "Type",
+    "description": "Beskrivelse",
+    "use": "Bruke/Bruk",
+    "buffs": "Buffs",
+    "cost": "Koster: %d kroner",
+    "hotbar": "Verktøylinje"
+  },
+  "hotbar": {
+    "both": "Begge",
+    "overtime": "Overtid",
+    "normal": "Normal"
+  }
 }

@@ -16,6 +16,8 @@ import java.util.Locale;
 import java.util.stream.IntStream;
 
 public class GameFlow {
+    public static byte next = 1;
+
     public static void next() {
         System.out.println(Ansi.RED + "GameFlow.next() by: " + Trace.last() + Ansi.GREEN);
 
@@ -29,11 +31,18 @@ public class GameFlow {
             Match.p1.player.getInventory().setContents(hotbar1);
         }
 
-        if (!Match.getPlacer().hasToDoubleCounterAttack()){
-            Match.algorithm.clear();
-            Match.algorithm.start(Match.getPlacer().player);
-        } else {
+        if (Match.getPlacer().hasToDoubleCounterAttack()){
             Match.getPlacer().setDoubleCounterAttack(false);
+        } else {
+            Match.algorithm.clear();
+
+            if (next == 1) {
+                Match.algorithm.start(Match.p1.player);
+                next = 2;
+            } else {
+                Match.algorithm.start(Match.p2.player);
+                next = 1;
+            }
         }
 
         Match.p1.count();

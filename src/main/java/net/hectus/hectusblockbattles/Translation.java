@@ -26,6 +26,7 @@ public class Translation {
     }
 
     public static @NotNull String get(String key, Locale locale) {
+        key = key.toLowerCase();
         if (en.get(key) == null) throw new IllegalArgumentException("Translation-Key not found!");
 
         String translation =  switch (locale.getLanguage().toLowerCase()) {

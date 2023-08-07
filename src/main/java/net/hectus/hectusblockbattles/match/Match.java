@@ -120,7 +120,15 @@ public class Match {
         System.out.println("Match.shopDone()");
 
         shopPhase = false;
-        algorithm.start(p1.player);
+
+        if (GameFlow.next == 1) {
+            algorithm.start(p1.player);
+            GameFlow.next = 2;
+        } else {
+            algorithm.start(p2.player);
+            GameFlow.next = 1;
+        }
+
         p1.swapHotbars();
         p2.swapHotbars();
 

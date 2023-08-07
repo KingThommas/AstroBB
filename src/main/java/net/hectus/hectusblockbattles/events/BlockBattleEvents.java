@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import static net.hectus.hectusblockbattles.warps.WarpSettings.Class.*;
@@ -465,72 +463,44 @@ public class BlockBattleEvents {
                 doNext = false;
                 player.addLuck(10);
                 opponent.removeLuck(10);
-                ArrayList<Warp> warps = new ArrayList<>(List.of(Warp.values()));
-                if (!warps.isEmpty()) {
-                    for (Warp warp : warps) {
-                        if (warp != null) {
-                            ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
-                            if (!allow.contains(HOT)) {
-                                warps.remove(warp);
-                            }
-                        }
-                    }
-                }
-                Warp newWarp = (Warp) Randomizer.fromCollection(warps);
+
+                Warp newWarp;
+                do { newWarp = (Warp) Randomizer.fromArray(Warp.values()); }
+                while (newWarp.temperature == WarpSettings.Temperature.WARM);
+
                 WarpManager.warp(newWarp, player.player, opponent.player);
             }
             case BROWN_AXOLOTL -> {
                 doNext = false;
                 player.addLuck(10);
                 opponent.removeLuck(10);
-                ArrayList<Warp> warps = new ArrayList<>(List.of(Warp.values()));
-                if (!warps.isEmpty()) {
-                    for (Warp warp : warps) {
-                        if (warp != null) {
-                            ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
-                            if (!allow.contains(REDSTONE)) {
-                                warps.remove(warp);
-                            }
-                        }
-                    }
-                }
-                Warp newWarp = (Warp) Randomizer.fromCollection(warps);
+
+                Warp newWarp;
+                do { newWarp = (Warp) Randomizer.fromArray(Warp.values()); }
+                while (newWarp.temperature == WarpSettings.Temperature.MEDIUM);
+
                 WarpManager.warp(newWarp, player.player, opponent.player);
             }
             case GOLD_AXOLOTL -> {
                 doNext = false;
-                player.addLuck(10);
-                opponent.removeLuck(10);
-                ArrayList<Warp> warps = new ArrayList<>(List.of(Warp.values()));
-                if (!warps.isEmpty()) {
-                    for (Warp warp : warps) {
-                        if (warp != null) {
-                            ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
-                            if (!allow.contains(DREAM)) {
-                                warps.remove(warp);
-                            }
-                        }
-                    }
-                }
-                Warp newWarp = (Warp) Randomizer.fromCollection(warps);
+                player.addLuck(5);
+                opponent.removeLuck(5);
+
+                Warp newWarp;
+                do { newWarp = (Warp) Randomizer.fromArray(Warp.values()); }
+                while (newWarp.temperature == WarpSettings.Temperature.COLD);
+
                 WarpManager.warp(newWarp, player.player, opponent.player);
             }
             case CYAN_AXOLOTL -> {
                 doNext = false;
                 player.addLuck(10);
                 opponent.removeLuck(10);
-                ArrayList<Warp> warps = new ArrayList<>(List.of(Warp.values()));
-                if (!warps.isEmpty()) {
-                    for (Warp warp : warps) {
-                        if (warp != null) {
-                            ArrayList<WarpSettings.Class> allow = new ArrayList<>(List.of(warp.allow));
-                            if (!allow.contains(WATER)) {
-                                warps.remove(warp);
-                            }
-                        }
-                    }
-                }
-                Warp newWarp = (Warp) Randomizer.fromCollection(warps);
+
+                Warp newWarp;
+                do { newWarp = (Warp) Randomizer.fromArray(Warp.values()); }
+                while (newWarp.temperature == WarpSettings.Temperature.COLD);
+
                 WarpManager.warp(newWarp, player.player, opponent.player);
             }
             case VERDANT_FROGLIGHT -> {

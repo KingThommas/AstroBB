@@ -71,10 +71,13 @@ public class StructureManager {
 
             Structure[] structures = GSON.fromJson(reader, Structure[].class);
             if (structures != null) {
-                loadedStructures.addAll(Arrays.asList(structures));
+                for (Structure structure : structures) {
+                    loadedStructures.add(structure);
+                    loadedStructures.add(structure.rotated());
+                }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            HBB.LOGGER.warning("Couldn't load all structures! Cause: IOException in reading the structure file!");
         }
     }
 

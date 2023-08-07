@@ -1,6 +1,6 @@
 {
   "attack.jailed": "Du kannst nicht angreifen, da du gerade gefangen bist!",
-  "credits": "Mc: MarcPG1905 | Dc: marcpg1905",
+  "credits": "MarcPG1905",
   "game_flow.draw_reason.tnt": "Es ist unentschieden, weil beide Spieler beim TnT nicht verteidigt waren.",
   "game_flow.lose_reason.burning": "%s hat verloren, weil er verbrannt ist.",
   "game_flow.lose_reason.death_counter": "%s hat verloren, weil er einen Todescounter von Pulverschnee oder einem Pufferfisch hatte.",
@@ -13,17 +13,17 @@
   "game_flow.lose_reason.time_over": "%s hat verloren, weil seine Zeit zu ende war.",
   "game_flow.lose_reason.tnt": "%s hat verloren, weil er TnT benutzt hat, obwohl er nicht verteidigt war, was ein dummes Stück Scheiße",
   "game_flow.lose_reason.turn_out_of_bounds": "%s hat verloren, weil er etwas außerhalb des Spielfeldes benutzt hat.",
-  "game_flow.lose_reason.warp_on_first_turn": "%s hat verloren, weil er versucht hat, einen Warp als ersten Zug zu benutzen.💀",
+  "game_flow.lose_reason.warp_on_first_turn": "%s hat verloren, weil er einen warp als ersten Zug benutzt hat.",
   "game_flow.win_reason.blue_axolotl": "%s hat gewonnen, weil er Glück hatte und ein blauen Axolotl bekommen hat.",
   "game_flow.win_reason.pink_sheep": "%s hat gewonnen, weil er Glück hatte und ein pinkes Schaf bekommen hat.",
-  "game_flow.win_reason.purple_wool": "%s hat gewonnen, weil er Violette Wolle benutzt hat.",
+  "game_flow.win_reason.purple_wool": "%s hat gewonnen, weil er violette Wolle benutzt hat.",
   "game_flow.win_reason.tnt": "%s hat gewonnen, weil TnT benutzt hat und sein Gegner nicht verteidigt war.",
   "lang": "German",
   "match.draw": "Unentschieden!",
   "match.lose": "Du hast verloren!",
   "match.start.message": "Das Spiel beginnt, viel Spaß!",
   "match.start_player": "%s startet diese Runde!",
-  "match.win": "Du has gewonnen!",
+  "match.win": "Du hast gewonnen!",
   "move.jailed": "Du kannst dich nicht bewegen, da du gerade gefangen bist!",
   "player.revive": "Du hast dich gerade wiederbelebt.",
   "player.revive.opponent": "%s hat sich wiederbelebt.",
@@ -37,15 +37,13 @@
   "scoreboard.turn.you": "Du",
   "scoreboard.yes": "Ja",
   "shop.finish_early": "Du bist schon früher fertig! Du musst jetzt warten, bis dein Gegner auch fertig ist!",
-  "shop.not_available.lore": "Du kannst dieses Item nicht in dieser Shop Phase kaufen.",
-  "shop.not_available.title": "Nicht Verfügbar!",
-  "shop.page.last": "Letzte Seite",
-  "shop.page.next": "Nächste Seite",
-  "shop.title": "Vorrunden Shop, %s Phase",
+  "shop.not_available.lore": "Du kannst dieses Item nicht in dieser Shop-Phase kaufen.",
+  "shop.not_available.title": "Nicht verfügbar!",
+  "shop.title": "Shop, %s-Phase",
   "structure.misplace": "Struktur wurde falsch platziert!",
   "structure.misplace.opponent": "%s hat seine Struktur falsch platziert!",
   "super_apple": "Super Apfel.",
-  "turn.extra": "Du hast einen Zug!",
+  "turn.extra": "Du bist noch mal dran!",
   "turn.misplace": "Falsch platziert!",
   "turn.misplace.opponent": "%s hat etwas falsch platziert!",
   "turn.not_placer": "Du bist gerade nicht dran!",
@@ -56,11 +54,60 @@
   "turn.warp.success.opponent": "%ss Warp hat funktioniert!",
   "turn.waste": "Du hast gerade ein Item verschwendet!",
   "turn.waste.opponent": "%s hat ein Item verschwendet!",
-  "turn.wrong_usage": "Falsch benutzt!",
+  "turn.wrong_usage": "Falsche Verwendung!",
   "turn.wrong_usage.book_warp_only_in_week": "Du kannst den Buch-Warp nur in der Woche benutzen.",
   "turn.wrong_usage.book_warp_only_in_week.opponent": "%s hat vergessen, dass Wochentage existieren💀",
   "turn.wrong_usage.sun_warp_only_during_day": "Du kannst den Sonnen-Warp nur tagsüber benutzen!",
   "turn.wrong_usage.sun_warp_only_during_day.opponent": "%s hat vergessen, wie Zeit funktioniert💀",
   "warp.first_move": "Du kannst nicht mit einem Warp beginnen!",
-  "warp.first_move.opponent": "%s hat einen Warp als anfang benutzt💀"
+  "warp.first_move.opponent": "%s wollte einen Warp als ersten Zug benutzen💀",
+  "item": {
+    "types": {
+      "summon": "Kreatur",
+      "counter": "Konter",
+      "special": "Spezial",
+      "combo": "Combo",
+      "luck": "Glück",
+      "warp": "Warp",
+      "attack": "Angriff",
+      "counterattack": "Gegenangriff",
+      "buff": "Effekt"
+    },
+    "rarity": {
+      "common": "Gewöhnlich",
+      "uncommon": "Ungewöhnlich",
+      "rare": "Selten",
+      "epic": "Episch",
+      "legendary": "Legendär",
+      "mythic": "Mythisch",
+      "seasonal": "Saisonal"
+    },
+    "quality": {
+      "poor": "Schwach",
+      "bad": "Schlecht",
+      "decent": "Durchschnittlich",
+      "good": "Gut",
+      "perfect": "Perfekt"
+    },
+    "buff": {
+      "luck": "Glück",
+      "opponent": "(Gegner)",
+      "death_counter": "Todeszähler",
+      "freezes": "Gefriert"
+    },
+    "oak_doors": {
+      "placementt": "Du kannst vier Eichenholztüren um dich herum platzieren, um die Eichentür Taktik zu benutzen."
+    },
+    "type": "Art",
+    "description": "Beschreibung",
+    "use": "Verwendung",
+    "buffs": "Effekte",
+    "cost": "Kosten: %d Taler",
+    "hotbar": "Schnellzugriffsleiste"
+  },
+  "hotbar": {
+    "both": "Beide",
+    "overtime": "Überzeit",
+    "normal": "Normal"
+  }
 }

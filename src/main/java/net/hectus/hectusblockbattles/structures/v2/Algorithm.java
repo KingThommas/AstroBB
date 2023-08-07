@@ -110,7 +110,6 @@ public class Algorithm {
                     opponent.sendActionBar(Translation.get("structure.misplace.opponent", opponent.locale(), placer.player.getName()));
                 }
                 clear();
-                start(opponent.player);
             } else {
                 if (misplacedMaterials > 0) {
                     placer.showTitle("", McColor.RED + Translation.get("turn.misplace", placer.locale()), null);
