@@ -1,8 +1,6 @@
-##### THE NAME IS "BlockBattles" NOT "Block Battles" !!! #####
-
 ### Plugin Name ###
 # Must follow a simple naming scheme, the same as in GitHub project names #
-name: Hectus-BlockBattles
+name: AstroBB
 
 ### Build Version ###
 # The version number that will be used in the built .jar file's name #
@@ -10,7 +8,7 @@ version: '${version}'
 
 ### Main Class ###
 # The path of the main class #
-main: net.hectus.hectusblockbattles.HBB
+main: space.astrocraft.astrobb.AstroBB
 
 ### PaperAPI version ###
 # Which major Minecraft version the plugin uses #
@@ -23,16 +21,17 @@ authors: [
   _GamingSkill_,
   Xaron11,
   IBart,
-  Chimkenu
+  Chimkenu,
+  KingThommas
 ]
 
 ### Our Website ###
 # Doesn't exist yet, but still cool #
-website: https://hectus.net/blockbattles
+website: https://astrocraft.space/
 
 ### Plugin Prefix ###
 # This is the prefix that will be shown in the server logs #
-prefix: HBB
+prefix: ABB
 
 ### All Commands ###
 # Register all existing commands here #
@@ -44,12 +43,12 @@ commands:
 
   ### Do Structure things ###
   structure:
-    permission: HBB.structure
+    permission: ABB.structure
 
   ### Give Up ###
   giveup:
     usage: /<command>
-    permission: HBB.match.give_up
+    permission: ABB.match.give_up
 
   debug:
     usage: /<command> <args>...

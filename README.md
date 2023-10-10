@@ -1,17 +1,15 @@
-# Hectus BlockBattles
-
-This is not affiliated with Austin's Block Battles in any way.
+# AstroCraft BlockBattles (AstroBB)
 
 ## Important Note!
 
-### You will have to use `gradle shadowJar` instead of `gradle build` to build the structure from now on!
+### You will have to use `gradle shadowJar` instead of `gradle build` to build the plugin!
 
 ## Developing
 
 ### Important
 - Use correct spacing:  
   ```java
-  public class TextClass() {
+  public class TestClass() {
     public static void test(Stuff stuff) {
         if (stuff) {
             // Do stuff
@@ -21,9 +19,7 @@ This is not affiliated with Austin's Block Battles in any way.
     }
   }
   ```
-- Please don't check if the command was executed from the console. 
-  There is only one person using the console, that's me, and I know how to use the commands, so stop doing these unnecessary checks.
-- Please don't check if the command executor has op, you can just use permissions in the `plugin.yml` file.
+- Please don't check if the command was executed from the console or a player or if the executor has op, you can just use permissions in the `plugin.yml` file.
 - If IntelliJ wants you to do a null check, then just do it.
 - Adding comments in unreadable code won't kill you. (or just make readable code)
 - The database doesn't require anything special, except the connect() and disconnect() in the startup logic and shutdown logic.

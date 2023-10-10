@@ -11,8 +11,8 @@ buildscript {
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
 
-group = 'net.hectus'
-version = '0.1.0-PRE-ALPHA'
+group = 'space.astrocraft'
+version = '0.1'
 
 repositories {
     mavenCentral()
@@ -27,7 +27,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT' // Just Paper
+    implementation 'io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT' // Just Paper
     implementation files('libs/HectaLib-0.0.5-PRE-ALPHA.jar') // HectaLib for some custom stuff
     implementation 'mysql:mysql-connector-java:8.0.32' // MySQL for database stuff
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
@@ -35,12 +35,7 @@ dependencies {
 
 def targetJavaVersion = 17
 java {
-    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    }
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
 tasks.withType(JavaCompile).configureEach {
